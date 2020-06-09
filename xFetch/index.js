@@ -1,46 +1,54 @@
-export async function xFetch(url, opts = {}) {
+const a = await fetch()
+/**
+ * @typedef {RequestInfo} OptsObject
+ 
+ */
 
-    const { alertErr } = opts.xOpts || {};
+/**
+ * Wrapper over Fetch API
+ * @param {string} url 
+ * @param {RequestInfo} opts 
+ * @param {{
+ *  alertErr: boolean
+ * }} opts.xOpts - Some extra options for xFetch
+ */
+export async function xFetch(url, {
+    method = 'GET', body, headers = {}, xOpts
+}) {
+    xFetch('assd', { foob: 'asd', asaa: 43 })
 
-    if ((!opts.method || opts.method === 'GET') && opts.body) {
+    if ((method === 'GET') && body) {
         const searchParams = new URLSearchParams();
-        if (opts.body.constructor === FormData) {
-            for (let [key, val] of opts.body) {
+        if (body.constructor === FormData) {
+            for (let [key, val] of body) {
                 searchParams.append(key, val);
             }
         } else {
-            for (let param in opts.body) {
-                searchParams.append(param, opts.body[param]);
+            for (let param in body) {
+                searchParams.append(param, body[param]);
             }
         }
 
         const search = new URL(`${/^\//.test(url) ? window.location.origin : ''}${url}`).search;
         url = `${url}${search ? '&' : '?'}${searchParams}`
 
-        delete opts.body;
+        delete body;
     }
 
-    if (opts.body && opts.body.constructor === Object) {
-        if (typeof opts.headers !== 'object') {
-            opts.headers = {};
-        }
-
-        opts = {
-            ...opts,
-            headers: {
-                ...opts.headers,
-                "Content-Type": "Application/JSON"
-            },
-            body: JSON.stringify(opts.body),
-        }
-
+    if (body && body.constructor === Object) {
+        headers = headers || {};
+        headers["Content-Type"] = "Application/JSON";
+        body = JSON.stringify(body);
     }
+
 
     try {
+        /** @type {Response} */
         const resp = await fetch(url, opts);
         const { status, statusText } = resp;
 
-        let data = '';
+        /** @type {*} Transformed response data */
+        let data;
         if (/json/.test(resp.headers.get('Content-Type'))) {
             data = await resp.json();
         } else {
@@ -49,7 +57,7 @@ export async function xFetch(url, opts = {}) {
 
         if (status >= 400) {
             const err = new Error(statusText);
-            for(let key in Object.keys(resp)){
+            for (let key in Object.keys(resp)) {
                 err[key] = resp[key];
             }
             err.data = data;
@@ -66,18 +74,25 @@ export async function xFetch(url, opts = {}) {
             }
         }
 
-        return { data, status, statusText };
+        return { ...resp, data, status, statusText };
     } catch (err) {
         const { statusText, data } = err;
         const errMsg = data || statusText;
         err.message = errMsg;
-        if(errMsg){
+        if (errMsg) {
+            const { alertErr = false } = xOpts;
             if (alertErr) alert(errMsg);
         }
         throw err;
     }
 }
 
+
+/**
+ * Trigger a download link click.
+ * @param {Blob} blob 
+ * @param {string} fileName 
+ */
 export function saveBlob(blob, fileName) {
     var a = document.createElement('a');
     a.href = window.URL.createObjectURL(blob);
