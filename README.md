@@ -11,7 +11,7 @@ npm install flitlib
 ## Prerequisites
 
 - Hook utilities require react (>=16.8.0) and react-dom (>=16.8.0).
-    - UseRouter hook requires react-router-dom (<=5.1.0).
+    - UseRouter hook requires react-router-dom (>=5.1.0).
 
 ## Usage
 
