@@ -1,4 +1,3 @@
-const a = await fetch()
 /**
  * @typedef {RequestInfo} OptsObject
  
