@@ -8,36 +8,34 @@
  * @param {string} url 
  * @param {RequestInfo} opts 
  * @param {{
- *  alertErr: boolean
- * }} opts.xOpts - Some extra options for xFetch
- */
-export async function xFetch(url, {
-    method = 'GET', body, headers = {}, xOpts
-}) {
-    xFetch('assd', { foob: 'asd', asaa: 43 })
+    *  alertErr: boolean
+    * }} opts.xOpts - Some extra options for xFetch
+    */
+export async function xFetch(url, opts = {}) {
+    const { method = 'GET', xOpts } = opts || {};
 
-    if ((method === 'GET') && body) {
+    if ((method === 'GET') && opts.body) {
         const searchParams = new URLSearchParams();
-        if (body.constructor === FormData) {
-            for (let [key, val] of body) {
+        if (opts.body.constructor === FormData) {
+            for (let [key, val] of opts.body) {
                 searchParams.append(key, val);
             }
         } else {
-            for (let param in body) {
-                searchParams.append(param, body[param]);
+            for (let param in opts.body) {
+                searchParams.append(param, opts.body[param]);
             }
         }
 
         const search = new URL(`${/^\//.test(url) ? window.location.origin : ''}${url}`).search;
         url = `${url}${search ? '&' : '?'}${searchParams}`
 
-        delete body;
+        opts.body = undefined;
     }
 
-    if (body && body.constructor === Object) {
-        headers = headers || {};
-        headers["Content-Type"] = "Application/JSON";
-        body = JSON.stringify(body);
+    if (opts.body && opts.body.constructor === Object) {
+        opts.headers = opts.headers || {};
+        opts.headers["Content-Type"] = "Application/JSON";
+        opts.body = JSON.stringify(opts.body);
     }
 
 
@@ -79,7 +77,7 @@ export async function xFetch(url, {
         const errMsg = data || statusText;
         err.message = errMsg;
         if (errMsg) {
-            const { alertErr = false } = xOpts;
+            const { alertErr = false } = xOpts || {};
             if (alertErr) alert(errMsg);
         }
         throw err;
