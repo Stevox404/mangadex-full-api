@@ -50,7 +50,7 @@ export const useValidator = (defaultValues, validatorFunc) => {
     const [targets, setTargets] = useState({});
     
     const valsProxy = new Proxy(values, {
-        get: (obj, prop) => obj[prop] ?? ''
+        get: (obj, prop) => obj[prop] ? obj[prop] : ''
     })
 
 
