@@ -7,7 +7,7 @@ Get the previous value of a variable.
 ### 2. useValidator `Function`
 Manage input forms.
  * **@param** `object` _defaultValues_ 
- * **@param** `Function` _validatorFunc_ - Function used to validate values in addition to HTML validation tags. Single parameter (`Object`) with current form values
+ * **@param** `Function` _validatorFunc_ - Validation function update errors object. Single parameter (`Object`) with current form values
 
  * **@returns**
     * _values_ `Object`,
@@ -19,8 +19,7 @@ Manage input forms.
         * **@param** `object` _defVal_ - Optional defaulValues. Otherwise uses original default values.
     * _validate_ `Function` - Validates all saved form values.
         * **@param** `object` _vals_ - Optional values object to validate only subset of values.
-        * **@param** _opts_
-            * _opts.showError_: true - If true, triggers native input validation if error encountered.  
+
 
 ### 3. useRouter `Function`
 * **@returns**

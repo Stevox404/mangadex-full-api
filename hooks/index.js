@@ -20,8 +20,7 @@ export function usePrevious(value) {
 /**
  * Manage input forms.
  * @param {object=} defaultValues 
- * @param {Function=} validatorFunc - Function used to validate values 
- *  in addition to HTML validation tags. 
+ * @param {Function=} validatorFunc - Validation function update errors object.
  *  Single parameter ({object}) with current form values
  */
 export const useValidator = (defaultValues, validatorFunc) => {
@@ -96,13 +95,9 @@ export const useValidator = (defaultValues, validatorFunc) => {
 
     /**
      * Validates all saved form values. 
-     * If opts.showError is true, triggers native input validation if error encountered. 
      * @param {object=} vals - Optional values object to validate only subset of values.
-     * @param {{
-     *  showError: true,
-     * }} opts 
      */
-    const validate = (vals, { showError = true } = {}) => {
+    const validate = (vals) => {
         if (!vals || typeof vals !== 'object' || Object.keys(vals).length === 0) {
             vals = { ...values };
         }
@@ -114,27 +109,6 @@ export const useValidator = (defaultValues, validatorFunc) => {
         if (valid && errs) {
             for (let key of Object.keys(vals)) {
                 errs[key] = null;
-            }
-        }
-
-        for (let key of Object.keys(vals)) {
-            if (!targets[key]) continue;
-
-            let err = errs && errs[key];
-            if (err) {
-                // TODO get input's form and trigger validation instead if possible
-                if (showError || targets[key].getAttribute('x-validation-set')) {
-                    targets[key].setCustomValidity(err);
-                    targets[key].setAttribute('x-validation-set', true);
-                }
-            } else {
-                if (targets[key].checkValidity()) {
-                    targets[key].setCustomValidity('');
-                    targets[key].setAttribute('x-validation-set', false);
-                } else {
-                    valid = false;
-                    // TODO add to errs
-                }
             }
         }
 
