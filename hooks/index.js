@@ -46,7 +46,6 @@ export const useValidator = (defaultValues, validatorFunc) => {
 
     const [values, setValues] = useState(scrubObject(defaultValues));
     const [errors, setErrors] = useState({});
-    const [targets, setTargets] = useState({});
     
     const valsProxy = new Proxy(values, {
         get: (obj, prop) => obj[prop] ? obj[prop] : ''
@@ -67,10 +66,6 @@ export const useValidator = (defaultValues, validatorFunc) => {
                 val = e.target.checked;
             }
             value = { [name]: val };
-            if (!targets[name]) {
-                setTargets(t => ({ ...t, [name]: e.target }));
-                e.persist();
-            }
         } else {
             value = scrubObject(value);
         }
@@ -146,7 +141,7 @@ export const useRouter = () => {
      */
     const changePage = (path, { replace, matchParent, state } = {}) => {
         if (matchParent) {
-            path = match.path + path;
+            path = match.url + path;
         }
 
         history[replace ? 'replace' : 'push'](path, state);
