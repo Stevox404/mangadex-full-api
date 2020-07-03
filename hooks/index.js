@@ -130,7 +130,8 @@ export const useRouter = () => {
     /**
      * @typedef optsObject
      * @property {boolean=} opts.replace - Replace history with the new path
-     * @property {boolean=} opts.matchParent - Concatenate the new path with current path
+     * @property {boolean=} opts.matchParent - Uses URL() object to resolve 
+     *  relative path with router match prop.
      * @property {object=} opts.state - State to be pushed to new location object
      */
     
@@ -141,7 +142,16 @@ export const useRouter = () => {
      */
     const changePage = (path, { replace, matchParent, state } = {}) => {
         if (matchParent) {
-            path = match.url + path;
+            let url = new URL(window.location);
+            url.pathname = match.url;
+            if(!/\/$/.test(url.pathname)){
+                url.pathname += '/';
+            }
+            path = path.replace(/^\//, '');
+            let newPath = new URL(path, url).pathname;
+            newPath = newPath.replace(/\/$/, '');
+
+            path = newPath;
         }
 
         history[replace ? 'replace' : 'push'](path, state);
