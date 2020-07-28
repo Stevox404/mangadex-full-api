@@ -107,6 +107,13 @@ function MyComponent(props){
 ## Release History
 + v0.0.1
     + First release.
++ v0.1.0
+    - throttle
+    - formatMoney
+    - dataURItoBlob
+    - dataURItoFile
+    - sleep
+
 
 ## License
 
