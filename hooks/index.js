@@ -55,10 +55,11 @@ export const useValidator = (defaultValues, validatorFunc) => {
     /**
      * Updates values using element name tag as key.
      * @param {Event} e - input element onChange event
-     * @param {boolean=} raw - If first parameter is object, set to true. 
+     * @param {boolean=} raw - If first parameter is object, set to true. [DEPRECATED]
      */
     const setValue = (e, raw) => {
         let value = e;
+        raw = raw === undefined ? !(e instanceof Event): raw;
         if (!raw) {
             const { name, type } = e.target;
             let val = e.target.value;
