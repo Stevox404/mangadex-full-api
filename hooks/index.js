@@ -59,7 +59,8 @@ export const useValidator = (defaultValues, validatorFunc) => {
      */
     const setValue = (e, raw) => {
         let value = e;
-        raw = raw === undefined ? !(e instanceof Event): raw;
+        const isEvent = e instanceof Event || !!e.nativeEvent;
+        raw = raw === undefined ? !isEvent: raw;
         if (!raw) {
             const { name, type } = e.target;
             let val = e.target.value;
