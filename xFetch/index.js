@@ -66,8 +66,13 @@ export async function xFetch(url, opts = {}) {
         if (/attachment/.test(cd)) {
             const filename = cd.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)[1];
             if (filename) {
-                const blob = await resp.blob();
-                return saveBlob(blob, filename.replace(/["]/g, ''));
+                let blob;
+                try {
+                    blob = await resp.blob();
+                } catch (err) {
+                    console.error(err);
+                }
+                return saveBlob(blob || new Blob([data]), filename.replace(/["]/g, ''));
             }
         }
 
