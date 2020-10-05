@@ -25,7 +25,7 @@ export function usePrevious(value) {
  */
 export const useValidator = (defaultValues, validatorFunc) => {
     /**
-     * remove null, undefined or empty str default values
+     * remove undefined default values
      * @param {object} vals 
      */
     const scrubObject = vals => {
@@ -34,7 +34,7 @@ export const useValidator = (defaultValues, validatorFunc) => {
         } else {
             const newVals = {};
             for (let [key, val] of Object.entries(vals)) {
-                if ((val !== null && val !== undefined && val !== '')) {
+                if ((val !== undefined)) {
                     newVals[key] = val;
                 }
             }
