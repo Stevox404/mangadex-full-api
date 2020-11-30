@@ -143,6 +143,7 @@ export const useRouter = () => {
      * @param {optsObject} opts
      */
     const changePage = (path, { replace, matchParent, state } = {}) => {
+        if(matchParent === undefined && /^\./.test(path)) matchParent = true;
         if (matchParent) {
             let url = new URL(window.location);
             url.pathname = match.url;
