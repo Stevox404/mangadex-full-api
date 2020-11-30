@@ -66,18 +66,18 @@ export async function xFetch(url, opts = {}) {
         if (/attachment/.test(cd)) {
             const filename = cd.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)[1];
             if (filename) {
-                let blob;
-                try {
-                    blob = await resp.blob();
-                } catch (err) {
-                    console.error(err);
-                }
-                return saveBlob(blob || new Blob([data]), filename.replace(/["]/g, ''));
+                const blob = await resp.blob();
+                return saveBlob(blob, filename.replace(/["]/g, ''));
             }
         }
 
         return { ...resp, data, status, statusText };
     } catch (err) {
+        if(err instanceof TypeError){
+            err = new Error("Please check your Internet connection");
+            err.name = "Network Error";
+            throw err;
+        }
         const { statusText, data } = err;
         const errMsg = data || statusText;
         err.message = errMsg;
