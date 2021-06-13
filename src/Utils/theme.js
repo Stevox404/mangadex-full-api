@@ -1,4 +1,5 @@
 import { createMuiTheme } from "@material-ui/core";
+import { deepOrange } from "@material-ui/core/colors";
 
 const breakpointValues = {
     xs: 480,
@@ -11,6 +12,12 @@ const breakpointValues = {
 const theme = createMuiTheme({
     breakpoints: {
         values: breakpointValues,
+    },
+    palette: {
+        primary: {
+            main: '#fb8c00',
+        },
+        type: "dark",
     },
     typography: {
         h1: {
@@ -30,6 +37,7 @@ const theme = createMuiTheme({
             fontSize: '1.2rem',
         }
     },
+    
     props: {
         MuiTextField: {
             variant: 'outlined',

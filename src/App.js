@@ -13,9 +13,9 @@ const Login = React.lazy(() => LoginPromise);
 function App() {
     const dispatch = useDispatch();
     const { firstRender } = useSelector(state => state);
-    
+
     useEffect(() => {
-        if(firstRender){
+        if (firstRender) {
             dispatch(login());
         }
     }, []);
@@ -35,11 +35,11 @@ function App() {
 
 
 const UserRouter = props => {
-    const {match} = props;
+    const { match } = props;
 
-    const {user, firstRender} = useSelector(state => state);
+    const { user, firstRender } = useSelector(state => state);
     const loading = useSelector(state => state.pending.length > 0);
-    
+
     if (!user) {
         if (firstRender || loading) {
             return 'Loading...';
@@ -49,7 +49,7 @@ const UserRouter = props => {
             )
         }
     }
-    
+
     return (
         <Switch >
             <Route path={`${match.url}/`} component={Landing} />
@@ -61,13 +61,18 @@ const UserRouter = props => {
 
 const Wrapper = styled.div`
     background-color: ${({ theme }) => theme.palette.background.default};
-    /* >div:first-child { */
+    height: 100vh;
+    
     >div.page {
         height: 100%;
         overflow-y: auto;
+        background-color: ${({ theme }) => theme.palette.background.default};
+    }
+    .fill-screen {
+        min-height: 100vh;
     }
     .MuiTooltip-tooltip {
-        font-size: ${({theme}) => theme.typography.body2.fontSize};
+        font-size: ${({ theme }) => theme.typography.body2.fontSize};
     }
     #spacer {
         ${({ theme }) => theme.mixins.toolbar}
