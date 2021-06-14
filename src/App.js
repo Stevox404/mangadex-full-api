@@ -7,6 +7,8 @@ import styled from 'styled-components';
 
 const LandingPromise = import('Pages/Landing');
 const Landing = React.lazy(() => LandingPromise);
+const MangaPromise = import('Pages/Manga');
+const Manga = React.lazy(() => MangaPromise);
 const LoginPromise = import('Pages/Login');
 const Login = React.lazy(() => LoginPromise);
 
@@ -25,6 +27,7 @@ function App() {
             <Suspense fallback={<div />} >
                 <Switch>
                     <Route path='/' exact component={Landing} />
+                    <Route path='/manga' component={Manga} />
                     <Route path='/login' component={Login} />
                     <Route path='/user' component={UserRouter} />
                 </Switch>
@@ -66,7 +69,6 @@ const Wrapper = styled.div`
     >div.page {
         height: 100%;
         overflow-y: auto;
-        background-color: ${({ theme }) => theme.palette.background.default};
     }
     .fill-screen {
         min-height: 100vh;

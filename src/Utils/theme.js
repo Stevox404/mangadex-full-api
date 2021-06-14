@@ -47,6 +47,9 @@ const theme = createMuiTheme({
                 disablePortal: true,
             },
         },
+        MuiTypography: {
+            color: "textPrimary",
+        }
     }
 });
 

@@ -5,13 +5,21 @@ import styled from 'styled-components';
 import PopularityDetails from './PopularityDetails';
 import UpdateDetails from './UpdateDetails';
 import PropTypes from 'prop-types';
+import { useRouter } from 'Utils/shared/flitlib';
 
 
 /** @param {MangaCard.propTypes} props */
 function MangaCard(props) {
+    const { changePage } = useRouter();
+
+    /**@param {Event} e */
+    const handleClick = (e) => {
+        changePage('/manga');
+    }
+
     return (
         <Card>
-            <CardActionArea>
+            <CardActionArea onClick={handleClick} >
                 <CardMedia
                     image={manga404}
                     title={props.mangaName}
