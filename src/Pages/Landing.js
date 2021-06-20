@@ -3,7 +3,7 @@ import {
     Typography
 } from '@material-ui/core';
 import heroImg from 'Assets/images/hero-img.jpg';
-import AppBarContent from 'Components/home/AppBarContent';
+import AppBarContent from 'Components/SystemAppBar.js/AppBarContent';
 import MangaListSection from 'Components/home/MangaListSection';
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
@@ -33,16 +33,6 @@ function Landing() {
 
     return (
         <Wrapper className='page fill-screen'>
-            <AppBar position='fixed' elevation={0} color='default' >
-                <Toolbar>
-                    <div id="logo">
-                        <Typography className='logo' component='span' >
-                            Mangapi
-                        </Typography>
-                    </div>
-                    <AppBarContent />
-                </Toolbar>
-            </AppBar>
             <div id="spacer" />
             <div className='content' >
                 <div>
@@ -75,35 +65,6 @@ const Wrapper = styled.div`
     a {
         color: inherit;
         text-decoration: none;
-    }
-    .MuiAppBar-root {
-        #logo {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            color: ${({ theme }) => theme.palette.text.primary};
-            >.MuiTypography-root {
-                font-size: 2rem;
-                font-weight: 700;
-                letter-spacing: -.01rem;
-                ${({ theme }) => theme.breakpoints.down('xs')} {
-                    font-size: 1.6rem;
-                }
-            }
-            img {
-                height: 48px;
-                width: 48px;
-                margin-right: 16px;
-            }
-        }
-        #action {
-            display: grid;
-            gap: 10px;
-            grid-template-columns: repeat(3, 1fr);
-            .MuiButton-text:hover {
-                text-decoration: underline;
-            }
-        }
     }
 
     .content {

@@ -1,8 +1,13 @@
+import SystemAppBar from 'Components/SystemAppBar.js';
 import React, { Suspense, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { login } from 'Redux/actions';
 import styled from 'styled-components';
+
+
+
+
 
 
 const LandingPromise = import('Pages/Landing');
@@ -24,6 +29,7 @@ function App() {
 
     return (
         <Wrapper className="App">
+            <SystemAppBar />
             <Suspense fallback={<div />} >
                 <Switch>
                     <Route path='/' exact component={Landing} />

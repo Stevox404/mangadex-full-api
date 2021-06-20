@@ -3,8 +3,9 @@ import {
 } from '@material-ui/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import ChapterList from './ChapterList';
+import ChapterTab from './ChapterTab';
 import PropTypes from 'prop-types';
+import InfoTab from './InfoTab';
 
 
 /** @param {DataSection.propTypes} props */
@@ -17,7 +18,8 @@ function DataSection(props) {
 
     const getTabPanel = () => {
         switch (tabIndex) {
-            case 1: return <ChapterList chapters={props.chapters} />;
+            case 0: return <InfoTab />;
+            case 1: return <ChapterTab chapters={props.chapters} />;
             default: break;
         }
     }
@@ -45,12 +47,11 @@ function DataSection(props) {
 
 
 const Container = styled(Paper)`
-    position: sticky;
-    top: 0;
     .tab-panel {
         min-height: 50vh;
         /* max-height: 100vh;
         overflow-y: auto; */
+        margin-bottom: 4.8rem;
     }
 `;
 

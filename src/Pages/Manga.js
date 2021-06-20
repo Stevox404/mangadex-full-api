@@ -8,19 +8,20 @@ function Manga() {
     // sample data
     const getChapters = () => {
         const arr = [];
-        let i = 0;
-        while(++i < 10){
+        let i = 10;
+        while (--i > -1) {
+            const d = 11 - i;
             arr.push({
                 id: String(i),
                 title: 'One-shot',
                 chapter: String(i),
                 uploaderName: 'Fairyland Scans',
-                updatedAt: Date.now() - (Math.random() * (86400000 * i - 86400000 * (i-1)) + 86400000 * (i-1)),
+                updatedAt: Date.now() - (Math.random() * (86400000 * d - 86400000 * (d - 1)) + 86400000 * (d - 1)),
             });
         }
         return arr;
     }
-    
+
     return (
         <Wrapper className='page fill-screen' >
             <div id='hero-img' />
@@ -53,8 +54,9 @@ function Manga() {
 
 const Wrapper = styled.div`
     #hero-img {
-        height: 170px;
-        background-image: linear-gradient(#0004, #0009), url(${coverSample});
+        /* height: 170px; */
+        height: 240px;
+        background-image: linear-gradient(#000a, #0005), url(${coverSample});
         background-size: cover;
         background-position: 0 25%;
         background-attachment: fixed;
@@ -65,4 +67,4 @@ const Wrapper = styled.div`
     }
 `;
 
-export default Manga;;
+export default Manga;
