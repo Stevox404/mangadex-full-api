@@ -3,22 +3,33 @@ import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import moment from 'moment';
+import { useRouter } from 'Utils/shared/flitlib';
 
 
 /** @param {ChapterList.propTypes} props */
 function ChapterList(props) {
+    const {changePage} = useRouter();
+    
+    const handleChapterClick = e => {
+        changePage('/read');
+    }
+    
     return (
         <Container>
-            {props.chapters.map(c => (
-                <ListItem key={c.id} button>
+            {props.chapters.map((c, idx) => (
+                <ListItem key={c.id} button onClick={handleChapterClick} >
                     <ListItemText
                         primary={`Chapter ${c.chapter}: ${c.title}`}
+                        primaryTypographyProps={idx > 2 && {
+                            color: 'textSecondary',
+                        }}
                         secondary={c.uploaderName}
-                    />
+                        />
                     <ListItemText
                         primary={moment(c.updatedAt).fromNow()}
                         primaryTypographyProps={{
-                            variant: 'subtitle1'
+                            variant: 'subtitle1',
+                            color: idx > 2 ? 'textSecondary': '',
                         }}
                     />
                 </ListItem>

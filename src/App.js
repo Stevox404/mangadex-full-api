@@ -3,7 +3,7 @@ import React, { Suspense, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { login } from 'Redux/actions';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 
 
@@ -16,6 +16,8 @@ const MangaPromise = import('Pages/Manga');
 const Manga = React.lazy(() => MangaPromise);
 const LoginPromise = import('Pages/Login');
 const Login = React.lazy(() => LoginPromise);
+const ReadPromise = import('Pages/Read');
+const Read = React.lazy(() => ReadPromise);
 
 function App() {
     const dispatch = useDispatch();
@@ -35,7 +37,7 @@ function App() {
                     <Route path='/' exact component={Landing} />
                     <Route path='/manga' component={Manga} />
                     <Route path='/login' component={Login} />
-                    <Route path='/user' component={UserRouter} />
+                    <Route path='/read' component={Read} />
                 </Switch>
             </Suspense>
         </Wrapper>
@@ -75,6 +77,7 @@ const Wrapper = styled.div`
     >div.page {
         height: 100%;
         overflow-y: auto;
+        position: relative;
     }
     .fill-screen {
         min-height: 100vh;
@@ -85,6 +88,18 @@ const Wrapper = styled.div`
     #spacer {
         ${({ theme }) => theme.mixins.toolbar}
     }
+    a {
+        text-decoration: none;
+        font-size: .9em;
+    }
+    ${({theme}) => theme.palette.type === 'dark' && css`
+        a {
+            color: ${({ theme }) => theme.palette.info.light};
+        }
+        img {
+            filter: brightness(.8) contrast(1.2);
+        }
+    `}
 `;
 
 

@@ -22,6 +22,22 @@ function Manga() {
         return arr;
     }
 
+    const manga = {
+        altTitles: [
+            'Summoned to a Parallel Fantasy World Many Times',
+            'Mecha Shoukan Sareta Ken'
+        ],
+        authors: ['Masashi Kishimoto'],
+        artists: ['Masashi Kishimoto', 'Hideo Kojima'],
+        publicationDemographic: 'shounen',
+        tags: ['Comedy', 'Action', 'Adventure'],
+        userRating: '9',
+        rating: '9.5',
+        status: 'completed',
+        links: {},
+        readingStatus: 'reading',
+    }
+
     return (
         <Wrapper className='page fill-screen' >
             <div id='hero-img' />
@@ -46,6 +62,7 @@ function Manga() {
                 />
                 <DataSection
                     chapters={getChapters()}
+                    manga={manga}
                 />
             </div>
         </Wrapper>

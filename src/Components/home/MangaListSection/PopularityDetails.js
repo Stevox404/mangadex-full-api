@@ -1,5 +1,7 @@
 import { Typography } from '@material-ui/core';
-import { StarBorderOutlined, StarHalfOutlined, StarOutlined, VisibilityOutlined } from '@material-ui/icons';
+import { 
+    StarBorderOutlined, StarHalfOutlined, StarOutlined, VisibilityOutlined 
+} from '@material-ui/icons';
 import React from 'react';
 import styled from 'styled-components';
 import { abbreviateNumber } from 'Utils';

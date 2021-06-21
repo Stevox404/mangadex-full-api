@@ -18,7 +18,7 @@ function DataSection(props) {
 
     const getTabPanel = () => {
         switch (tabIndex) {
-            case 0: return <InfoTab />;
+            case 0: return <InfoTab {...props.manga} />;
             case 1: return <ChapterTab chapters={props.chapters} />;
             default: break;
         }
@@ -65,7 +65,10 @@ DataSection.propTypes = {
         uploaderName: PropTypes.string,
         uploaderId: PropTypes.string,
         updatedAt: PropTypes.string,
-    }))
+    })),
+    manga: PropTypes.shape({
+        altTitles: PropTypes.arrayOf(PropTypes.string),
+    }).isRequired,
 }
 
 export default DataSection;
