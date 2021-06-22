@@ -4,6 +4,7 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 import AppBarContent from './AppBarContent';
+import logo from 'Assets/images/placeholder.jpg';
 // import PropTypes from 'prop-types';
 
 function SystemAppBar(props) {
@@ -18,6 +19,7 @@ function SystemAppBar(props) {
         <AppBar position='sticky' elevation={0} color={'default'} >
             <Toolbar>
                 <div id="logo">
+                    <img src={logo} />
                     <Typography className='logo' component='span' >
                         Mangapi
                     </Typography>
@@ -45,8 +47,8 @@ const AppBar = styled(MuiAppBar)`
             }
         }
         img {
-            height: 48px;
-            width: 48px;
+            height: 36px;
+            width: 36px;
             margin-right: 16px;
         }
     }

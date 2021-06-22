@@ -15,12 +15,7 @@ function MangaListSection(props) {
     const scrollList = (dir) => {
         /** @type {Element} */
         const el = listRef.current;
-        const mangaCardSize = 13; // TODO extract to theme var
-        const margin = 2.4;
-        const size = (mangaCardSize + margin) * 16;
-        const num = Number.parseInt(el.clientWidth / size);
-        const amt = dir * size * num;
-        console.debug({size, num, amt});
+        const amt = dir * Number.parseInt(el.clientWidth * .8);
         el.scrollBy({ left: amt });
     }
 
@@ -70,17 +65,55 @@ const Container = styled.div`
         }
     }
     >div.list {
+        /* --size: 13rem; */
+        --gap: 4.8rem;
         scroll-behavior: smooth;
-        display: flex;
+        /* display: flex; */
+
         overflow-x: hidden;
+        display: grid;
+        grid-auto-flow: column;
+        gap: calc(var(--gap) / 2);
+        margin: 0;
+        
+        padding-inline: var(--gap);
+        scroll-padding-inline: var(--gap);
+        padding-block: calc(var(--gap) / 2);
+        overscroll-behavior-inline: contain;
+        scroll-snap-type: inline mandatory;
+
+        /* display: inline-block; */
+        outline-offset: 12px;
+        &:focus {
+            outline-offset: 7px;
+        }
+        @media (prefers-reduced-motion: no-preference) {
+            & {
+                transition: outline-offset .25s ease;
+            }
+        }
+
+        /* Hide scrollbar */
         &::-webkit-scrollbar {
             display: none;
         }
+        /* Allow natural scrolling on touchscreens */
         @media (hover: none) {
             overflow-x: auto;
         }
         >* {
-            margin-right: 2.4rem;
+            position: relative;
+            scroll-snap-align: start;
+            &::after {
+                content: "";
+                position: absolute;
+
+                inline-size: var(--gap);
+                block-size: 100%;
+
+                inset-block-start: 0;
+                inset-inline-end: calc(var(--gap) * -1);
+            }
         }
     }
 `;

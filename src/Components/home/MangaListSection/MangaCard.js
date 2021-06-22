@@ -24,7 +24,10 @@ function MangaCard(props) {
                     image={manga404}
                     title={props.mangaName}
                 >
-                    <img src={props.image} />
+                    <img
+                        src={props.image} loading="lazy" 
+                        alt={props.mangaName + ' cover'}
+                    />
                 </CardMedia>
                 <CardContent>
                     <Typography gutterBottom component="h3" >
@@ -44,14 +47,19 @@ function MangaCard(props) {
 }
 
 const Card = styled(MuiCard)`
-    width: 13rem;
+    display: inline-block;
+    inline-size: 100%;
+    inline-size: var(--size, 13rem);
     flex: none;
     .MuiCardMedia-root {
         height: 18rem;
         background-size: 100%;
         img {
-            height: 100%;
-            width: 100%;
+            inline-size: 100%;
+            block-size: 100%;
+            object-fit: cover;
+            /* height: 100%;
+            width: 100%; */
         }
     }
     .MuiCardContent-root {
@@ -61,6 +69,16 @@ const Card = styled(MuiCard)`
         width: 10.4rem;
         .MuiCardMedia-root {
             height: 14.4rem;
+        }
+    }
+
+    /* Don't display covers if in data-saver mode */
+    @media (prefers-reduced-data: reduce) {
+        & {
+            min-inline-size: var(--size);
+            .MuiCardMedia-root {
+                display: none;
+            }
         }
     }
 `;

@@ -72,10 +72,10 @@ const UserRouter = props => {
 
 const Wrapper = styled.div`
     background-color: ${({ theme }) => theme.palette.background.default};
-    height: 100vh;
+    height: 100%;
     
     >div.page {
-        height: 100%;
+        height: 100vh;
         overflow-y: auto;
         position: relative;
     }
