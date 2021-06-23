@@ -7,11 +7,13 @@ import AppBarContent from 'Components/SystemAppBar.js/AppBarContent';
 import MangaListSection from 'Components/home/MangaListSection';
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
+import { Manga } from 'Mangadex';
 
 function Landing() {
     useEffect(() => {
         const oldTitle = document.title;
         document.title = 'Mangapi';
+        Manga.search({limit: 2});
         return () => document.title = oldTitle;
     }, []);
 
