@@ -21,7 +21,7 @@ function SystemAppBar(props) {
                 <div id="logo">
                     <img src={logo} />
                     <Typography className='logo' component='span' >
-                        Mangapi
+                        Dexumi
                     </Typography>
                 </div>
                 <AppBarContent />
