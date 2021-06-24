@@ -1,6 +1,5 @@
 MIT License
 
-Copyright (c) 2019 m;dy
 Copyright (c) 2021 Stevox404
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
