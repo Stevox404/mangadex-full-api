@@ -47,6 +47,8 @@ function MangaListSection(props) {
                         rating={manga.rating}
                         updateDate={manga.updateDate}
                         chapterNum={manga.chapterNum}
+                        showPopularity={props.showPopularity}
+                        showUpdate={props.showUpdate}
                     />
                 ))}
             </div>
@@ -92,15 +94,6 @@ const Container = styled.div`
                 transition: outline-offset .25s ease;
             }
         }
-
-        /* Hide scrollbar */
-        &::-webkit-scrollbar {
-            display: none;
-        }
-        /* Allow natural scrolling on touchscreens */
-        @media (hover: none) {
-            overflow-x: auto;
-        }
         >* {
             position: relative;
             scroll-snap-align: start;
@@ -115,12 +108,24 @@ const Container = styled.div`
                 inset-inline-end: calc(var(--gap) * -1);
             }
         }
+
+
+        /* Hide scrollbar */
+        &::-webkit-scrollbar {
+            display: none;
+        }
+        /* Allow natural scrolling on touchscreens */
+        @media (hover: none) {
+            overflow-x: auto;
+        }
     }
 `;
 
 
 MangaListSection.propTypes = {
     listName: PropTypes.string,
+    showUpdate: PropTypes.bool,
+    showPopularity: PropTypes.bool,
     mangaList: PropTypes.arrayOf(PropTypes.shape({
         name: PropTypes.string,
         image: PropTypes.string,

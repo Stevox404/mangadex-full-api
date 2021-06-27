@@ -25,7 +25,7 @@ function MangaCard(props) {
                     title={props.mangaName}
                 >
                     <img
-                        src={props.image} loading="lazy" 
+                        src={props.image} loading="lazy"
                         alt={props.mangaName + ' cover'}
                     />
                 </CardMedia>
@@ -33,13 +33,17 @@ function MangaCard(props) {
                     <Typography gutterBottom component="h3" >
                         {props.mangaName}
                     </Typography>
-                    <PopularityDetails
-                        views={props.views} rating={props.rating}
-                    />
-                    <UpdateDetails
-                        updateDate={props.updateDate}
-                        chapterNum={props.chapterNum}
-                    />
+                    {props.showPopularity &&
+                        <PopularityDetails
+                            views={props.views} rating={props.rating}
+                        />
+                    }
+                    {props.showUpdate &&
+                        <UpdateDetails
+                            updateDate={props.updateDate}
+                            chapterNum={props.chapterNum}
+                        />
+                    }
                 </CardContent>
             </CardActionArea>
         </Card>
@@ -84,6 +88,11 @@ const Card = styled(MuiCard)`
 `;
 
 
+MangaCard.defaultProps = {
+    showUpdate: true,
+    showPopularity: true,
+}
+
 MangaCard.propTypes = {
     mangaName: PropTypes.string,
     image: PropTypes.string,
@@ -96,6 +105,8 @@ MangaCard.propTypes = {
     chapterNum: PropTypes.oneOfType([
         PropTypes.string, PropTypes.number,
     ]),
+    showUpdate: PropTypes.bool,
+    showPopularity: PropTypes.bool,
 }
 
 export default MangaCard
