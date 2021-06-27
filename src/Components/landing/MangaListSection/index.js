@@ -41,6 +41,7 @@ function MangaListSection(props) {
                 {props.mangaList?.map((manga, idx) => (
                     <MangaCard
                         key={idx} // TODO unique id
+                        manga={manga}
                         mangaName={manga.name}
                         image={manga.image}
                         views={manga.views}

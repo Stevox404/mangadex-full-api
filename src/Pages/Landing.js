@@ -5,17 +5,22 @@ import {
 import heroImg from 'Assets/images/hero-img.jpg';
 import AppBarContent from 'Components/SystemAppBar.js/AppBarContent';
 import MangaListSection from 'Components/landing/MangaListSection';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Manga } from 'mangadex-full-api';
 import { KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined } from '@material-ui/icons';
 import Featured from 'Components/landing/Featured';
+import moment from 'moment';
 
 function Landing() {
+    const [recentManga, setRecentManga] = useState([]);
+    const [newestManga, setNewestManga] = useState([]);
+    
     useEffect(() => {
         const oldTitle = document.title;
         document.title = 'Mangapi';
-        test();
+        getRecentManga();
+        getNewestManga();
         // Manga.search({ limit: 2 });
         return () => document.title = oldTitle;
     }, []);
@@ -25,14 +30,31 @@ function Landing() {
         // const m = await Manga.search({  });
         // console.debug(m);
     }
-
-
+    
+    
+    const getNewestManga = async () => {
+        const m = await Manga.search({
+            createdAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
+            limit: 15
+        });
+        setNewestManga(m);
+    }
+    
+    const getRecentManga = async () => {
+        const m = await Manga.search({
+            updatedAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
+            limit: 15
+        });
+        setRecentManga(m);
+    }
+    
     const getMangaList = () => {
         const mangas = [];
         for (let i = 0; i < 14; i++) {
             mangas.push({
-                name: 'Nabarinoo',
-                image: 'https://upload.wikimedia.org/wikipedia/en/c/c9/Nabarinoo.jpg',
+                // title: 'How My Overly Cautious Classmate became OP in Another World!',
+                title: i % 2 ?'Naruto' : 'How My Overly Cautious Classmate became OP in Another World!',
+                // image: 'https://upload.wikimedia.org/wikipedia/en/c/c9/Nabarinoo.jpg',
                 views: Math.random() * (5000 - 1000) + 1000,
                 rating: Math.random() * (5 - 1) + 1,
                 updateDate: new Date() - (Math.random() * 86400000),
@@ -56,12 +78,12 @@ function Landing() {
                     />
                     <MangaListSection
                         listName='Recently Updated'
-                        mangaList={getMangaList()}
+                        mangaList={recentManga}
                         showPopularity={false}
                     />
                     <MangaListSection
                         listName='Newly Added'
-                        mangaList={getMangaList()}
+                        mangaList={newestManga}
                         showPopularity={false}
                         showUpdate={false}
                     />

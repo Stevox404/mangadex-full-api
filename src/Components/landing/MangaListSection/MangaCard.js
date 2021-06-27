@@ -8,7 +8,12 @@ import PropTypes from 'prop-types';
 import { useRouter } from 'Utils/shared/flitlib';
 
 
-/** @param {MangaCard.propTypes} props */
+
+
+/** 
+ * @param {MangaCard.propTypes} props
+ * @todo handleEmptyList
+ */
 function MangaCard(props) {
     const { changePage } = useRouter();
 
@@ -22,16 +27,16 @@ function MangaCard(props) {
             <CardActionArea onClick={handleClick} >
                 <CardMedia
                     image={manga404}
-                    title={props.mangaName}
+                    title={props.manga.title}
                 >
                     <img
                         src={props.image} loading="lazy"
-                        alt={props.mangaName + ' cover'}
+                        alt={props.manga.title + ' cover'}
                     />
                 </CardMedia>
                 <CardContent>
                     <Typography gutterBottom component="h3" >
-                        {props.mangaName}
+                        {props.manga.title}
                     </Typography>
                     {props.showPopularity &&
                         <PopularityDetails
@@ -55,6 +60,7 @@ const Card = styled(MuiCard)`
     inline-size: 100%;
     inline-size: var(--size, 13rem);
     flex: none;
+    position: relative;
     .MuiCardMedia-root {
         height: 18rem;
         background-size: 100%;
@@ -67,7 +73,28 @@ const Card = styled(MuiCard)`
         }
     }
     .MuiCardContent-root {
+        --card-color: ${({ theme }) => theme.palette.background.paper};
         padding: .4rem;
+        position: absolute;
+        bottom: 0;
+        /* background-color: ${({ theme }) => theme.palette.background.paper}aa; */
+        background: linear-gradient(rgba(255, 255, 255, 0), var(--card-color) 30%);
+        width: 100%;
+        .MuiTypography-body1 {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    &:hover {
+        .MuiCardContent-root {
+            .MuiTypography-body1 {
+                overflow: unset;
+                text-overflow: unset;
+                white-space: unset;
+            }
+        }
     }
     ${({ theme }) => theme.breakpoints.down('sm')} {
         width: 10.4rem;
