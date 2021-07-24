@@ -40,10 +40,10 @@ function MangaListSection(props) {
             <div className='list' ref={listRef} >
                 {props.mangaList?.map((manga, idx) => (
                     <MangaCard
-                        key={idx} // TODO unique id
+                        key={manga.id}
+                        id={manga.id}
                         manga={manga}
                         mangaName={manga.name}
-                        image={manga.image}
                         views={manga.views}
                         rating={manga.rating}
                         updateDate={manga.updateDate}

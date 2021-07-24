@@ -12,7 +12,7 @@ import { abbreviateNumber } from 'Utils';
 function MainSection(props) {
     return (
         <Container>
-            <img src={coverSample} />
+            <img src={props.cover} />
             <div id="info">
                 <header>
                     <Typography variant='h3' component='h1' >
@@ -29,14 +29,14 @@ function MainSection(props) {
                         </div>
                         <div>
                             <VisibilityOutlined /> {
-                                abbreviateNumber(Number.parseInt(props.views) || 0)
+                                abbreviateNumber(props.views || 0)
                             }
                         </div>
                     </Typography>
                 </div>
                 <div id='details' >
                     <Typography color='textSecondary' variant='body2' >
-                        {props.genres.join(', ')}
+                        {props.genres?.join(', ')}
                     </Typography>
                 </div>
                 <div id='summary' >
@@ -78,9 +78,6 @@ const Container = styled.main`
                 }
                 .MuiSvgIcon-root {
                     color: ${({ theme }) => theme.palette.text.primary};
-                    &#star {
-                        color: ${({ theme }) => theme.palette.primary.main};
-                    }
                 }
             }
         }

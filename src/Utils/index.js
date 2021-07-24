@@ -1,5 +1,6 @@
 export function abbreviateNumber(value) {
-    var newValue = value;
+    if(value === '--') return value;
+    var newValue = Number.parseInt(value);
     if (value >= 1000) {
         var suffixes = ["", "k", "m", "b","t"];
         var suffixNum = Math.floor( (""+value).length/3 );
@@ -15,6 +16,15 @@ export function abbreviateNumber(value) {
     return newValue;
 }
 
+export function getLocalizedString(localizedObj = {}, locale = 'en'){
+    if(!localizedObj.availableLocales?.length){
+        return '';
+    }
+    if(!localizedObj.availableLocales.includes(locale)){
+        locale = 'en';
+    }
+    return localizedObj[locale];
+}
 
 
 export * as flitlib from './shared/flitlib';;

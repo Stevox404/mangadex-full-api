@@ -35,7 +35,7 @@ function App() {
             <Suspense fallback={<div />} >
                 <Switch>
                     <Route path='/' exact component={Landing} />
-                    <Route path='/manga' component={Manga} />
+                    <Route path='/manga/:id' component={Manga} />
                     <Route path='/login' component={Login} />
                     <Route path='/read' component={Read} />
                 </Switch>

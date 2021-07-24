@@ -18,12 +18,10 @@ function Landing() {
     const [newestManga, setNewestManga] = useState([]);
     
     useEffect(() => {
-        const oldTitle = document.title;
-        document.title = 'Mangapi';
+        document.title = 'Dexumi';
         getRecentManga();
         getNewestManga();
         // Manga.search({ limit: 2 });
-        return () => document.title = oldTitle;
     }, []);
     
     const test = async () => {
@@ -38,7 +36,7 @@ function Landing() {
             const m = await Manga.search({
                 createdAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
                 limit: 15
-            });
+            }, true);
             setNewestManga(m);
         } catch (err) {
             if(err.name === 'APIRequestError'){
@@ -52,7 +50,7 @@ function Landing() {
             const m = await Manga.search({
                 updatedAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
                 limit: 15
-            });
+            }, true);
             console.debug(m);
             setRecentManga(m);
         } catch (err) {

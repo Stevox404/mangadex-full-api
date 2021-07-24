@@ -5,79 +5,119 @@ import { ButtonBase, Chip, Icon, IconButton, Typography } from '@material-ui/cor
 import {
     LibraryBooksOutlined, StarOutlined, BarChartOutlined, VisibilityOutlined, BookmarkOutlined, OpenInNewOutlined, AddCircleOutline, EditOutlined,
 } from '@material-ui/icons';
-import bookwalker from 'Assets/images/sites/bookwalker.png';
+import amz from 'Assets/images/sites/amz.ico';
+import al from 'Assets/images/sites/al.png';
+import ap from 'Assets/images/sites/ap.png';
+import bw from 'Assets/images/sites/bw.png';
+import cdj from 'Assets/images/sites/cdj.ico';
+import ebj from 'Assets/images/sites/ebj.ico';
+import kt from 'Assets/images/sites/kt.png';
 import mal from 'Assets/images/sites/mal.png';
-import novelUpdates from 'Assets/images/sites/novel-updates.png';
-import animePlanet from 'Assets/images/sites/anime-planet.png';
+import mu from 'Assets/images/sites/mu.svg';
+import nu from 'Assets/images/sites/nu.png';
 
 function InfoTab(props) {
     return (
         <Container>
             <InfoItem title='Alt Names' >
-                {props.altTitles.map(t =>
-                    <AltName>{t}</AltName>
+                {props.manga.altTitles?.map(t =>
+                    <AltName key={t} >{t}</AltName>
                 )}
             </InfoItem>
             <InfoItem title='Author' >
-                {props.authors.map(a =>
-                    <Typography className='listing' >
-                        <a href='#' >{a}</a>
+                {props.manga.authors?.map(a =>
+                    <Typography key={a.id} className='listing' >
+                        <a href='#' >{a.name}</a>
                     </Typography>
                 )}
             </InfoItem>
             <InfoItem title='Artist' >
-                {props.artists.map(a =>
-                    <Typography className='listing' >
-                        <a href='#' >{a}</a>
+                {props.manga.artists?.map(a =>
+                    <Typography key={a.id} className='listing' >
+                        <a href='#' >{a.name}</a>
                     </Typography>
                 )}
             </InfoItem>
             <InfoItem title='Demographic' >
-                <Chip clickable variant='outlined' label={props.publicationDemographic} />
+                <Chip clickable variant='outlined' label={props.manga.publicationDemographic} />
             </InfoItem>
             <InfoItem title='Genre' >
-                {props.tags.map(t =>
+                {props.manga.genre?.map(t =>
                     <Chip clickable variant='outlined' label={t} />
                 )}
             </InfoItem>
             <InfoItem title='Rating' >
                 <IconTextItem clickable icon={StarOutlined} iconProps={{ color: 'primary' }} >
-                    {props.userRating || '--'}
+                    {props.manga.userRating || '--'}
                 </IconTextItem>
                 <IconTextItem icon={StarOutlined} >
-                    {props.rating}
+                    {props.manga.rating || '--'}
                 </IconTextItem>
-                <IconButton>
+                <IconButton disabled >
                     <BarChartOutlined />
                 </IconButton>
             </InfoItem>
             <InfoItem title='Pub Status' >
-                <Typography>{props.status}</Typography>
+                <Typography>{props.manga.status}</Typography>
             </InfoItem>
             <InfoItem title='Stats' >
-                <IconTextItem icon={VisibilityOutlined} >375,476</IconTextItem>
-                <IconTextItem icon={BookmarkOutlined} >23,965</IconTextItem>
+                <IconTextItem icon={VisibilityOutlined} >--</IconTextItem>
+                <IconTextItem icon={BookmarkOutlined} >--</IconTextItem>
             </InfoItem>
-            <InfoItem title='Official' >
-                <IconTextItem icon={OpenInNewOutlined} >
-                    <a href='#' >Raw</a>
-                </IconTextItem>
-            </InfoItem>
+            {props.manga.links.raw &&
+                <InfoItem title='Official' >
+                    <IconTextItem icon={OpenInNewOutlined} >
+                        <a href={props.manga.links.raw} target='_blank' >Raw</a>
+                    </IconTextItem>
+                </InfoItem>
+            }
             <InfoItem title='Retail' >
-                <ExtLink img={bookwalker} >
-                    <a href='#' >Bookwalker</a>
-                </ExtLink>
+                <ExtLink
+                    name='Official English Translation'
+                    href={props.manga.links.engtl}
+                />
+                <ExtLink
+                    img={amz} name='Amazon'
+                    href={props.manga.links.amz}
+                />
+                <ExtLink
+                    img={bw} name='Bookwalker'
+                    href={props.manga.links.bw}
+                />
+                <ExtLink
+                    img={ebj} name='eBookJapan'
+                    href={props.manga.links.ebj}
+                />
+                <ExtLink
+                    img={cdj} name='CD Japan'
+                    href={props.manga.links.cdj}
+                />
             </InfoItem>
             <InfoItem title='Info' >
-                <ExtLink img={novelUpdates} >
-                    <a href='#' >NovelUpdates</a>
-                </ExtLink>
-                <ExtLink img={animePlanet} >
-                    <a href='#' >Anime-Planet</a>
-                </ExtLink>
-                <ExtLink img={mal} >
-                    <a href='#' >MyAnimeList</a>
-                </ExtLink>
+                <ExtLink
+                    img={al} name='Anilist'
+                    href={props.manga.links.al}
+                />
+                <ExtLink
+                    img={ap} name='Anime-Planet'
+                    href={props.manga.links.ap}
+                />
+                <ExtLink
+                    img={kt} name='Kitsu'
+                    href={props.manga.links.kt}
+                />
+                <ExtLink
+                    img={mal} name='MyAnimeList'
+                    href={props.manga.links.mal}
+                />
+                <ExtLink
+                    img={mu} name='NovelUpdates'
+                    href={props.manga.links.mu}
+                />
+                <ExtLink
+                    img={nu} name='NovelUpdates'
+                    href={props.manga.links.nu}
+                />
             </InfoItem>
             <InfoItem title='Reading Progress' >
                 <ProgressItem>
@@ -86,13 +126,13 @@ function InfoTab(props) {
                 <ProgressItem>
                     Chapter 0/?
                 </ProgressItem>
-                <IconButton size='small' ><EditOutlined /> </IconButton>
+                <IconButton disabled size='small' ><EditOutlined /> </IconButton>
             </InfoItem>
             <InfoItem title='Reading Status' >
                 <Typography>
-                    {props.readingStatus}
+                    {props.manga.readingStatus}
                 </Typography>
-                <IconButton size='small' ><EditOutlined /> </IconButton>
+                <IconButton disabled size='small' ><EditOutlined /> </IconButton>
             </InfoItem>
         </Container>
     )
@@ -115,7 +155,7 @@ const IconTextItem = ({ icon: IconProp, ...props }) => {
     return (
         <Container className='icon-text' >
             <IconProp fontSize='small' {...props.iconProps} />
-            <Typography>{props.children}</Typography>
+            <Typography variant='body2' >{props.children}</Typography>
         </Container>
     );
 }
@@ -124,17 +164,21 @@ const AltName = props => (
     <IconTextItem icon={LibraryBooksOutlined} {...props} />
 );
 
-const ExtLink = props => (
-    <div className='ext-link icon-text' >
-        <img src={props.img} />
-        <Typography>{props.children}</Typography>
-    </div>
-);
+const ExtLink = props => {
+    return props.href ? (
+        <div className='ext-link icon-text' >
+            {props.img && <img src={props.img} />}
+            <Typography>
+                <a href={props.href} target='_blank' >{props.name}</a>
+            </Typography>
+        </div>
+    ) : null;
+}
 
 const ProgressItem = props => (
     <div className='icon-text' >
         <Typography>{props.children}</Typography>
-        <IconButton size='small' color='secondary' onClick={props.onClick} >
+        <IconButton disabled size='small' color='secondary' onClick={props.onClick} >
             <AddCircleOutline />
         </IconButton>
     </div>
@@ -189,23 +233,7 @@ const Container = styled.div`
 `;
 
 InfoTab.propTypes = {
-    altTitles: PropTypes.arrayOf(PropTypes.string),
-    authors: PropTypes.arrayOf(PropTypes.string),
-    artists: PropTypes.arrayOf(PropTypes.string),
-    publicationDemographic: PropTypes.string,
-    tags: PropTypes.arrayOf(PropTypes.string),
-    status: PropTypes.string,
-    userRating: PropTypes.string,
-    rating: PropTypes.string,
-    links: PropTypes.shape({
-        bw: PropTypes.string,
-        mal: PropTypes.string,
-        nu: PropTypes.string,
-        mu: PropTypes.string,
-        ap: PropTypes.string,
-        availableLinks: PropTypes.arrayOf(PropTypes.string),
-    }),
-    readingStatus: PropTypes.string,
+    manga: PropTypes.object,
 }
 
 export default InfoTab

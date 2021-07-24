@@ -16,6 +16,15 @@ export function user(state = null, action) {
     }
 }
 
+export function language(state = 'en', action) {
+    switch (action.type){
+        case 'language/set': {
+            return action.payload;
+        }
+        default: return state;
+    }
+}
+
 export function pending(state = [], action) {
     switch(action.type){
         case 'pendingAction/start': {

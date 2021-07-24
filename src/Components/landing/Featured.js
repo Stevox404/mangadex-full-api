@@ -37,6 +37,7 @@ function Featured(props) {
         } catch (err) {
             const ftIds = [];
             const ftCount = 3;
+            // TODO pipeline this
             for (let idx = 0; idx < ftCount; idx++) {
                 const manga = await Manga.getRandom().catch();
                 fts.push(manga);

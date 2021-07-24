@@ -1,11 +1,13 @@
 import { Card as MuiCard, CardActionArea, CardContent, CardMedia, Typography } from '@material-ui/core';
 import manga404 from 'Assets/images/manga-404.jpg';
-import React from 'react';
+import loadingGif from 'Assets/images/loading.gif';
+import React, {useState, useEffect} from 'react';
 import styled from 'styled-components';
 import PopularityDetails from './PopularityDetails';
 import UpdateDetails from './UpdateDetails';
 import PropTypes from 'prop-types';
 import { useRouter } from 'Utils/shared/flitlib';
+import {Cover} from 'mangadex-full-api';
 
 
 
@@ -15,11 +17,32 @@ import { useRouter } from 'Utils/shared/flitlib';
  * @todo handleEmptyList
  */
 function MangaCard(props) {
+    const [cover, setCover] = useState();
     const { changePage } = useRouter();
 
     /**@param {Event} e */
     const handleClick = (e) => {
-        changePage('/manga');
+        /**@todo Use nicer url */
+        changePage(`/manga/${props.manga.id}`);
+    }
+
+    const fetchCover = async () => {
+        if(!props.id) return;
+        try {
+            const cover = await Cover.get(props.id);
+            setCover(cover.image256);
+        } catch (err) {
+            setCover(manga404);
+        }
+    }
+
+    useEffect(() => {
+        // fetchCover();
+    }, [])
+
+    const onCoverError = (e) => {
+        // console.debug(e);
+        e.target.src = '';
     }
 
     return (
@@ -30,8 +53,9 @@ function MangaCard(props) {
                     title={props.manga.title}
                 >
                     <img
-                        src={props.image} loading="lazy"
+                        src={props.manga.mainCover?.image256 || loadingGif} loading="lazy" 
                         alt={props.manga.title + ' cover'}
+                        onError={onCoverError}
                     />
                 </CardMedia>
                 <CardContent>
@@ -121,6 +145,7 @@ MangaCard.defaultProps = {
 }
 
 MangaCard.propTypes = {
+    id: PropTypes.string,
     mangaName: PropTypes.string,
     image: PropTypes.string,
     views: PropTypes.number,
