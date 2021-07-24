@@ -11,6 +11,7 @@ import { Manga } from 'mangadex-full-api';
 import { KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined } from '@material-ui/icons';
 import Featured from 'Components/landing/Featured';
 import moment from 'moment';
+import { addNotification } from 'Redux/actions';
 
 function Landing() {
     const [recentManga, setRecentManga] = useState([]);
@@ -33,19 +34,33 @@ function Landing() {
     
     
     const getNewestManga = async () => {
-        const m = await Manga.search({
-            createdAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
-            limit: 15
-        });
-        setNewestManga(m);
+        try {
+            const m = await Manga.search({
+                createdAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
+                limit: 15
+            });
+            setNewestManga(m);
+        } catch (err) {
+            if(err.name === 'APIRequestError'){
+                addNotification('Could not fetch mangas. Please check your network');
+            }
+        }
     }
     
     const getRecentManga = async () => {
-        const m = await Manga.search({
-            updatedAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
-            limit: 15
-        });
-        setRecentManga(m);
+        try {
+            const m = await Manga.search({
+                updatedAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
+                limit: 15
+            });
+            console.debug(m);
+            setRecentManga(m);
+        } catch (err) {
+            if(err.name === 'APIRequestError'){
+                console.debug(err.name);
+                addNotification('Could not fetch mangas. Please check your network');
+            }
+        }
     }
     
     const getMangaList = () => {

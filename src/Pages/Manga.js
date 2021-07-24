@@ -2,11 +2,16 @@ import coverSample from 'Assets/images/manga-cover.jpg';
 import DataSection from 'Components/manga/DataSection';
 import MainSection from 'Components/manga/MainSection';
 import React from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 function Manga() {
+    const params = useParams();
+    
     // sample data
     const getChapters = () => {
+        console.debug(params);
+        
         const arr = [];
         let i = 10;
         while (--i > -1) {

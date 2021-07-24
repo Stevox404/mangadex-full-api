@@ -5,6 +5,7 @@ import React from 'react';
 import styled from 'styled-components';
 import AppBarContent from './AppBarContent';
 import logo from 'Assets/images/placeholder.jpg';
+import { useRouter } from 'Utils/shared/flitlib';
 // import PropTypes from 'prop-types';
 
 function SystemAppBar(props) {
@@ -15,10 +16,15 @@ function SystemAppBar(props) {
     //     disableHysteresis: true
     // });
     
+    const {changePage} = useRouter();
+    const goHome = () => {
+        changePage('/');
+    }
+    
     return (
         <AppBar position='sticky' elevation={0} color={'default'} >
             <Toolbar>
-                <div id="logo">
+                <div id="logo" onClick={goHome} >
                     <img src={logo} />
                     <Typography className='logo' component='span' >
                         Dexumi

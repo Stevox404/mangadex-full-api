@@ -7,6 +7,7 @@ import { Manga } from 'mangadex-full-api';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import sampleCover from 'Assets/images/manga-cover.jpg';
+import { addNotification } from 'Redux/actions';
 
 function Featured(props) {
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -15,7 +16,13 @@ function Featured(props) {
     const [loadingImg, setLoadingImg] = useState(true);
 
     useEffect(() => {
-        fetchFeaturedManga();
+        try {
+            fetchFeaturedManga();
+        } catch (err) {
+            if(err.name === 'APIRequestError'){
+                addNotification('Could not fetch mangas. Please check your network');
+            }
+        }
     }, []);
 
     const fetchFeaturedManga = async () => {
