@@ -1,4 +1,4 @@
-import { createMuiTheme } from "@material-ui/core";
+import { createTheme } from "@material-ui/core";
 import { deepOrange } from "@material-ui/core/colors";
 
 const breakpointValues = {
@@ -9,7 +9,7 @@ const breakpointValues = {
     xl: 1920,
 };
 
-const theme = createMuiTheme({
+const theme = createTheme({
     breakpoints: {
         values: breakpointValues,
     },

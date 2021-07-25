@@ -28,7 +28,9 @@ function GenericDialog(props) {
 
     fullScreen = props.fullScreen || (!!breakpoint && fullScreen);
     const formId = props.formId || 'dialog-form';
-    
+
+    const setTitleProps = Object.assign({}, { disableTypography: typeof title !== 'string' }, props.titleProps)
+
     return (
         <Dialog
             maxWidth='md' fullScreen={fullScreen}
@@ -38,7 +40,7 @@ function GenericDialog(props) {
             onClose={props.onClose} {...otherProps}
         >
             {!hideDialogTitle &&
-                <DialogTitle {...titleProps} >
+                <DialogTitle {...setTitleProps} >
                     {title}
                 </DialogTitle>
             }

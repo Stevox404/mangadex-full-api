@@ -1,11 +1,13 @@
 import {
-    Button, ButtonGroup, Typography
+    Button, ButtonGroup, Typography, useMediaQuery
 } from '@material-ui/core';
 import { ArrowLeft, ArrowRight } from '@material-ui/icons';
 import PropTypes from 'prop-types';
 import React, { useRef } from 'react';
 import styled from 'styled-components';
 import MangaCard from './MangaCard';
+import { Skeleton } from '@material-ui/lab';
+
 
 
 /** @param {MangaListSection.propTypes} props */
@@ -19,8 +21,19 @@ function MangaListSection(props) {
         el.scrollBy({ left: amt });
     }
 
+    const isSm = useMediaQuery(theme => theme.breakpoints.down('sm'))
+    const CARD_WIDTH = isSm ? '10.4rem' : '13rem';
+    const CARD_HEIGHT = isSm ? '14.4rem' : '18rem';
+
+    const getSkeletonNum = () => {
+        /** @type {Element} */
+        const el = listRef.current;
+        if(!el) return;
+        return Number.parseInt(el.clientWidth / (parseFloat(CARD_WIDTH) * 16)) - 1;
+    }
+
     return (
-        <Container>
+        <Container data-card-width={CARD_WIDTH} data-card-height={CARD_HEIGHT} >
             <header>
                 <Button variant='text' >
                     <Typography gutterBottom variant="h6" component="h2" >
@@ -28,17 +41,19 @@ function MangaListSection(props) {
                     </Typography>
                 </Button>
                 <div className='flex-spacer' />
-                <ButtonGroup>
-                    <Button onClick={e => scrollList(-1)} >
-                        <ArrowLeft />
-                    </Button>
-                    <Button onClick={e => scrollList(1)} >
-                        <ArrowRight />
-                    </Button>
-                </ButtonGroup>
+                {props.mangaList &&
+                    <ButtonGroup>
+                        <Button onClick={e => scrollList(-1)} >
+                            <ArrowLeft />
+                        </Button>
+                        <Button onClick={e => scrollList(1)} >
+                            <ArrowRight />
+                        </Button>
+                    </ButtonGroup>
+                }
             </header>
             <div className='list' ref={listRef} >
-                {props.mangaList?.map((manga, idx) => (
+                {props.mangaList ? props.mangaList.map((manga, idx) => (
                     <MangaCard
                         key={manga.id}
                         id={manga.id}
@@ -51,7 +66,13 @@ function MangaListSection(props) {
                         showPopularity={props.showPopularity}
                         showUpdate={props.showUpdate}
                     />
-                ))}
+                )) : <>
+                    {
+                        Array.from(Array(10), (x, idx) => (
+                            <Skeleton key={idx} variant="rect" />
+                        ))
+                    }
+                </>}
             </div>
         </Container>
     )
@@ -68,7 +89,14 @@ const Container = styled.div`
         }
     }
     >div.list {
-        /* --size: 13rem; */
+        --width: ${p => p['data-card-width']};
+        --height: ${p => p['data-card-height']};
+
+        .MuiSkeleton-root {
+            height: var(--height, 13rem);
+            width: var(--width, 13rem);
+        }
+        
         --gap: 4.8rem;
         scroll-behavior: smooth;
         /* display: flex; */

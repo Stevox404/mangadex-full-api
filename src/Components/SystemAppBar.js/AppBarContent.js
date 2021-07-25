@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
     TextField, useMediaQuery, InputAdornment, IconButton, Button, 
-    Menu as MuiMenu, MenuItem, fade
+    Menu as MuiMenu, MenuItem, alpha
 } from '@material-ui/core';
 import { Search, Menu as MenuIcon } from '@material-ui/icons';
 import styled from 'styled-components';
@@ -91,7 +91,7 @@ const Container = styled.div`
         justify-self: center;
         max-width: 600px;
         .MuiInputBase-root{
-            background-color: ${({ theme }) => fade(theme.palette.background.paper, .3)};
+            background-color: ${({ theme }) => alpha(theme.palette.background.paper, .3)};
         }
     }
     >div.action {

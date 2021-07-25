@@ -46,7 +46,7 @@ function SideDrawer(props) {
         <Slide in={props.open} direction={dir} timeout={200} >
             <SideDrawerContainer
                 className={`uiSideDrawer-root uiSideDrawer-docked uiSideDrawer-paper ${anchorCN} ${props.className || ''}`} 
-                elevation={elevation} open={props.open} maxWidth={maxWidth} {...paperProps}
+                elevation={elevation} open={props.open} data-max-width={maxWidth} {...paperProps}
             >
                 {props.children}
             </SideDrawerContainer>
@@ -82,7 +82,7 @@ const Wrapper = styled.div`
 
 const SideDrawerContainer = styled(Paper)`
     width: ${({ open }) => open ? '100%' : '0px'};
-    max-width: ${({ maxWidth }) => `${Number.parseInt(maxWidth)}px`};
+    max-width: ${p => `${Number.parseInt(p['data-max-width'])}px`};
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;

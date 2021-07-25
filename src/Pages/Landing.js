@@ -12,10 +12,12 @@ import { KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined } from '@material
 import Featured from 'Components/landing/Featured';
 import moment from 'moment';
 import { addNotification } from 'Redux/actions';
+import { useDispatch } from 'react-redux';
+import SystemAppBar from 'Components/SystemAppBar.js';
 
 function Landing() {
-    const [recentManga, setRecentManga] = useState([]);
-    const [newestManga, setNewestManga] = useState([]);
+    const [recentManga, setRecentManga] = useState();
+    const [newestManga, setNewestManga] = useState();
     
     useEffect(() => {
         document.title = 'Dexumi';
@@ -24,11 +26,7 @@ function Landing() {
         // Manga.search({ limit: 2 });
     }, []);
     
-    const test = async () => {
-        // Manga.getRandom()
-        // const m = await Manga.search({  });
-        // console.debug(m);
-    }
+    const dispatch = useDispatch();
     
     
     const getNewestManga = async () => {
@@ -39,8 +37,12 @@ function Landing() {
             }, true);
             setNewestManga(m);
         } catch (err) {
-            if(err.name === 'APIRequestError'){
-                addNotification('Could not fetch mangas. Please check your network');
+            if (/TypeError/.test(err.message)) {
+                dispatch(addNotification({
+                    message: "Check your network connection",
+                    group: 'network',
+                    persist: true
+                }));
             }
         }
     }
@@ -51,11 +53,9 @@ function Landing() {
                 updatedAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
                 limit: 15
             }, true);
-            console.debug(m);
             setRecentManga(m);
         } catch (err) {
             if(err.name === 'APIRequestError'){
-                console.debug(err.name);
                 addNotification('Could not fetch mangas. Please check your network');
             }
         }
@@ -79,30 +79,32 @@ function Landing() {
     }
 
     return (
-        <Wrapper className='page fill-screen'>
-            {/* <div id="spacer" /> */}
-            <Featured />
-            <div className='content' >
-                <div>
-                    <MangaListSection
-                        listName='Top rated'
-                        mangaList={getMangaList()}
-                        showUpdate={false}
-                    />
-                    <MangaListSection
-                        listName='Recently Updated'
-                        mangaList={recentManga}
-                        showPopularity={false}
-                    />
-                    <MangaListSection
-                        listName='Newly Added'
-                        mangaList={newestManga}
-                        showPopularity={false}
-                        showUpdate={false}
-                    />
+        <>
+            <SystemAppBar />
+            <Wrapper className='page fill-screen'>
+                <Featured />
+                <div className='content' >
+                    <div>
+                        <MangaListSection
+                            listName='Top rated'
+                            mangaList={getMangaList()}
+                            showUpdate={false}
+                        />
+                        <MangaListSection
+                            listName='Recently Updated'
+                            mangaList={recentManga}
+                            showPopularity={false}
+                        />
+                        <MangaListSection
+                            listName='Newly Added'
+                            mangaList={newestManga}
+                            showPopularity={false}
+                            showUpdate={false}
+                        />
+                    </div>
                 </div>
-            </div>
-        </Wrapper>
+            </Wrapper>
+        </>
     )
 }
 

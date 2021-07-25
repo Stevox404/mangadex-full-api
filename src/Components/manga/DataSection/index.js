@@ -22,6 +22,7 @@ function DataSection(props) {
     const [fetching, setFetching] = useState(false);
     const [chapters, setChapters] = useState([]);
     const [chapterSortOrder, setChapterSortOrder] = useState();
+    const [uploaders, setUploaders] = useState({});
 
     const { changePage } = useRouter();
     const language = useSelector(state => state.language);
@@ -45,6 +46,7 @@ function DataSection(props) {
                 [sort[0]]: sort[1]
             },
             limit: Infinity,
+            translatedLanguage: [language]
         }, true);
         setChapters(chapters);
         setChapterSortOrder(sortOrder);
@@ -59,8 +61,8 @@ function DataSection(props) {
         setChapterSettingsOpen(true);
     }
 
-    const handleChapterClick = e => {
-        changePage('/read');
+    const handleChapterClick = (e, chapter) => {
+        changePage(`/chapter/${chapter.id}/1`);
     }
 
     // Put here so no re-render on tab change
@@ -70,12 +72,20 @@ function DataSection(props) {
             return [];
         }
 
-        return chapters.reduce((acc, c, idx) => {
+        console.debug(chapters[0]);
+
+        const uploaders = {};
+
+        const list = chapters.reduce((acc, c, idx) => {
+            uploaders[c.groups[0].id] = c.groups[0].name;
+            if(chapterSettings.group !== 'all' && chapterSettings.group !== c.groups[0].id){
+                return acc;
+            }
             acc[acc.length] = (
-                <ListItem key={c.id} button onClick={handleChapterClick} >
+                <ListItem key={c.id} button onClick={e => handleChapterClick(e, c)} >
                     <ListItemText
                         primary={`Chapter ${c.chapter}: ${c.title}`}
-                        secondary={c.uploaderName}
+                        secondary={c.groups[0].name}
                     />
                     <ListItemText
                         primary={moment(c[chapterSettings.displayDate]).fromNow()}
@@ -86,16 +96,22 @@ function DataSection(props) {
                 </ListItem>);
             return acc;
         }, [])
-    }, [language, props.manga.id, chapterSettings, chapterSortOrder, chapters]);
+
+        setUploaders(uploaders);
+
+        return list;
+    }, [language, props.manga, chapterSettings, chapterSortOrder, chapters]);
 
     const getTabPanel = () => {
         switch (tabIndex) {
             case 0: return <InfoTab manga={props.manga} />;
             case 1: {
-                if (true || fetching) {
+                if (fetching) {
                     return (
                         <ChapterTab>
-                            <Skeleton variant="rect" height={118} />
+                            {Array.from(Array(5), (e, idx) => (
+                                <Skeleton key={idx} variant="rect" height={64} />
+                            ))}
                         </ChapterTab>
                     );
                 }
@@ -153,6 +169,7 @@ function DataSection(props) {
                 displayDate={chapterSettings.displayDate}
                 grouped={chapterSettings.grouped}
                 onChange={handleChapterSettingChange}
+                uploaders={uploaders}
             />
         </Container>
     )
@@ -163,6 +180,9 @@ const ChapterTab = styled(List)`
     .MuiListItem-root {
         display: grid;
         grid-template-columns: 1fr auto;
+    }
+    .MuiSkeleton-root {
+        margin-bottom: .4rem;
     }
 `;
 

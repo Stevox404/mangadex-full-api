@@ -8,12 +8,14 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import sampleCover from 'Assets/images/manga-cover.jpg';
 import { addNotification } from 'Redux/actions';
+import { useRouter } from 'Shared/flitlib';
 
 function Featured(props) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     /**@type {Array<Manga[], Function>} */
     const [ftManga, setFtManga] = useState([]);
     const [loadingImg, setLoadingImg] = useState(true);
+    const {changePage} = useRouter();
 
     useEffect(() => {
         try {
@@ -32,14 +34,14 @@ function Featured(props) {
             const ftIds = ft.ids;
             const ftDate = ft.date;
             if (!ftIds || new Date(ftDate).toDateString() !== new Date().toDateString() ) throw new Error();
-            const promises = ftIds.map(id => Manga.get(id).catch());
+            const promises = ftIds.map(id => Manga.get(id, true).catch());
             fts.push(...(await Promise.all(promises)));
         } catch (err) {
             const ftIds = [];
             const ftCount = 3;
             // TODO pipeline this
             for (let idx = 0; idx < ftCount; idx++) {
-                const manga = await Manga.getRandom().catch();
+                const manga = await Manga.getRandom(true).catch();
                 fts.push(manga);
                 ftIds.push(manga.id);
             }
@@ -51,6 +53,7 @@ function Featured(props) {
         // await Promise.all(fts.map(async ft => {
         //     ft.mainCover = await ft.mainCover.resolve()
         // }));
+        console.debug(fts);
         setFtManga(fts);
     }
 
@@ -63,6 +66,10 @@ function Featured(props) {
 
     const isUnderMdSize = useMediaQuery(theme => theme.breakpoints.down('md'));
 
+    const readManga = e => {
+        changePage(`/title/${ftManga[selectedIndex].id}`)
+    }
+
     return (
         <Container selectedIndex={selectedIndex} >
             <div id='img-box' className={loadingImg ? 'loading': ''} >
@@ -70,7 +77,6 @@ function Featured(props) {
                     src={ftManga[selectedIndex]?.mainCover.imageSource} alt="Cover"
                     // src={sampleCover} alt="Cover"
                     onLoad={_ => {
-                        console.log('loaded')
                         setLoadingImg(false);
                     }}
                 />
@@ -93,7 +99,10 @@ function Featured(props) {
                                 {ftManga[selectedIndex]?.description}
                             </Typography>
                         }
-                        <Button variant='contained' color='primary' size={isUnderMdSize ? 'small' : 'medium'} >
+                        <Button
+                            variant='contained' color='primary' onClick={readManga}
+                            size={isUnderMdSize ? 'small' : 'medium'} 
+                        >
                             Read Now
                         </Button>
                     </CardContent>
@@ -132,7 +141,7 @@ const Container = styled.div`
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: right 20%;
+            object-position: right 30%;
             /* image */
         }
     }

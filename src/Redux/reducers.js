@@ -44,6 +44,10 @@ export function pending(state = [], action) {
 export function notifications(state = [], action) {
     switch (action.type) {
         case 'notification/added': {
+            if(action.payload.group && state.some(n => n.group === action.payload.group)){
+                // Do not add if another notification of the same group exists
+                return state;
+            }
             return [...state, action.payload]
         }
         case 'notification/edited': {

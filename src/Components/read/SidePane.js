@@ -9,6 +9,14 @@ import Flag from 'react-world-flags';
 
 /**@param {SidePane.propTypes} props */
 function SidePane(props) {
+    const getChapterNumText = () => {
+        if(!props.chapter) return 'Ch';
+        let txt = '';
+        if(props.chapter.volume) txt += `Vol ${props.chapter.volume} `;
+        if(props.chapter.chapter) txt += `Ch ${props.chapter.chapter}`;
+        return txt;
+    }
+    
     return (
         <Container
             open={props.open} anchor='right' onClose={props.onClose}
@@ -18,15 +26,20 @@ function SidePane(props) {
                 <div id="title">
                     <Flag code={'jp'} height={16} />
                     <Typography id='title' color='secondary' variant='h6' >
-                        Naruto
+                        {props.chapter?.manga.title}
                     </Typography>
                 </div>
                 <Divider />
+                {props.chapter?.title && 
+                    <Typography id='chapter-title' >
+                        {props.chapter.title}
+                    </Typography>
+                }
                 <div id='chapter' >
                     <IconButton>
                         <KeyboardArrowLeftOutlined />
                     </IconButton>
-                    <TextField size='small' readOnly value={'Vol 1 Ch 1'} />
+                    <TextField size='small' readOnly value={getChapterNumText()} />
                     <IconButton>
                         <KeyboardArrowRightOutlined />
                     </IconButton>
@@ -35,12 +48,12 @@ function SidePane(props) {
                 <div id='scanlator' >
                     <Flag code={'us'} height={16} />
                     <Typography variant='subtitle1' >
-                        Musunde Scans
+                        {props.chapter?.groups[0].name}
                     </Typography>
                 </div>
                 <Divider />
                     <div id="actions">
-                        <Button variant='outlined' >
+                        <Button variant='outlined' onClick={props.onShowSettings} >
                             <Settings />
                             Settings
                         </Button>
@@ -74,10 +87,21 @@ const Container = styled(SideDrawer)`
             padding-right: .8rem;
         }
         #title {
-            display: flex;
+            display: grid;
+            width: 100%;
+            grid-template-columns: auto auto;
             justify-content: center;
             align-items: center;
-            gap: .4rem;
+            column-gap: .4rem;
+            .MuiTypography-root {
+                display: block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+        #chapter-title {
+            text-align: center;
         }
         .MuiDivider-root {
             margin: .6rem 0;
@@ -116,8 +140,9 @@ const Container = styled(SideDrawer)`
 
 SidePane.propTypes = {
     open: PropTypes.bool.isRequired,
-    onClose: PropTypes.func,
-    title: PropTypes.string,
+    onClose: PropTypes.func.isRequired,
+    onShowSettings: PropTypes.func.isRequired,
+    chapter: PropTypes.object,
 }
 
 export default SidePane;

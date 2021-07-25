@@ -23,7 +23,7 @@ function MangaCard(props) {
     /**@param {Event} e */
     const handleClick = (e) => {
         /**@todo Use nicer url */
-        changePage(`/manga/${props.manga.id}`);
+        changePage(`/title/${props.manga.id}`);
     }
 
     const fetchCover = async () => {
@@ -81,12 +81,11 @@ function MangaCard(props) {
 
 const Card = styled(MuiCard)`
     display: inline-block;
-    inline-size: 100%;
-    inline-size: var(--size, 13rem);
+    width: var(--width, 13rem);
     flex: none;
     position: relative;
     .MuiCardMedia-root {
-        height: 18rem;
+        height: var(--height, 13rem);
         background-size: 100%;
         img {
             inline-size: 100%;
@@ -108,6 +107,7 @@ const Card = styled(MuiCard)`
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            display: block;
         }
     }
 
@@ -120,17 +120,11 @@ const Card = styled(MuiCard)`
             }
         }
     }
-    ${({ theme }) => theme.breakpoints.down('sm')} {
-        width: 10.4rem;
-        .MuiCardMedia-root {
-            height: 14.4rem;
-        }
-    }
 
     /* Don't display covers if in data-saver mode */
     @media (prefers-reduced-data: reduce) {
         & {
-            min-inline-size: var(--size);
+            min-width: var(--width);
             .MuiCardMedia-root {
                 display: none;
             }

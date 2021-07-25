@@ -6,7 +6,9 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Manga as MfaManga } from 'mangadex-full-api';
 import { getLocalizedString } from 'Utils';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { addNotification } from 'Redux/actions';
+import SystemAppBar from 'Components/SystemAppBar.js';
 
 
 function Manga() {
@@ -16,35 +18,48 @@ function Manga() {
     const language = useSelector(state => state.language);
     const [chaptersNum, setChaptersNum] = useState('--');
 
+    const dispatch = useDispatch();
+
     const fetchManga = async () => {
-        const id = params.id;
-        const manga = await MfaManga.get(id, true);
-        // const chapters = await manga.getFeed({
-        //     order: {chapter: 'asc'},
-        //     limit: Infinity,
-        //     translatedLanguage: language,
-        // });
-        manga.getAggregate().then(agg => {
-            let lastCh = 0;
-            for(let vol of Object.values(agg)){
-                const chKeys = Object.keys(vol.chapters);
-                const lCh = Number(chKeys[chKeys.length - 1]);
-                if(lCh > lastCh) lastCh = lCh;
+        try {
+            const id = params.id;
+            const manga = await MfaManga.get(id, true);
+            // const chapters = await manga.getFeed({
+            //     order: {chapter: 'asc'},
+            //     limit: Infinity,
+            //     translatedLanguage: language,
+            // });
+            manga.getAggregate().then(agg => {
+                let lastCh = 0;
+                for (let vol of Object.values(agg)) {
+                    const chKeys = Object.keys(vol.chapters);
+                    const lCh = Number(chKeys[chKeys.length - 1]);
+                    if (lCh > lastCh) lastCh = lCh;
+                }
+                setChaptersNum(lastCh);
+            });
+
+            manga.tags.forEach(t => {
+                // Genre, format, content, themes,
+                const val = getLocalizedString(t.localizedName);
+                if (Array.isArray(manga[t.group])) {
+                    manga[t.group].push(val);
+                } else {
+                    manga[t.group] = [val];
+                }
+            })
+            setManga(manga);
+        } catch (err) {
+            if (/TypeError/.test(err.message)) {
+                dispatch(addNotification({
+                    message: "Check your network connection",
+                    group: 'network',
+                    persist: true
+                }));
             }
-            setChaptersNum(lastCh);
-        });
-        
-        manga.tags.forEach(t => {
-            // Genre, format, content, themes,
-            const val = getLocalizedString(t.localizedName);
-            if(Array.isArray(manga[t.group])){
-                manga[t.group].push(val);
-            } else {
-                manga[t.group] = [val];
-            }
-        })
-        setManga(manga);
-        setFetching(false);
+        } finally {
+            setFetching(false);
+        }
     }
 
     useEffect(() => {
@@ -52,47 +67,34 @@ function Manga() {
     }, [])
 
     useEffect(() => {
-        if(!manga) return;
+        if (!manga) return;
         document.title = `${manga.title} - Dexumi`;
     }, [manga]);
 
-    // sample data
-    const getChapters = () => {
-
-        const arr = [];
-        let i = 10;
-        while (--i > -1) {
-            const d = 11 - i;
-            arr.push({
-                id: String(i),
-                title: 'One-shot',
-                chapter: String(i),
-                uploaderName: 'Fairyland Scans',
-                updatedAt: Date.now() - (Math.random() * (86400000 * d - 86400000 * (d - 1)) + 86400000 * (d - 1)),
-            });
-        }
-        return arr;
-    }
 
     return (
-        <Wrapper className='page fill-screen' data-main-cover={manga?.mainCover.imageSource} >
-            <div id='hero-img' />
-            <div className='content' >
-                <MainSection
-                    title={manga?.title}
-                    cover={manga?.mainCover.image512}
-                    chaptersNum={chaptersNum}
-                    rating={'--'}
-                    views={'--'}
-                    authorName={manga?.authors?.[0]?.name}
-                    genres={manga?.genres}
-                    description={manga?.description}
-                />
-                <DataSection
-                    manga={manga}
-                />
-            </div>
-        </Wrapper>
+        <>
+            <SystemAppBar />
+            <Wrapper className='page fill-screen' data-main-cover={manga?.mainCover.imageSource} >
+                <div id='hero-img' />
+                <div className='content' >
+                    <MainSection
+                        fetching={fetching}
+                        title={manga?.title}
+                        cover={manga?.mainCover.image512}
+                        chaptersNum={chaptersNum}
+                        rating={'--'}
+                        views={'--'}
+                        authorName={manga?.authors?.[0]?.name}
+                        genres={manga?.genres}
+                        description={manga?.description}
+                    />
+                    <DataSection
+                        manga={manga}
+                    />
+                </div>
+            </Wrapper>
+        </>
     )
 }
 

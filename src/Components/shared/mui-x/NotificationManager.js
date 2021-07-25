@@ -64,6 +64,7 @@ function NotificationManager() {
                     }
                 },
                 action: ntf.action === undefined ? notifAction: ntf.action,
+                className: 'notification-snackbar'
             });
             i++;
             count--;

@@ -6,8 +6,9 @@ import styled from 'styled-components';
 import AppBarContent from './AppBarContent';
 import logo from 'Assets/images/placeholder.jpg';
 import { useRouter } from 'Utils/shared/flitlib';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 
+/**@param {SystemAppBar.propTypes} props */
 function SystemAppBar(props) {
     // TODO find when scroll
     // const scrolled = useScrollTrigger({
@@ -21,8 +22,14 @@ function SystemAppBar(props) {
         changePage('/');
     }
     
+    const getContent = () => {
+        if(props.content === 'none') return null;
+        return <AppBarContent />;
+    }
+    
+    
     return (
-        <AppBar position='sticky' elevation={0} color={'default'} >
+        <AppBar position='sticky' elevation={0} color={'default'} {...props.appBarProps} >
             <Toolbar>
                 <div id="logo" onClick={goHome} >
                     <img src={logo} />
@@ -30,7 +37,7 @@ function SystemAppBar(props) {
                         Dexumi
                     </Typography>
                 </div>
-                <AppBarContent />
+                {getContent()}
             </Toolbar>
         </AppBar>
     )
@@ -72,7 +79,9 @@ const AppBar = styled(MuiAppBar)`
 `;
 
 SystemAppBar.propTypes = {
-
+    content: PropTypes.string,
+    /**@type {import('@material-ui/core').AppBarProps} */
+    appBarProps:PropTypes.object,
 }
 
 export default SystemAppBar;

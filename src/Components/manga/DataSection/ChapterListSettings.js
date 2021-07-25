@@ -37,8 +37,9 @@ function ChapterListSettings(props) {
                 onChange={props.onChange}
             >
                 <MenuItem value='all' >All</MenuItem>
-                <MenuItem value='smiley' >Smiley</MenuItem>
-                <MenuItem value='reaper' >Reapers</MenuItem>
+                {Object.entries(props.uploaders || {}).map(([id, username]) => 
+                    <MenuItem value={id} >{username}</MenuItem>
+                )}
             </Select>
 
             <Typography id='date-lbl' component='label' >Display Date:</Typography>
@@ -59,6 +60,7 @@ function ChapterListSettings(props) {
                 control={<Checkbox color="primary" />}
                 label="Group by volume"
                 labelPlacement="start"
+                disabled
             />
         </Dialog>
     )

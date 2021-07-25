@@ -31,13 +31,13 @@ function App() {
 
     return (
         <Wrapper className="App">
-            <SystemAppBar />
             <Suspense fallback={<div />} >
+                {/* <SystemAppBar /> */}
                 <Switch>
                     <Route path='/' exact component={Landing} />
-                    <Route path='/manga/:id' component={Manga} />
+                    <Route path='/title/:id' component={Manga} />
+                    <Route path='/chapter/:id/:page' component={Read} />
                     <Route path='/login' component={Login} />
-                    <Route path='/read' component={Read} />
                 </Switch>
             </Suspense>
         </Wrapper>
@@ -92,7 +92,7 @@ const Wrapper = styled.div`
         text-decoration: none;
         font-size: .9em;
     }
-    ${({theme}) => theme.palette.type === 'dark' && css`
+    ${({ theme }) => theme.palette.type === 'dark' && css`
         a {
             color: ${({ theme }) => theme.palette.info.light};
         }
