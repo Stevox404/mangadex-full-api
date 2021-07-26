@@ -6,8 +6,9 @@ import ReadingPane from 'Components/read/ReadingPane';
 import SidePane from 'Components/read/SidePane';
 import SideDrawer from 'Components/shared/mui-x/SideDrawer';
 import SystemAppBar from 'Components/SystemAppBar.js';
-import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { Manga } from 'mangadex-full-api';
+import React, { useState, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { addNotification } from 'Redux/actions';
 import { useRouter } from 'Shared/flitlib';
@@ -16,6 +17,7 @@ import styled from 'styled-components';
 
 function Read() {
     const [drawerOpen, setDrawerOpen] = useState(false);
+    /**@type {[Chapter]} */
     const [chapter, setChapter] = useState();
     const [fetching, setFetching] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
@@ -24,28 +26,44 @@ function Read() {
         showAdvanced: false,
         imageSize: 'fit-width',
         displayMode: 'all',
-        readingDir: 'right',
-        arrowScrollSize: Math.min(window.document.body.clientHeight * .8, 420),
+        readingDir: 'left',
+        arrowScrollSize: window.document.body.clientHeight * .8,
         preloadPages: 5,
-    })
+    });
+    const readingPaneRef = useRef(null);
+    const language = useSelector(state => state.language);
+
+    const giveReadingPaneFocus = () => {
+        /**@type {HTMLDivElement} */
+        const el = readingPaneRef.current;
+        if (!el) return;
+        window.setTimeout(() => el.focus(), 0);
+    }
 
     const toggleDrawer = e => {
         setDrawerOpen(s => !s);
+        giveReadingPaneFocus();
     }
 
     const params = useParams();
     const dispatch = useDispatch();
-    const {changePage} = useRouter();
+    const { changePage } = useRouter();
+
+
+    /**@param {Chapter} chapter */
+    const setUpLoadedChapter = async chapter => {
+        const pages = await chapter.getReadablePages();
+        chapter.pages = pages;
+        setChapter(chapter);
+        setCurrentPage(params.page - 1);
+        giveReadingPaneFocus();
+    }
 
     const fetchChapter = async () => {
         try {
             setFetching(true);
             const chapter = await Chapter.get(params.id, true);
-            const pages = await chapter.getReadablePages();
-            chapter.pages = pages;
-            console.debug(chapter);
-            setChapter(chapter);
-            setCurrentPage(params.page - 1);
+            setUpLoadedChapter(chapter);
         } catch (err) {
             if (/TypeError/.test(err.message)) {
                 dispatch(addNotification({
@@ -63,13 +81,18 @@ function Read() {
         fetchChapter();
     }, []);
 
+    useEffect(() => {
+        if (!chapter) return;
+        document.title = `${chapter.manga.title}: Ch. ${chapter.chapter} - Dexumi`;
+    }, [chapter]);
+
     const handleReaderSettingChange = e => {
         const key = e.target.name;
         let val = e.target.value;
-        if(e.target.type === 'checkbox'){
+        if (e.target.type === 'checkbox') {
             val = e.target.checked;
         }
-        if(key === 'arrowScrollSize'){
+        if (key === 'arrowScrollSize') {
             val = parseFloat(val);
         }
         setReaderSettings(s => ({ ...s, [key]: val }))
@@ -77,13 +100,109 @@ function Read() {
 
     const handlePageChange = (e, pg, noRender) => {
         pg = Number(pg);
-        if(pg < 0) return;
-        if(pg > chapter?.pages.length) return;
+        if (pg < 0) return;
+        if (pg > chapter?.pages.length) return;
         setCurrentPage(pg);
         changePage(`../${pg + 1}`);
     }
-    
 
+
+    const closeReaderSettings = _ => {
+        setShowSettings(false);
+        giveReadingPaneFocus();
+    }
+
+    const goToNextChapter = async () => {
+        if(!chapter.manga) return;
+        let aggVols;
+        try {
+            aggVols = await chapter.manga.getAggregate([language]);
+        } catch (err) {
+            return dispatch(addNotification({
+                message: "Check your network connection and refresh",
+                group: 'network',
+                persist: true
+            }));
+        }
+        const vol = aggVols[chapter.volume || 'none'];
+        const chIdx = Object.keys(vol.chapters).indexOf(chapter.chapter ?? 'none');
+        
+        let nextChNum = Object.keys(vol.chapters)[chIdx + 1];
+        if(!nextChNum){
+            const volIdx = Object.keys(aggVols).indexOf(chapter.volume ?? 'none');
+            const nextVolKey = Object.keys(aggVols)[volIdx + 1];
+            if(vol === 'none' || !nextVolKey){
+                return dispatch(addNotification({
+                    message: "There's no next chapter",
+                    group: 'no-next-chapter'
+                }));
+            }
+            nextChNum = Object.values(aggVols[nextVolKey].chapters)[0].chapter;            
+        }
+        goToChapter(nextChNum);
+    }
+
+    const goToPrevChapter = async () => {
+        if(!chapter.manga) return;
+        let aggVols;
+        try {
+            aggVols = await chapter.manga.getAggregate([language]);
+        } catch (err) {
+            return dispatch(addNotification({
+                message: "Check your network connection and refresh",
+                group: 'network',
+                persist: true
+            }));
+        }
+        const vol = aggVols[chapter.volume || 'none'];
+        const chIdx = Object.keys(vol.chapters).indexOf(chapter.chapter ?? 'none');
+        
+        let prevChNum = Object.keys(vol.chapters)[chIdx - 1];
+        if(!prevChNum){
+            const volIdx = Object.keys(aggVols).indexOf(chapter.volume ?? 'none');
+            const prevVolKey = Object.keys(aggVols)[volIdx - 1];
+            if(vol === 'none' || !prevVolKey){
+                return dispatch(addNotification({
+                    message: "There's no previous chapter",
+                    group: 'no-prev-chapter'
+                }));
+            }
+
+            const l = Object.values(aggVols[prevVolKey].chapters).length;
+            prevChNum = Object.values(aggVols[prevVolKey].chapters)[l - 1].chapter;            
+
+        }
+        goToChapter(prevChNum);
+    }
+
+
+    const goToChapter = async (ch, opts = {}) => {
+        try {
+            setFetching(true);
+            const params = {
+                chapter: ch,
+                manga: chapter.manga.id,
+                translatedLanguage: [language],
+            }
+            if (!opts?.allGroups) {
+                params.groups = [chapter.groups[0].id];
+            }
+            const newChapter = await Chapter.getByQuery(params);
+            setUpLoadedChapter(newChapter);
+        } catch (err) {
+            if(err.message === 'Search returned no results.'){
+                if (!opts?.allGroups) {
+                    return goToChapter(ch, {allGroups: true});
+                }
+                dispatch(addNotification({
+                    message: 'No chapter found'
+                }))
+            }
+            console.error(err);
+        } finally {
+            setFetching(false);
+        }
+    }
 
     return (
         <>
@@ -100,16 +219,20 @@ function Read() {
                         currentPage={currentPage}
                         onChangePage={handlePageChange}
                         readerSettings={readerSettings}
+                        readingPaneRef={readingPaneRef}
                     />
                 </div>
                 <SidePane
                     open={drawerOpen} onClose={toggleDrawer}
                     currentPage={currentPage} chapter={chapter}
                     onShowSettings={_ => setShowSettings(true)}
+                    onNextChapterClick={goToNextChapter}
+                    onPrevChapterClick={goToPrevChapter}
+                    readerSettings={readerSettings}
                 />
 
                 <ReaderSettings
-                    open={showSettings} onClose={_ => setShowSettings(false)}
+                    open={showSettings} onClose={closeReaderSettings}
                     readerSettings={readerSettings}
                     imageSize={readerSettings.imageSize}
                     displayMode={readerSettings.displayMode}

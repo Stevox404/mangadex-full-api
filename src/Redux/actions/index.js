@@ -65,6 +65,7 @@ export const logout = () => {
  * @typedef Notification
  * @type {{
     *  message: string,
+    *  group: string,
     *  variant: "default"|"info"|"success"|"error"|"warning",
     *  persist: boolean,
     *  autoHideDuration: number,

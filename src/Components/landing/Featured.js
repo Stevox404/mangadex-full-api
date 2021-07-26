@@ -15,45 +15,48 @@ function Featured(props) {
     /**@type {Array<Manga[], Function>} */
     const [ftManga, setFtManga] = useState([]);
     const [loadingImg, setLoadingImg] = useState(true);
-    const {changePage} = useRouter();
+    const { changePage } = useRouter();
+    const [fetching, setFetching] = useState(false);
 
     useEffect(() => {
         try {
             fetchFeaturedManga();
         } catch (err) {
-            if(err.name === 'APIRequestError'){
-                addNotification('Could not fetch mangas. Please check your network');
+            if (err.name === 'APIRequestError') {
+                addNotification({
+                    message: "Check your network connection and refresh",
+                    group: 'network',
+                    persist: true
+                });
             }
         }
     }, []);
 
     const fetchFeaturedManga = async () => {
+        setFetching(true);
         const fts = [];
         try {
             const ft = JSON.parse(window.localStorage.getItem('featured'));
             const ftIds = ft.ids;
             const ftDate = ft.date;
-            if (!ftIds || new Date(ftDate).toDateString() !== new Date().toDateString() ) throw new Error();
+            if (!ftIds || new Date(ftDate).toDateString() !== new Date().toDateString()) throw new Error();
             const promises = ftIds.map(id => Manga.get(id, true).catch());
             fts.push(...(await Promise.all(promises)));
         } catch (err) {
-            const ftIds = [];
             const ftCount = 3;
-            // TODO pipeline this
+            const ftPromises = [];
             for (let idx = 0; idx < ftCount; idx++) {
-                const manga = await Manga.getRandom(true).catch();
-                fts.push(manga);
-                ftIds.push(manga.id);
+                ftPromises.push(Manga.getRandom(true).catch());
             }
+            const mangas = await Promise.all(ftPromises);
+            const ftIds = mangas.map(m => m.id);
+            fts.push(...mangas);
             window.localStorage.setItem('featured', JSON.stringify({
                 ids: ftIds,
                 date: Date.now()
             }));
         }
-        // await Promise.all(fts.map(async ft => {
-        //     ft.mainCover = await ft.mainCover.resolve()
-        // }));
-        console.debug(fts);
+        setFetching(false);
         setFtManga(fts);
     }
 
@@ -72,7 +75,7 @@ function Featured(props) {
 
     return (
         <Container selectedIndex={selectedIndex} >
-            <div id='img-box' className={loadingImg ? 'loading': ''} >
+            <div id='img-box' className={loadingImg ? 'loading' : ''} >
                 <img
                     src={ftManga[selectedIndex]?.mainCover.imageSource} alt="Cover"
                     // src={sampleCover} alt="Cover"
@@ -81,9 +84,11 @@ function Featured(props) {
                     }}
                 />
             </div>
-            <IconButton onClick={_ => shiftSelectedIndex(-1)} >
-                <KeyboardArrowLeftOutlined />
-            </IconButton>
+            {Boolean(ftManga?.length) &&
+                <IconButton onClick={_ => shiftSelectedIndex(-1)} >
+                    <KeyboardArrowLeftOutlined />
+                </IconButton>
+            }
             <div id='card-box' >
                 <Card variant='outlined' >
                     <CardContent >
@@ -101,16 +106,18 @@ function Featured(props) {
                         }
                         <Button
                             variant='contained' color='primary' onClick={readManga}
-                            size={isUnderMdSize ? 'small' : 'medium'} 
+                            size={isUnderMdSize ? 'small' : 'medium'} disabled={fetching}
                         >
                             Read Now
                         </Button>
                     </CardContent>
                 </Card>
             </div>
-            <IconButton onClick={_ => shiftSelectedIndex(1)} >
-                <KeyboardArrowRightOutlined />
-            </IconButton>
+            {Boolean(ftManga?.length) &&
+                <IconButton onClick={_ => shiftSelectedIndex(1)} >
+                    <KeyboardArrowRightOutlined />
+                </IconButton>
+            }
         </Container>
     )
 }

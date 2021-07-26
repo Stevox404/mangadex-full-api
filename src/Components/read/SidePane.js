@@ -10,13 +10,23 @@ import Flag from 'react-world-flags';
 /**@param {SidePane.propTypes} props */
 function SidePane(props) {
     const getChapterNumText = () => {
-        if(!props.chapter) return 'Ch';
+        if (!props.chapter) return 'Ch';
         let txt = '';
-        if(props.chapter.volume) txt += `Vol ${props.chapter.volume} `;
-        if(props.chapter.chapter) txt += `Ch ${props.chapter.chapter}`;
+        if (props.chapter.volume) txt += `Vol ${props.chapter.volume} `;
+        if (props.chapter.chapter) txt += `Ch ${props.chapter.chapter}`;
         return txt;
     }
-    
+
+    const changeChapter = e => {
+        if (!props.chapter) return;
+        let dir = e.target.getAttribute('data-btn-side') === 'left' ? -1 : 1;
+        // if (props.readerSettings.readingDir === 'left') dir *= -1;
+
+        if (dir > 1) {
+            props.onNextChapterClick();
+        } else props.onPrevChapterClick();
+    }
+
     return (
         <Container
             open={props.open} anchor='right' onClose={props.onClose}
@@ -30,17 +40,17 @@ function SidePane(props) {
                     </Typography>
                 </div>
                 <Divider />
-                {props.chapter?.title && 
+                {props.chapter?.title &&
                     <Typography id='chapter-title' >
                         {props.chapter.title}
                     </Typography>
                 }
                 <div id='chapter' >
-                    <IconButton>
+                    <IconButton data-btn-side='left' onClick={changeChapter} >
                         <KeyboardArrowLeftOutlined />
                     </IconButton>
                     <TextField size='small' readOnly value={getChapterNumText()} />
-                    <IconButton>
+                    <IconButton data-btn-side='right' onClick={changeChapter} >
                         <KeyboardArrowRightOutlined />
                     </IconButton>
                 </div>
@@ -52,24 +62,24 @@ function SidePane(props) {
                     </Typography>
                 </div>
                 <Divider />
-                    <div id="actions">
-                        <Button variant='outlined' onClick={props.onShowSettings} >
-                            <Settings />
-                            Settings
-                        </Button>
-                        <div>
-                            <Tooltip title='Zen Mode' >
-                                <Button variant='outlined' >
-                                    <AspectRatio />
-                                </Button>
-                            </Tooltip>
-                            <Tooltip title='Comments' >
-                                <Button variant='outlined' >
-                                    <CommentOutlined />
-                                </Button>
-                            </Tooltip>
-                        </div>
+                <div id="actions">
+                    <Button variant='outlined' onClick={props.onShowSettings} >
+                        <Settings />
+                        Settings
+                    </Button>
+                    <div>
+                        <Tooltip title='Zen Mode' >
+                            <Button variant='outlined' >
+                                <AspectRatio />
+                            </Button>
+                        </Tooltip>
+                        <Tooltip title='Comments' >
+                            <Button variant='outlined' >
+                                <CommentOutlined />
+                            </Button>
+                        </Tooltip>
                     </div>
+                </div>
                 <Divider />
             </div>
         </Container>
@@ -143,6 +153,9 @@ SidePane.propTypes = {
     onClose: PropTypes.func.isRequired,
     onShowSettings: PropTypes.func.isRequired,
     chapter: PropTypes.object,
+    readerSettings: PropTypes.object,
+    onNextChapterClick: PropTypes.func.isRequired,
+    onPrevChapterClick: PropTypes.func.isRequired,
 }
 
 export default SidePane;

@@ -85,6 +85,7 @@ const Container = styled.main`
         margin-top: -128px;
         border-radius: 5px;
         background-color: ${({theme}) => theme.palette.background.default};
+        object-fit: cover;
         > .MuiSkeleton-root {
             height: 100%;
             width: 100%;

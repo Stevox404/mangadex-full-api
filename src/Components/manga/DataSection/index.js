@@ -10,8 +10,9 @@ import ChapterListSettings from './ChapterListSettings';
 import InfoTab from './InfoTab';
 import moment from 'moment';
 import { useRouter } from 'Utils/shared/flitlib';
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Manga as MfaManga } from 'mangadex-full-api';
+import { addNotification } from 'Redux/actions';
 
 
 
@@ -26,6 +27,7 @@ function DataSection(props) {
 
     const { changePage } = useRouter();
     const language = useSelector(state => state.language);
+    const dispatch = useDispatch();
 
     const [chapterSettings, setChapterSettings] = useState({
         sortOrder: 'chapter-desc',
@@ -37,20 +39,29 @@ function DataSection(props) {
 
     const fetchChapters = async (sortOrder = 'chapter-desc') => {
         if (!props.manga) return;
-        setFetching(true);
-        /**@type {MfaManga} */
-        const manga = props.manga;
-        const sort = sortOrder.split('-');
-        const chapters = await manga.getFeed({
-            order: {
-                [sort[0]]: sort[1]
-            },
-            limit: Infinity,
-            translatedLanguage: [language]
-        }, true);
-        setChapters(chapters);
-        setChapterSortOrder(sortOrder);
-        setFetching(false);
+        try {
+            setFetching(true);
+            /**@type {MfaManga} */
+            const manga = props.manga;
+            const sort = sortOrder.split('-');
+            const chapters = await manga.getFeed({
+                order: {
+                    [sort[0]]: sort[1]
+                },
+                limit: Infinity,
+                translatedLanguage: [language]
+            }, true);
+            setChapters(chapters);
+            setChapterSortOrder(sortOrder);
+        } catch (err) {
+            dispatch(addNotification({
+                message: "Check your network connection and refresh",
+                group: 'network',
+                persist: true
+            }))
+        } finally {
+            setFetching(false);
+        }
     }
 
     const handleTabChange = (e, idx) => {
@@ -81,11 +92,19 @@ function DataSection(props) {
             if(chapterSettings.group !== 'all' && chapterSettings.group !== c.groups[0].id){
                 return acc;
             }
+
+            const getChapterText = () => {
+                let txt = c.chapter === null ? 'One-Shot': `Chapter ${c.chapter}`;
+                if(c.title){
+                    txt += `: ${c.title}`;
+                }
+                return txt;
+            }
             acc[acc.length] = (
                 <ListItem key={c.id} button onClick={e => handleChapterClick(e, c)} >
                     <ListItemText
-                        primary={`Chapter ${c.chapter}: ${c.title}`}
-                        secondary={c.groups[0].name}
+                        primary={getChapterText()}
+                        secondary={c.groups[0].name || c.uploader.username}
                     />
                     <ListItemText
                         primary={moment(c[chapterSettings.displayDate]).fromNow()}

@@ -16,10 +16,12 @@ function ReadingPane(props) {
      * @param {IntersectionObserver} observer 
      */
     const handlePageEnter = (entries, observer) => {
-        for(let i = 0, l = entries.length; i<l; i++){
+        for (let i = 0, l = entries.length; i < l; i++) {
             const entry = entries[i];
-            console.debug(entry);
-            if(entry.isIntersecting && entry.boundingClientRect.top > entry.intersectionRect.top){
+            if (entry.isIntersecting && (
+                entry.boundingClientRect.top > entry.rootBounds.top ||
+                entry.boundingClientRect.bottom < entry.rootBounds.bottom
+            )) {
                 /**@type {HTMLDivElement} */
                 const el = entry.target;
                 setObservedEl(el);
@@ -46,7 +48,7 @@ function ReadingPane(props) {
         ) {
             const pg = imgBox.querySelector(`#page-${props.currentPage}`);
             if (!pg) return;
-            if(observedEl?.id === `page-${props.currentPage}`) return;
+            if (observedEl?.id === `page-${props.currentPage}`) return;
             pg.scrollIntoView();
         }
     }, [props.currentPage, props.readerSettings.displayMode, imgBoxRef.current, props.chapter]);
@@ -66,10 +68,10 @@ function ReadingPane(props) {
             return;
         }
 
-        if(props.readerSettings.readingDir == 'left'){
+        if (props.readerSettings.readingDir == 'left') {
             dir *= -1;
         }
-        
+
         /**@type {HTMLDivElement} */
         const imgBox = imgBoxRef.current;
         if (
@@ -78,7 +80,7 @@ function ReadingPane(props) {
             imgBox
         ) {
             imgBox.style.scrollBehavior = 'unset';
-            if(dir > 0){
+            if (dir > 0) {
                 imgBox.scrollTo(0, 0);
             } else {
                 imgBox.scrollTo(0, imgBox.scrollHeight);
@@ -120,6 +122,7 @@ function ReadingPane(props) {
         if (props.fetcing || !props.chapter) {
             return;
         }
+        // If at end of chapter, preload next chapter
         const l = props.readerSettings.preloadPages;
         for (let i = 0; i < l; i++) {
             const img = new Image();
@@ -151,18 +154,18 @@ function ReadingPane(props) {
                 pg2 = props.currentPage;
             }
 
-            if(props.readerSettings.readingDir == 'left'){
+            if (props.readerSettings.readingDir == 'left') {
                 const tmp = pg1;
                 pg1 = pg2;
                 pg2 = tmp;
             }
 
             return <>
-                <img 
+                <img
                     id={`page-${pg1}`} data-page={pg1} alt={`page ${pg1}`}
                     src={props.chapter.pages[pg1]}
                 />
-                <img 
+                <img
                     id={`page-${pg2}`} data-page={pg2} alt={`page ${pg2}`}
                     src={props.chapter.pages[pg2]}
                 />
@@ -176,12 +179,17 @@ function ReadingPane(props) {
         )
     }
 
+    const setPaneRefs = ref => {
+        imgBoxRef.current = ref;
+        props.readingPaneRef.current = ref;
+    }
+
     return (
         <Wrapper
             data-image-size={props.readerSettings.imageSize}
             data-display-mode={props.readerSettings.displayMode}
             onKeyDown={handleKeyPress} tabIndex='0' autoFocus
-            ref={imgBoxRef}
+            ref={setPaneRefs}
         >
             {getPageImages()}
         </Wrapper>
@@ -256,6 +264,7 @@ ReadingPane.propTypes = {
         arrowScrollSize: PropTypes.number,
         preloadPages: PropTypes.number,
     }),
+    readingPaneRef: PropTypes.object,
 }
 
 export default ReadingPane;
