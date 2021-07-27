@@ -1,5 +1,5 @@
 import { Button, Divider, IconButton, MenuItem, TextField, Toolbar, Tooltip, Typography } from '@material-ui/core';
-import { AspectRatio, CommentOutlined, KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined, Settings } from '@material-ui/icons';
+import { AspectRatio, AspectRatioOutlined, CommentOutlined, KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined, Settings, WebAssetOutlined } from '@material-ui/icons';
 import Close from '@material-ui/icons/Close';
 import SideDrawer from 'Components/shared/mui-x/SideDrawer';
 import PropTypes from 'prop-types';
@@ -13,16 +13,18 @@ function SidePane(props) {
         if (!props.chapter) return 'Ch';
         let txt = '';
         if (props.chapter.volume) txt += `Vol ${props.chapter.volume} `;
-        if (props.chapter.chapter) txt += `Ch ${props.chapter.chapter}`;
+        if (props.chapter.chapter) {
+            txt += `Ch ${props.chapter.chapter}`;
+        } else txt += `One-Shot`;
         return txt;
     }
 
     const changeChapter = e => {
         if (!props.chapter) return;
-        let dir = e.target.getAttribute('data-btn-side') === 'left' ? -1 : 1;
-        // if (props.readerSettings.readingDir === 'left') dir *= -1;
+        let dir = e.currentTarget.getAttribute('data-btn-side') === 'left' ? -1 : 1;
+        if (props.readerSettings.readingDir === 'left') dir *= -1;
 
-        if (dir > 1) {
+        if (dir > 0) {
             props.onNextChapterClick();
         } else props.onPrevChapterClick();
     }
@@ -35,13 +37,15 @@ function SidePane(props) {
             <div id="drawer">
                 <div id="title">
                     <Flag code={'jp'} height={16} />
-                    <Typography id='title' color='secondary' variant='h6' >
-                        {props.chapter?.manga.title}
-                    </Typography>
+                    <Tooltip title={props.chapter?.manga.title} >
+                        <Typography id='title' color='secondary' variant='h6' >
+                            {props.chapter?.manga.title}
+                        </Typography>
+                    </Tooltip>
                 </div>
                 <Divider />
                 {props.chapter?.title &&
-                    <Typography id='chapter-title' >
+                    <Typography variant='body2' id='chapter-title' >
                         {props.chapter.title}
                     </Typography>
                 }
@@ -49,7 +53,12 @@ function SidePane(props) {
                     <IconButton data-btn-side='left' onClick={changeChapter} >
                         <KeyboardArrowLeftOutlined />
                     </IconButton>
-                    <TextField size='small' readOnly value={getChapterNumText()} />
+                    <div id="chapter-num">
+                        <Typography>
+                            {getChapterNumText()}
+                        </Typography>
+                    </div>
+                    {/* <TextField size='small' readOnly value={getChapterNumText()} /> */}
                     <IconButton data-btn-side='right' onClick={changeChapter} >
                         <KeyboardArrowRightOutlined />
                     </IconButton>
@@ -68,9 +77,14 @@ function SidePane(props) {
                         Settings
                     </Button>
                     <div>
+                        <Tooltip title='Toolbar' onClick={props.onToolbarToggle} >
+                            <Button variant='outlined' >
+                                <WebAssetOutlined />
+                            </Button>
+                        </Tooltip>
                         <Tooltip title='Zen Mode' >
                             <Button variant='outlined' >
-                                <AspectRatio />
+                                <AspectRatioOutlined />
                             </Button>
                         </Tooltip>
                         <Tooltip title='Comments' >
@@ -90,7 +104,7 @@ const Container = styled(SideDrawer)`
     #drawer {
         height: 100%;
         overflow-y: auto;
-        margin-bottom: 4rem;
+        padding-bottom: 4rem;
 
         > * {
             padding-left: .8rem;
@@ -122,6 +136,14 @@ const Container = styled(SideDrawer)`
             .MuiTextField-root {
                 flex: 1;
                 pointer-events: none;
+            }
+            #chapter-num {
+                flex: 1;
+                pointer-events: none;
+                border: 1px solid ${p => p.theme.palette.action.disabled};
+                border-radius: 4px;
+                text-align: center;
+                padding: .24rem;
             }
         }
         #scanlator {
@@ -156,6 +178,7 @@ SidePane.propTypes = {
     readerSettings: PropTypes.object,
     onNextChapterClick: PropTypes.func.isRequired,
     onPrevChapterClick: PropTypes.func.isRequired,
+    onToolbarToggle: PropTypes.func.isRequired,
 }
 
 export default SidePane;

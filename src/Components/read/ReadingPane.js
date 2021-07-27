@@ -109,7 +109,9 @@ function ReadingPane(props) {
         }
         /**@type {HTMLDivElement} */
         const container = e.target;
-        container.scrollBy(0, dist);
+        window.setTimeout(() => {
+            container.scrollBy(0, dist);
+        }, 0);
     }
 
     /**@param {KeyboardEvent} e */

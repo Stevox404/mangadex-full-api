@@ -48,7 +48,8 @@ function DataSection(props) {
                 order: {
                     [sort[0]]: sort[1]
                 },
-                limit: Infinity,
+                limit: 10,
+                // limit: Infinity,
                 translatedLanguage: [language]
             }, true);
             setChapters(chapters);
@@ -101,7 +102,7 @@ function DataSection(props) {
                 return txt;
             }
             acc[acc.length] = (
-                <ListItem key={c.id} button onClick={e => handleChapterClick(e, c)} >
+                <ListItem data-read={idx > 3} key={c.id} button onClick={e => handleChapterClick(e, c)} >
                     <ListItemText
                         primary={getChapterText()}
                         secondary={c.groups[0].name || c.uploader.username}
@@ -199,6 +200,14 @@ const ChapterTab = styled(List)`
     .MuiListItem-root {
         display: grid;
         grid-template-columns: 1fr auto;
+        &[data-read="true"] {
+            &:not(:hover){
+                background-color: ${p => p.theme.palette.background.default};
+            }
+            .MuiTypography-root {
+                color: ${p => p.theme.palette.text.secondary};
+            }
+        }
     }
     .MuiSkeleton-root {
         margin-bottom: .4rem;

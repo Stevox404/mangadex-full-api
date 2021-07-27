@@ -7,7 +7,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import store from 'Redux/store';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider, createGlobalStyle } from 'styled-components';
 import theme from 'Utils/theme';
 import App from './App';
 import './index.css';
@@ -17,6 +17,7 @@ const DecoratedApp = () => {
         <Provider store={store} >
             <MuiThemeProvider theme={theme} >
                 <ThemeProvider theme={theme} >
+                    <GlobalStyle/>
                     <MuiPickersUtilsProvider utils={MomentUtils}>
                         <BrowserRouter>
                             <SnackbarProvider
@@ -33,6 +34,19 @@ const DecoratedApp = () => {
         </Provider>
     );
 }
+
+
+const GlobalStyle = createGlobalStyle`
+    .notification-snackbar {
+        pointer-events: all;
+        &[class*="SnackbarItem-contentRoot"] {
+            background-color: ${p => p.theme.palette.background.default};
+            [class*="SnackbarItem-message"] {
+                color: ${p => p.theme.palette.text.primary};
+            }
+        }
+    }
+`;
 
 
 export default DecoratedApp;

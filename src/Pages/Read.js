@@ -21,13 +21,14 @@ function Read() {
     const [chapter, setChapter] = useState();
     const [fetching, setFetching] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
+    const [showToolbar, setShowToolbar] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
     const [readerSettings, setReaderSettings] = useState({
         showAdvanced: false,
         imageSize: 'fit-width',
         displayMode: 'all',
         readingDir: 'left',
-        arrowScrollSize: window.document.body.clientHeight * .8,
+        arrowScrollSize: 460,
         preloadPages: 5,
     });
     const readingPaneRef = useRef(null);
@@ -164,7 +165,9 @@ function Read() {
             if(vol === 'none' || !prevVolKey){
                 return dispatch(addNotification({
                     message: "There's no previous chapter",
-                    group: 'no-prev-chapter'
+                    group: 'no-prev-chapter',
+                    showDismissAsIcon: true,
+                    persist: true
                 }));
             }
 
@@ -206,10 +209,10 @@ function Read() {
 
     return (
         <>
-            {fetching &&
-                <SystemAppBar content='none' appBarProps={{ position: 'sticky' }} />
+            {(fetching || showToolbar) &&
+                <SystemAppBar content={!showToolbar && 'none'} appBarProps={{ position: 'sticky' }} />
             }
-            <Wrapper className='page fill-screen' >
+            <Wrapper className={`page ${showToolbar ? 'clear-appBar':''} `} >
                 <div >
                     <IconButton id='menu' onClick={toggleDrawer} >
                         <MenuOpenOutlined data-open={drawerOpen} />
@@ -229,6 +232,7 @@ function Read() {
                     onNextChapterClick={goToNextChapter}
                     onPrevChapterClick={goToPrevChapter}
                     readerSettings={readerSettings}
+                    onToolbarToggle={_ => setShowToolbar(s => !s)}
                 />
 
                 <ReaderSettings

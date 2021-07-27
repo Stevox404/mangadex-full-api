@@ -24,7 +24,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
-.notification-snackbar {
-    pointer-events: all;
-}

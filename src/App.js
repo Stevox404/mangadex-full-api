@@ -78,13 +78,33 @@ const Wrapper = styled.div`
         height: 100vh;
         overflow-y: auto;
         position: relative;
+        &.clear-appBar {
+            height: calc(100vh - 56px);
+            ${p => p.theme.breakpoints.up('xs') + '  and (orientation: landscape)'} {
+                height: calc(100vh - 48px);
+            }
+            ${p => p.theme.breakpoints.up('sm')} {
+                height: calc(100vh - 64px);
+            }
+        }
     }
     .fill-screen {
         min-height: 100vh;
+        &.clear-appBar {
+            min-height: calc(100vh - 56px);
+            @media (min-width: 0px) and (orientation: landscape) {
+                min-height: calc(100vh - 48px);
+            }
+            @media (min-width: 600px) {
+                min-height: calc(100vh - 64px);
+            }
+        }
     }
+
     .MuiTooltip-tooltip {
-        font-size: ${({ theme }) => theme.typography.body2.fontSize};
+        font-size: ${p => p.theme.typography.body2.fontSize};
     }
+    
     #spacer {
         ${({ theme }) => theme.mixins.toolbar}
     }

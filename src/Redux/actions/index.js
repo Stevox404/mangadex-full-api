@@ -70,7 +70,8 @@ export const logout = () => {
     *  persist: boolean,
     *  autoHideDuration: number,
     *  action: Node|null,
-    *  onClose: Function
+    *  onClose: Function,
+    *  showDismissAsIcon: boolean,
     * }}
     */
 /**

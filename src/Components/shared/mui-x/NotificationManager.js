@@ -2,7 +2,8 @@ import { useSnackbar } from 'notistack';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { usePrevious } from 'Utils/shared/flitlib';
-import { Button } from '@material-ui/core';
+import { Button, IconButton } from '@material-ui/core';
+import { Close } from '@material-ui/icons';
 
 function NotificationManager() {
     const { closeSnackbar, enqueueSnackbar } = useSnackbar();
@@ -18,23 +19,45 @@ function NotificationManager() {
         }
     }
 
-    const notifAction = (key) => (
-        <Button color='primary' onClick={e => {
-            dispatch(removeNotification(key))
-        }} >
-            Dismiss
-        </Button>
-    );
-    
+    const getNotificationActions = ntf => {
+        const closeIconBtn = key => (
+            <IconButton onClick={e => {
+                dispatch(removeNotification(ntf.key))
+            }} >
+                <Close color='action' />
+            </IconButton>
+        );
+
+        if (ntf.action === undefined) {
+            if (ntf.showDismissAsIcon) {
+                return closeIconBtn();
+            } else {
+                return (
+                    <Button color='primary' onClick={e => {
+                        dispatch(removeNotification(ntf.key))
+                    }} >
+                        Dismiss
+                    </Button>
+                );
+            }
+        } else {
+            const actions = [ntf.action];
+            if (ntf.showDismissAsIcon) {
+                actions.push(closeIconBtn());
+            }
+            return actions;
+        }
+    }
+
     useEffect(() => {
         (prevNotifications || []).forEach(pNtf => {
             const key = pNtf.key;
             if (!notifications.some(ntf => ntf.key === key)) {
-                if(Date.now() - pNtf.addTime < 1000){
+                if (Date.now() - pNtf.addTime < 1000) {
                     window.setTimeout(() => {
                         closeSnackbar(key);
                     }, 1000);
-                } else{
+                } else {
                     closeSnackbar(key);
                 }
             }
@@ -59,12 +82,12 @@ function NotificationManager() {
                     dispatch(removeNotification(key))
                 },
                 onClose: (e, reason, key) => {
-                    if(ntf.onClose){
+                    if (ntf.onClose) {
                         ntf.onClose(e, reason, key);
                     }
                 },
-                action: ntf.action === undefined ? notifAction: ntf.action,
-                className: 'notification-snackbar'
+                action: getNotificationActions(ntf),
+                className: 'notification-snackbar',
             });
             i++;
             count--;

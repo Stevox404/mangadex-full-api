@@ -54,7 +54,8 @@ function Manga() {
                 dispatch(addNotification({
                     message: "Check your network connection",
                     group: 'network',
-                    persist: true
+                    persist: true,
+                    showDismissAsIcon: true
                 }));
             }
         } finally {
