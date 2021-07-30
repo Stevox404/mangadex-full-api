@@ -55,7 +55,6 @@ function Manga() {
                     message: "Check your network connection",
                     group: 'network',
                     persist: true,
-                    showDismissAsIcon: true
                 }));
             }
         } finally {

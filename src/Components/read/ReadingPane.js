@@ -109,6 +109,8 @@ function ReadingPane(props) {
         }
         /**@type {HTMLDivElement} */
         const container = e.target;
+        if(container.scrollTop === 0 && dist < 0) return;
+        if(container.scrollTop === container.scrollHeight && dist > 0) return;
         window.setTimeout(() => {
             container.scrollBy(0, dist);
         }, 0);

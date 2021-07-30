@@ -1,15 +1,15 @@
 import { ACTIONS } from "Redux/actions";
 
 export function user(state = null, action) {
-    switch (action.type){
-        case 'user/fetchedData': {
-            const data = action.payload[ACTIONS.FETCH_USER];
-            if(data){
-                return data;
+    switch (action.type) {
+        case 'user/setUser': {
+            const user = action.payload;
+            if (user) {
+                return user;
             }
             return state;
         }
-        case 'user/loggedOut': {
+        case 'user/clearUser': {
             return null;
         }
         default: return state;
@@ -17,7 +17,7 @@ export function user(state = null, action) {
 }
 
 export function language(state = 'en', action) {
-    switch (action.type){
+    switch (action.type) {
         case 'language/set': {
             return action.payload;
         }
@@ -25,36 +25,28 @@ export function language(state = 'en', action) {
     }
 }
 
-export function pending(state = [], action) {
-    switch(action.type){
-        case 'pendingAction/start': {
-            return [...state, action.payload];
-        }
-        case 'pendingAction/end': {
-            const idx = state.indexOf(action.payload);
-            state.splice(idx, 1);
-            return [...state];
-        }
-        default: return state;
-    }
-}
 
 
 
 export function notifications(state = [], action) {
     switch (action.type) {
         case 'notification/added': {
-            if(action.payload.group && state.some(n => n.group === action.payload.group)){
-                // Do not add if another notification of the same group exists
-                return state;
-            }
-            return [...state, action.payload]
+            const idx = action.payload.group ?
+                state.findIndex(n => n.group === action.payload.group) : -1;
+            if (idx > -1) state[idx].dismissed = true;
+            return [...state, action.payload];
         }
         case 'notification/edited': {
-            const idx = state.findIndex(n => n.key === action.payload.key);
+            const idx = action.payload.key ?
+                state.findIndex(n => n.key === action.payload.key) : -1;
             if (idx > -1) {
                 state[idx].dismissed = true;
             }
+
+            const jdx = action.payload.group ?
+                state.findIndex(n => n.group === action.payload.group) : -1;
+            if (jdx > -1) state[jdx].dismissed = true;
+
             const notif = action.payload;
             notif.key = notif.newKey;
             delete notif.newKey;
@@ -62,11 +54,19 @@ export function notifications(state = [], action) {
         }
         case 'notification/dismissed': {
             const idx = state.findIndex(n => n.key === action.payload);
-            console.log(idx);
             if (idx > -1) {
                 state[idx].dismissed = true;
             }
             return [...state];
+        }
+        case 'notification/dismissedGroup': {
+            const newState = state.map(n => {
+                if (n.group === action.payload) {
+                    n.dismissed = true;
+                }
+                return n;
+            });
+            return newState;
         }
         case 'notification/removed': {
             const idx = state.findIndex(n => n.key === action.payload);
@@ -80,7 +80,7 @@ export function notifications(state = [], action) {
 }
 
 export function firstRender(state = true, action) {
-    if(state && action.type === 'pendingAction/end'){
+    if (state && action.type === 'pendingAction/end') {
         return false;
     }
     return state;

@@ -40,13 +40,13 @@ function Featured(props) {
             const ftIds = ft.ids;
             const ftDate = ft.date;
             if (!ftIds || new Date(ftDate).toDateString() !== new Date().toDateString()) throw new Error();
-            const promises = ftIds.map(id => Manga.get(id, true).catch());
+            const promises = ftIds.map(id => Manga.get(id, true).catch(err => console.debug(err)));
             fts.push(...(await Promise.all(promises)));
         } catch (err) {
             const ftCount = 3;
             const ftPromises = [];
             for (let idx = 0; idx < ftCount; idx++) {
-                ftPromises.push(Manga.getRandom(true).catch());
+                ftPromises.push(Manga.getRandom(true).catch(err => console.debug(err)));
             }
             const mangas = await Promise.all(ftPromises);
             const ftIds = mangas.map(m => m.id);

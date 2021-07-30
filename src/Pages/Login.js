@@ -7,32 +7,46 @@ import logo from 'Assets/images/placeholder.jpg';
 import { useRouter } from 'flitlib';
 import SystemAppBar from 'Components/SystemAppBar.js';
 import GenericDialog from 'Components/shared/mui-x/GenericDialog';
+import { useValidator } from 'flitlib';
+import { login } from 'Redux/actions';
+import { useDispatch } from 'react-redux';
 
 function Login() {
     const [showForgotDialog, setShowForgotDialog] = useState(false);
+    const { values, setValue } = useValidator();
+
+    const dispatch = useDispatch();
 
     const { changePage } = useRouter();
     const goHome = () => {
         changePage('/');
     }
+    
 
     const handleForgot = e => {
         setShowForgotDialog(true);
     }
 
+    const handleLogin = async e => {
+        e.preventDefault();
+        await dispatch(login(values));
+        setValue({ password: '' });
+        goHome();
+    }
+
     return (
         <>
-            <SystemAppBar content='none' appBarProps={{color: 'transparent'}} />
+            <SystemAppBar content='none' appBarProps={{ color: 'transparent', position: 'absolute' }} />
             <Wrapper className='page fill-screen' >
-                <form id="content">
+                <form id="content" onSubmit={handleLogin} >
                     <Typography variant='h4' component='h1' >LOGIN</Typography>
                     <TextField
-                        label='Email' name='email' autoComplete='email'
-                        autoFocus fullWidth
+                        label='Username' name='username' autoComplete='username'
+                        autoFocus fullWidth value={values.username} onChange={setValue}
                     />
                     <TextField
                         label='Password' name='password' type='password'
-                        fullWidth
+                        fullWidth value={values.password} onChange={setValue}
                     />
                     <div id='extras' >
                         <FormControlLabel
@@ -46,11 +60,14 @@ function Login() {
                             Forgot Password
                         </Button>
                     </div>
-                    <Button variant='contained' color='primary' type='submit' size='large' >
+                    <Button
+                        variant='contained' color='primary' type='submit'
+                        size='large'
+                    >
                         Login
                     </Button>
                 </form>
-                <Dialog 
+                <Dialog
                     title='Forgot Passord?' open={showForgotDialog}
                     onClose={_ => setShowForgotDialog(false)}
                     showCloseButton hideDialogActions
@@ -67,7 +84,7 @@ function Login() {
 const Wrapper = styled.div`
     display: grid;
     justify-content: center;
-    padding-top: 5.6rem;
+    padding-top: calc(100vh - 30rem);
     #content {
         max-width: 640px;
         width: 100vw;
@@ -86,12 +103,15 @@ const Wrapper = styled.div`
                 margin: 0;
             }
         }
-        
+
         >button {
             justify-self: flex-end;
         }
 
-        ${p => p.theme.breakpoints.down('xs')} {
+    }
+    ${p => p.theme.breakpoints.down('xs')} {
+        padding-top: 5.6rem;
+        #content {
             width: 90vw;
             padding: 0;
             div#extras {

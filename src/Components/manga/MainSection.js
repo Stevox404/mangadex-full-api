@@ -80,6 +80,9 @@ const Container = styled.main`
     gap: 3rem;
     padding: 0 3rem;
     >.main-cover {
+        position: sticky;
+        top: 0;
+        margin-bottom: 2rem;
         height: 440px;
         width: 280px;
         margin-top: -128px;

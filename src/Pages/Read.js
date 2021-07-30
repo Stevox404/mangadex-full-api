@@ -166,7 +166,6 @@ function Read() {
                 return dispatch(addNotification({
                     message: "There's no previous chapter",
                     group: 'no-prev-chapter',
-                    showDismissAsIcon: true,
                     persist: true
                 }));
             }

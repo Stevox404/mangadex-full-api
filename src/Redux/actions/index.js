@@ -1,56 +1,45 @@
-import { xFetch } from "Utils/shared/flitlib";
+import { login as mfaLogin, User } from 'mangadex-full-api';
 
-export const ACTIONS = {
-    FETCH_USER: 'users',
-}
-
-export const fetchData = (action) => {
-    return async dispatch => {
-        dispatch({
-            type: `pendingAction/start`,
-            payload: action
-        });
-
-        try {
-            const { data } = await xFetch(`/${action}`);
-            dispatch({
-                type: `user/fetchedData`,
-                payload: { [action]: data }
-            });
-        } finally {
-            dispatch({
-                type: `pendingAction/end`,
-                payload: action
-            });
-        }
-
-    }
-}
 
 export const login = (auth) => {
     return async dispatch => {
-        if (auth) {
-            await xFetch('/login', {
-                method: 'POST',
-                body: auth
-            });
-        } else {
-            const isLoggedIn = document.cookie.match(/isLoggedIn=(.+?)(?:;|$)/);
-            if (!isLoggedIn || isLoggedIn[1] !== 'true') {
-                return;
+        let key;
+        try {
+            if (auth) {
+                key = dispatch(addNotification({
+                    message: 'Logging in...',
+                    persist: true,
+                    showDismiss: false
+                }));
+                await mfaLogin(auth.username, auth.password, 'dexumi_tokens');
+            } else {
+                const users = JSON.parse(window.localStorage.getItem('dexumi_tokens'));
+                await mfaLogin(Object.keys(users)[0], undefined, 'dexumi_tokens');
             }
-        }
 
-        const promises = [];
-        promises.push(dispatch(fetchData(ACTIONS.FETCH_USER)));
-        await Promise.all(promises);
+            dispatch(dismissNotification(key));
+            dispatch(dismissNotificationGroup('login'));
+
+            const user = await User.getLoggedInUser();
+            if(!user) return;
+            
+            dispatch({
+                type: `user/setUser`,
+                payload: user
+            });
+        } catch (err) {
+            dispatch(editNotification({
+                key,
+                message: 'Login failed',
+                persist: true,
+                group: 'login',
+            }));
+        }
     }
 }
 
 export const logout = () => {
     return async dispatch => {
-        xFetch('/login', { method: 'DELETE' });
-        document.cookie = "isLoggedIn=false; path=/;";
         dispatch({
             type: 'user/loggedOut'
         });
@@ -71,7 +60,7 @@ export const logout = () => {
     *  autoHideDuration: number,
     *  action: Node|null,
     *  onClose: Function,
-    *  showDismissAsIcon: boolean,
+    *  showDismiss: boolean,
     * }}
     */
 /**
@@ -115,5 +104,15 @@ export const dismissNotification = (key) => {
     return {
         type: 'notification/dismissed',
         payload: key
+    }
+}
+
+/**
+ * @param {string} group - notification group identifier
+ */
+export const dismissNotificationGroup = (group) => {
+    return {
+        type: 'notification/dismissedGroup',
+        payload: group
     }
 }

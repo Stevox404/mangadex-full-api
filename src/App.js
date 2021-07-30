@@ -21,12 +21,10 @@ const Read = React.lazy(() => ReadPromise);
 
 function App() {
     const dispatch = useDispatch();
-    const { firstRender } = useSelector(state => state);
+    const firstRender = useSelector(state => state.firstRender);
 
     useEffect(() => {
-        if (firstRender) {
-            dispatch(login());
-        }
+        dispatch(login());
     }, []);
 
     return (
@@ -105,7 +103,7 @@ const Wrapper = styled.div`
         font-size: ${p => p.theme.typography.body2.fontSize};
     }
     
-    #spacer {
+    #toolbar-spacer {
         ${({ theme }) => theme.mixins.toolbar}
     }
     a {

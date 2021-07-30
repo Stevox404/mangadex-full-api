@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-    TextField, useMediaQuery, InputAdornment, IconButton, Button, 
-    Menu as MuiMenu, MenuItem, alpha
+    TextField, useMediaQuery, InputAdornment, IconButton, Button,
+    Menu as MuiMenu, MenuItem, alpha, Avatar
 } from '@material-ui/core';
 import { Search, Menu as MenuIcon } from '@material-ui/icons';
 import styled from 'styled-components';
@@ -11,9 +11,11 @@ import { useSelector } from 'react-redux';
 
 function AppBarContent(props) {
     const [anchorEl, setAnchorEl] = useState(null);
+    const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
+
     const { changePage } = useRouter();
     const isXs = useMediaQuery(theme => theme.breakpoints.down('xs'));
-    const isLoggedIn = useSelector(state => Boolean(state.user));
+    const user = useSelector(state => state.user);
 
     return (
         <>
@@ -47,14 +49,37 @@ function AppBarContent(props) {
                     />
 
                     <div className="action">
-                        {isLoggedIn ?
+                        {Boolean(user) ?
                             <>
-                                <Button
-                                    size='large' variant='text'
-                                    onClick={e => changePage('/library')}
+                                <Avatar onClick={e => setUserMenuAnchorEl(e.target)} >
+                                    B
+                                </Avatar>
+                                <Menu
+                                    open={!!userMenuAnchorEl} onClose={() => setUserMenuAnchorEl(null)}
+                                    anchorEl={userMenuAnchorEl} anchorOrigin={{
+                                        vertical: 'bottom', horizontal: 'right'
+                                    }}
+                                    getContentAnchorEl={null}
+                                    onKeyDown={e => e.code === 'Enter' || e.code === 'Space' &&
+                                        !e.target.disabled && setUserMenuAnchorEl(null)
+                                    }
+                                    onClick={e => !e.target.disabled &&
+                                        setUserMenuAnchorEl(null)
+                                    }
                                 >
-                                    Login
-                                </Button>
+                                    <MenuItem>
+                                        Follows
+                                    </MenuItem>
+                                    <MenuItem>
+                                        Profile
+                                    </MenuItem>
+                                    <MenuItem>
+                                        Settings
+                                    </MenuItem>
+                                    <MenuItem>
+                                        About
+                                    </MenuItem>
+                                </Menu>
                             </> :
                             <>
                                 <Button
@@ -96,6 +121,9 @@ const Container = styled.div`
     }
     >div.action {
         margin-left: ${({ theme }) => theme.spacing(2)}px;
+        .MuiAvatar-root {
+            cursor: pointer;
+        }
     }
 `;
 

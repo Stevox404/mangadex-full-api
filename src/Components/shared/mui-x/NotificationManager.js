@@ -8,15 +8,27 @@ import { Close } from '@material-ui/icons';
 function NotificationManager() {
     const { closeSnackbar, enqueueSnackbar } = useSnackbar();
     const dispatch = useDispatch();
-    const notifications = useSelector(({ notifications }) => notifications);
-    const prevNotifications = usePrevious([...notifications]);
+    const notifications = useSelector(({ notifications }) => notifications || []);
 
     /** @param {string} key - notification identifier */
     const removeNotification = (key) => {
-        return {
+        notifications.some(ntf => {
+            if(ntf.key === key){
+                if (Date.now() - ntf.addTime < 1000) {
+                    window.setTimeout(() => {
+                        closeSnackbar(key);
+                    }, 1000);
+                } else {
+                    closeSnackbar(key);
+                }
+                return true;
+            }
+        });
+        
+        return dispatch({
             type: 'notification/removed',
             payload: key
-        }
+        });
     }
 
     const getNotificationActions = ntf => {
@@ -28,48 +40,26 @@ function NotificationManager() {
             </IconButton>
         );
 
-        if (ntf.action === undefined) {
-            if (ntf.showDismissAsIcon) {
-                return closeIconBtn();
-            } else {
-                return (
-                    <Button color='primary' onClick={e => {
-                        dispatch(removeNotification(ntf.key))
-                    }} >
-                        Dismiss
-                    </Button>
-                );
-            }
+        if (ntf.action === undefined && ntf.showDismiss !== false) {
+            return closeIconBtn();
         } else {
             const actions = [ntf.action];
-            if (ntf.showDismissAsIcon) {
+            if (ntf.showDismiss) {
                 actions.push(closeIconBtn());
             }
             return actions;
         }
     }
 
-    useEffect(() => {
-        (prevNotifications || []).forEach(pNtf => {
-            const key = pNtf.key;
-            if (!notifications.some(ntf => ntf.key === key)) {
-                if (Date.now() - pNtf.addTime < 1000) {
-                    window.setTimeout(() => {
-                        closeSnackbar(key);
-                    }, 1000);
-                } else {
-                    closeSnackbar(key);
-                }
-            }
-        });
 
-        let count = 3, i = 0;
-        while (count > 0) {
+    useEffect(() => {
+        const count = 3;
+        let i = -1;
+        while (++i < count) {
             const ntf = notifications[i];
             if (!ntf) break;
             if (ntf.dismissed) {
-                dispatch(removeNotification(ntf.key));
-                closeSnackbar(ntf.key);
+                removeNotification(ntf.key);
                 continue;
             }
             enqueueSnackbar(ntf.message, {
@@ -78,9 +68,7 @@ function NotificationManager() {
                 key: ntf.key,
                 autoHideDuration: ntf.autoHideDuration,
                 preventDuplicate: true,
-                onExited: (e, key) => {
-                    dispatch(removeNotification(key))
-                },
+                onExited: (e, key) => removeNotification(key),
                 onClose: (e, reason, key) => {
                     if (ntf.onClose) {
                         ntf.onClose(e, reason, key);
@@ -89,10 +77,8 @@ function NotificationManager() {
                 action: getNotificationActions(ntf),
                 className: 'notification-snackbar',
             });
-            i++;
-            count--;
         }
-    }, [notifications, prevNotifications]);
+    }, [notifications]);
 
     return (
         null
