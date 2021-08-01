@@ -1,9 +1,7 @@
-import pageImg from 'Assets/images/manga-sample.jpg';
+import { Skeleton } from '@material-ui/lab';
+import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
-import PropTypes from 'prop-types';
-import { Skeleton } from '@material-ui/lab';
-import { use } from '@material-ui/core';
 
 /**@param {ReadingPane.propTypes} props */
 function ReadingPane(props) {

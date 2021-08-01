@@ -6,7 +6,7 @@ import {
 } from '@material-ui/core';
 import { Search, Menu as MenuIcon } from '@material-ui/icons';
 import styled from 'styled-components';
-import { useRouter } from 'Utils/shared/flitlib';
+import { useRouter } from 'flitlib';
 import { useSelector } from 'react-redux';
 
 function AppBarContent(props) {
@@ -74,10 +74,10 @@ function AppBarContent(props) {
                                         Profile
                                     </MenuItem>
                                     <MenuItem>
-                                        Settings
+                                        About
                                     </MenuItem>
                                     <MenuItem>
-                                        About
+                                        Log out
                                     </MenuItem>
                                 </Menu>
                             </> :

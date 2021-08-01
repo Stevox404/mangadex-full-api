@@ -3,12 +3,11 @@ import {
     useMediaQuery
 } from '@material-ui/core';
 import { KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined } from '@material-ui/icons';
+import { useRouter } from 'flitlib';
 import { Manga } from 'mangadex-full-api';
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import sampleCover from 'Assets/images/manga-cover.jpg';
 import { addNotification } from 'Redux/actions';
-import { useRouter } from 'Shared/flitlib';
+import styled from 'styled-components';
 
 function Featured(props) {
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -78,7 +77,6 @@ function Featured(props) {
             <div id='img-box' className={loadingImg ? 'loading' : ''} >
                 <img
                     src={ftManga[selectedIndex]?.mainCover.imageSource} alt="Cover"
-                    // src={sampleCover} alt="Cover"
                     onLoad={_ => {
                         setLoadingImg(false);
                     }}

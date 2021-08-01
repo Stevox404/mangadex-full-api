@@ -1,17 +1,15 @@
-import coverSample from 'Assets/images/manga-cover.jpg';
-import DataSection from 'Components/manga/DataSection';
-import MainSection from 'Components/manga/MainSection';
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import styled from 'styled-components';
+import { SystemAppBar } from 'Components';
+import { DataSection, MainSection } from 'Features/title';
 import { Manga as MfaManga } from 'mangadex-full-api';
-import { getLocalizedString } from 'Utils';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { addNotification } from 'Redux/actions';
-import SystemAppBar from 'Components/SystemAppBar.js';
+import styled from 'styled-components';
+import { getLocalizedString } from 'Utils';
 
 
-function Manga() {
+function Title() {
     const params = useParams();
     const [manga, setManga] = useState();
     const [fetching, setFetching] = useState(true);
@@ -116,4 +114,4 @@ const Wrapper = styled.div`
     }
 `;
 
-export default Manga;
+export default Title;

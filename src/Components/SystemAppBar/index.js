@@ -5,7 +5,7 @@ import React from 'react';
 import styled from 'styled-components';
 import AppBarContent from './AppBarContent';
 import logo from 'Assets/images/placeholder.jpg';
-import { useRouter } from 'Utils/shared/flitlib';
+import { useRouter } from 'flitlib';
 import PropTypes from 'prop-types';
 
 /**@param {SystemAppBar.propTypes} props */

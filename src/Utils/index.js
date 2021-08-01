@@ -27,5 +27,4 @@ export function getLocalizedString(localizedObj = {}, locale = 'en'){
 }
 
 
-export * as flitlib from './shared/flitlib';;
 export * from './theme';

@@ -1,23 +1,18 @@
-import { IconButton, MenuItem, Toolbar } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import { MenuOpenOutlined } from '@material-ui/icons';
-import Close from '@material-ui/icons/Close';
-import ReaderSettings from 'Components/read/ReaderSettings';
-import ReadingPane from 'Components/read/ReadingPane';
-import SidePane from 'Components/read/SidePane';
-import SideDrawer from 'Components/shared/mui-x/SideDrawer';
-import SystemAppBar from 'Components/SystemAppBar.js';
-import { Manga } from 'mangadex-full-api';
-import React, { useState, useEffect, useRef } from 'react';
+import { SystemAppBar } from 'Components';
+import { ReaderSettings, ReadingPane, SidePane } from 'Features/chapter';
+import { useRouter } from 'flitlib';
+import { Chapter as MfaChapter } from 'mangadex-full-api';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { addNotification } from 'Redux/actions';
-import { useRouter } from 'Shared/flitlib';
-import { Chapter } from 'Shared/mfa/src';
 import styled from 'styled-components';
 
-function Read() {
+function Chapter() {
     const [drawerOpen, setDrawerOpen] = useState(false);
-    /**@type {[Chapter]} */
+    /**@type {[MfaChapter]} */
     const [chapter, setChapter] = useState();
     const [fetching, setFetching] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
@@ -51,7 +46,7 @@ function Read() {
     const { changePage } = useRouter();
 
 
-    /**@param {Chapter} chapter */
+    /**@param {MfaChapter} chapter */
     const setUpLoadedChapter = async chapter => {
         const pages = await chapter.getReadablePages();
         chapter.pages = pages;
@@ -63,7 +58,7 @@ function Read() {
     const fetchChapter = async () => {
         try {
             setFetching(true);
-            const chapter = await Chapter.get(params.id, true);
+            const chapter = await MfaChapter.get(params.id, true);
             setUpLoadedChapter(chapter);
         } catch (err) {
             if (/TypeError/.test(err.message)) {
@@ -114,7 +109,7 @@ function Read() {
     }
 
     const goToNextChapter = async () => {
-        if(!chapter.manga) return;
+        if (!chapter.manga) return;
         let aggVols;
         try {
             aggVols = await chapter.manga.getAggregate([language]);
@@ -127,24 +122,24 @@ function Read() {
         }
         const vol = aggVols[chapter.volume || 'none'];
         const chIdx = Object.keys(vol.chapters).indexOf(chapter.chapter ?? 'none');
-        
+
         let nextChNum = Object.keys(vol.chapters)[chIdx + 1];
-        if(!nextChNum){
+        if (!nextChNum) {
             const volIdx = Object.keys(aggVols).indexOf(chapter.volume ?? 'none');
             const nextVolKey = Object.keys(aggVols)[volIdx + 1];
-            if(vol === 'none' || !nextVolKey){
+            if (vol === 'none' || !nextVolKey) {
                 return dispatch(addNotification({
                     message: "There's no next chapter",
                     group: 'no-next-chapter'
                 }));
             }
-            nextChNum = Object.values(aggVols[nextVolKey].chapters)[0].chapter;            
+            nextChNum = Object.values(aggVols[nextVolKey].chapters)[0].chapter;
         }
         goToChapter(nextChNum);
     }
 
     const goToPrevChapter = async () => {
-        if(!chapter.manga) return;
+        if (!chapter.manga) return;
         let aggVols;
         try {
             aggVols = await chapter.manga.getAggregate([language]);
@@ -157,12 +152,12 @@ function Read() {
         }
         const vol = aggVols[chapter.volume || 'none'];
         const chIdx = Object.keys(vol.chapters).indexOf(chapter.chapter ?? 'none');
-        
+
         let prevChNum = Object.keys(vol.chapters)[chIdx - 1];
-        if(!prevChNum){
+        if (!prevChNum) {
             const volIdx = Object.keys(aggVols).indexOf(chapter.volume ?? 'none');
             const prevVolKey = Object.keys(aggVols)[volIdx - 1];
-            if(vol === 'none' || !prevVolKey){
+            if (vol === 'none' || !prevVolKey) {
                 return dispatch(addNotification({
                     message: "There's no previous chapter",
                     group: 'no-prev-chapter',
@@ -171,7 +166,7 @@ function Read() {
             }
 
             const l = Object.values(aggVols[prevVolKey].chapters).length;
-            prevChNum = Object.values(aggVols[prevVolKey].chapters)[l - 1].chapter;            
+            prevChNum = Object.values(aggVols[prevVolKey].chapters)[l - 1].chapter;
 
         }
         goToChapter(prevChNum);
@@ -189,12 +184,12 @@ function Read() {
             if (!opts?.allGroups) {
                 params.groups = [chapter.groups[0].id];
             }
-            const newChapter = await Chapter.getByQuery(params);
+            const newChapter = await MfaChapter.getByQuery(params);
             setUpLoadedChapter(newChapter);
         } catch (err) {
-            if(err.message === 'Search returned no results.'){
+            if (err.message === 'Search returned no results.') {
                 if (!opts?.allGroups) {
-                    return goToChapter(ch, {allGroups: true});
+                    return goToChapter(ch, { allGroups: true });
                 }
                 dispatch(addNotification({
                     message: 'No chapter found'
@@ -211,7 +206,7 @@ function Read() {
             {(fetching || showToolbar) &&
                 <SystemAppBar content={!showToolbar && 'none'} appBarProps={{ position: 'sticky' }} />
             }
-            <Wrapper className={`page ${showToolbar ? 'clear-appBar':''} `} >
+            <Wrapper className={`page ${showToolbar ? 'clear-appBar' : ''} `} >
                 <div >
                     <IconButton id='menu' onClick={toggleDrawer} >
                         <MenuOpenOutlined data-open={drawerOpen} />
@@ -284,4 +279,4 @@ const Wrapper = styled.div`
 `;
 
 
-export default Read;
+export default Chapter;

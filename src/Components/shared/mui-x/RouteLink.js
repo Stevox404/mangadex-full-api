@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
-import { useRouter } from 'Utils/shared/flitlib';
+import { useRouter } from 'flitlib';
 import { Typography } from '@material-ui/core';
 
 /**

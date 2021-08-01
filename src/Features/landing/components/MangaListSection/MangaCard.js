@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import PopularityDetails from './PopularityDetails';
 import UpdateDetails from './UpdateDetails';
 import PropTypes from 'prop-types';
-import { useRouter } from 'Utils/shared/flitlib';
+import { useRouter } from 'flitlib';
 import {Cover} from 'mangadex-full-api';
 
 

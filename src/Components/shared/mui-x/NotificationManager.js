@@ -1,9 +1,8 @@
+import { IconButton } from '@material-ui/core';
+import { Close } from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { usePrevious } from 'Utils/shared/flitlib';
-import { Button, IconButton } from '@material-ui/core';
-import { Close } from '@material-ui/icons';
 
 function NotificationManager() {
     const { closeSnackbar, enqueueSnackbar } = useSnackbar();

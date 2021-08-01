@@ -2,12 +2,11 @@ import {
     Typography
 } from '@material-ui/core';
 import { StarOutlined, VisibilityOutlined } from '@material-ui/icons';
-import coverSample from 'Assets/images/manga-cover.jpg';
+import { Skeleton } from '@material-ui/lab';
+import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
-import PropTypes from 'prop-types';
 import { abbreviateNumber } from 'Utils';
-import { Skeleton } from '@material-ui/lab';
 
 /** @param {MainSection.propTypes} props */
 function MainSection(props) {

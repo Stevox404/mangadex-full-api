@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import ChapterListSettings from './ChapterListSettings';
 import InfoTab from './InfoTab';
 import moment from 'moment';
-import { useRouter } from 'Utils/shared/flitlib';
+import { useRouter } from 'flitlib';
 import { useDispatch, useSelector } from 'react-redux'
 import { Manga as MfaManga } from 'mangadex-full-api';
 import { addNotification } from 'Redux/actions';

@@ -1,15 +1,13 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
 import {
-    AppBar, Button, Checkbox, FormControlLabel, TextField, Toolbar, Typography, useScrollTrigger
+    Button, Checkbox, FormControlLabel, TextField, Typography
 } from '@material-ui/core';
-import logo from 'Assets/images/placeholder.jpg';
-import { useRouter } from 'flitlib';
-import SystemAppBar from 'Components/SystemAppBar.js';
+import { SystemAppBar } from 'Components';
 import GenericDialog from 'Components/shared/mui-x/GenericDialog';
-import { useValidator } from 'flitlib';
-import { login } from 'Redux/actions';
+import { useRouter, useValidator } from 'flitlib';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { login } from 'Redux/actions';
+import styled from 'styled-components';
 
 function Login() {
     const [showForgotDialog, setShowForgotDialog] = useState(false);
@@ -21,7 +19,7 @@ function Login() {
     const goHome = () => {
         changePage('/');
     }
-    
+
 
     const handleForgot = e => {
         setShowForgotDialog(true);

@@ -1,7 +1,6 @@
-import SystemAppBar from 'Components/SystemAppBar.js';
 import React, { Suspense, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import { login } from 'Redux/actions';
 import styled, { css } from 'styled-components';
 
@@ -12,12 +11,12 @@ import styled, { css } from 'styled-components';
 
 const LandingPromise = import('Pages/Landing');
 const Landing = React.lazy(() => LandingPromise);
-const MangaPromise = import('Pages/Manga');
-const Manga = React.lazy(() => MangaPromise);
+const TitlePromise = import('Pages/Title');
+const Title = React.lazy(() => TitlePromise);
 const LoginPromise = import('Pages/Login');
 const Login = React.lazy(() => LoginPromise);
-const ReadPromise = import('Pages/Read');
-const Read = React.lazy(() => ReadPromise);
+const ChapterPromise = import('Pages/Chapter');
+const Chapter = React.lazy(() => ChapterPromise);
 
 function App() {
     const dispatch = useDispatch();
@@ -33,39 +32,14 @@ function App() {
                 {/* <SystemAppBar /> */}
                 <Switch>
                     <Route path='/' exact component={Landing} />
-                    <Route path='/title/:id' component={Manga} />
-                    <Route path='/chapter/:id/:page' component={Read} />
+                    <Route path='/title/:id' component={Title} />
+                    <Route path='/chapter/:id/:page' component={Chapter} />
                     <Route path='/login' component={Login} />
                 </Switch>
             </Suspense>
         </Wrapper>
     );
 }
-
-
-const UserRouter = props => {
-    const { match } = props;
-
-    const { user, firstRender } = useSelector(state => state);
-    const loading = useSelector(state => state.pending.length > 0);
-
-    if (!user) {
-        if (firstRender || loading) {
-            return 'Loading...';
-        } else {
-            return (
-                <Redirect to='/login' />
-            )
-        }
-    }
-
-    return (
-        <Switch >
-            <Route path={`${match.url}/`} component={Landing} />
-        </Switch>
-    );
-}
-
 
 
 const Wrapper = styled.div`
