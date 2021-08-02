@@ -27,7 +27,7 @@ class AuthUtil {
      * @returns {Promise<void>}
      */
     static async login(username, password, cacheLocation) {
-        if (username === undefined || password === undefined) throw new Error('Invalid Argument(s)');
+        if (username === undefined) throw new Error('Invalid Argument(s)');
 
         AuthUtil.canAuth = true;
         if (Util.isBrowser()) AuthUtil.cache = new BrowserCache(cacheLocation, username);
@@ -42,6 +42,7 @@ class AuthUtil {
         }
 
         // Login if the cache is not valid or missing
+        if (password === undefined) throw new Error('Invalid Argument(s)');
         let res = await Util.apiRequest('/auth/login', 'POST', { username: username, password: password });
         if (!('token') in res) throw new APIRequestError('The API did not respond with any tokens when logging in', APIRequestError.INVALID_RESPONSE);
         AuthUtil.cache.write({ ...res.token, date: Date.now() });
