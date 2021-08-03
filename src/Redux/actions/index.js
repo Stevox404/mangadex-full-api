@@ -5,6 +5,7 @@ export const login = (auth) => {
     return async dispatch => {
         let key;
         try {
+            dispatch(beginPending('login'));
             if (auth) {
                 key = dispatch(addNotification({
                     message: 'Logging in...',
@@ -34,6 +35,8 @@ export const login = (auth) => {
                 persist: true,
                 group: 'login',
             }));
+        } finally {
+            dispatch(endPending('login'));
         }
     }
 }
@@ -114,5 +117,19 @@ export const dismissNotificationGroup = (group) => {
     return {
         type: 'notification/dismissedGroup',
         payload: group
+    }
+}
+
+export const beginPending = (action) => {
+    return {
+        type: 'pending/start',
+        payload: action
+    }
+}
+
+export const endPending = (action) => {
+    return {
+        type: 'pending/end',
+        payload: action
     }
 }

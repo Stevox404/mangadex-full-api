@@ -1,10 +1,10 @@
 import {
-    AppBar, IconButton, List, ListItem, ListItemText, Paper, Tab, Tabs
+    AppBar, IconButton, List, ListItem, ListItemText, Paper, Tab, TablePagination, Tabs
 } from '@material-ui/core';
 import { Skeleton } from '@material-ui/lab';
 import { SettingsOutlined } from '@material-ui/icons';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import ChapterListSettings from './ChapterListSettings';
 import InfoTab from './InfoTab';
@@ -22,11 +22,13 @@ function DataSection(props) {
     const [chapterSettingsOpen, setChapterSettingsOpen] = useState(false);
     const [fetching, setFetching] = useState(false);
     const [chapters, setChapters] = useState([]);
-    const [chapterSortOrder, setChapterSortOrder] = useState();
-    const [uploaders, setUploaders] = useState({});
+    const [groups, setGroups] = useState({});
+    const [chapterPage, setChapterPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const { changePage } = useRouter();
     const language = useSelector(state => state.language);
+    const settings = useSelector(state => state.settings);
     const dispatch = useDispatch();
 
     const [chapterSettings, setChapterSettings] = useState({
@@ -37,23 +39,27 @@ function DataSection(props) {
     });
 
 
-    const fetchChapters = async (sortOrder = 'chapter-desc') => {
+    const fetchChapters = async _ => {
         if (!props.manga) return;
         try {
             setFetching(true);
             /**@type {MfaManga} */
             const manga = props.manga;
-            const sort = sortOrder.split('-');
-            const chapters = await manga.getFeed({
+            const sort = chapterSettings.sortOrder.split('-');
+            const params = {
                 order: {
                     [sort[0]]: sort[1]
                 },
-                limit: 10,
-                // limit: Infinity,
+                limit: Infinity,
                 translatedLanguage: [language]
-            }, true);
+            }
+            if(settings.dataSaverMode){
+                params.limit = rowsPerPage;
+                params.offset = chapterPage * rowsPerPage;
+            }
+
+            const chapters = await manga.getFeed(params, true);
             setChapters(chapters);
-            setChapterSortOrder(sortOrder);
         } catch (err) {
             dispatch(addNotification({
                 message: "Check your network connection and refresh",
@@ -64,6 +70,15 @@ function DataSection(props) {
             setFetching(false);
         }
     }
+
+    useEffect(() => {
+        if(settings.dataSaverMode) return;
+        fetchChapters();
+    }, [chapterPage, rowsPerPage]);
+
+    useEffect(() => {
+        fetchChapters();
+    }, [chapterSettings]);
 
     const handleTabChange = (e, idx) => {
         setTabIndex(idx);
@@ -77,32 +92,41 @@ function DataSection(props) {
         changePage(`/chapter/${chapter.id}/1`);
     }
 
+    /**
+     * @param {import('react').MouseEvent} e 
+     * @param {number} page 
+     */
+    const handleChangePage = (e, page) => {
+        setChapterPage(page);
+    }
+
+
+    /**
+     * @param {import('react').ChangeEvent} e 
+     */
+    const handleChangeRowsPerPage = (e) => {
+        setRowsPerPage(e.target.value);
+    }
+
     // Put here so no re-render on tab change
     const chapterList = React.useMemo(() => {
-        if (chapterSettings.sortOrder !== chapterSortOrder) {
-            fetchChapters(chapterSettings.sortOrder);
-            return [];
-        }
-
-        console.debug(chapters[0]);
-
-        const uploaders = {};
+        const groups = {};
 
         const list = chapters.reduce((acc, c, idx) => {
-            uploaders[c.groups[0].id] = c.groups[0].name;
-            if(chapterSettings.group !== 'all' && chapterSettings.group !== c.groups[0].id){
+            groups[c.groups[0].id] = c.groups[0].name;
+            if (chapterSettings.group !== 'all' && chapterSettings.group !== c.groups[0].id) {
                 return acc;
             }
 
             const getChapterText = () => {
-                let txt = c.chapter === null ? 'One-Shot': `Chapter ${c.chapter}`;
-                if(c.title){
+                let txt = c.chapter === null ? 'One-Shot' : `Chapter ${c.chapter}`;
+                if (c.title) {
                     txt += `: ${c.title}`;
                 }
                 return txt;
             }
             acc[acc.length] = (
-                <ListItem data-read={idx > 3} key={c.id} button onClick={e => handleChapterClick(e, c)} >
+                <ListItem key={c.id} button onClick={e => handleChapterClick(e, c)} >
                     <ListItemText
                         primary={getChapterText()}
                         secondary={c.groups[0].name || c.uploader.username}
@@ -117,10 +141,10 @@ function DataSection(props) {
             return acc;
         }, [])
 
-        setUploaders(uploaders);
+        setGroups(groups);
 
         return list;
-    }, [language, props.manga, chapterSettings, chapterSortOrder, chapters]);
+    }, [language, props.manga, chapterSettings, chapters]);
 
     const getTabPanel = () => {
         switch (tabIndex) {
@@ -129,13 +153,25 @@ function DataSection(props) {
                 if (fetching) {
                     return (
                         <ChapterTab>
-                            {Array.from(Array(5), (e, idx) => (
+                            {Array.from(Array(10), (e, idx) => (
                                 <Skeleton key={idx} variant="rect" height={64} />
                             ))}
                         </ChapterTab>
                     );
                 }
-                return <ChapterTab> {chapterList} </ChapterTab>;
+                return (
+                    <ChapterTab>
+                        {chapterList}
+                        <TablePagination
+                            component="div"
+                            count={100}
+                            page={chapterPage}
+                            onPageChange={handleChangePage}
+                            rowsPerPage={rowsPerPage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}                          
+                        />
+                    </ChapterTab>
+                );
             }
             default: break;
         }
@@ -156,7 +192,7 @@ function DataSection(props) {
     const handleChapterSettingChange = e => {
         const key = e.target.name;
         const val = e.target.value;
-        setChapterSettings(s => ({ ...s, [key]: val }))
+        setChapterSettings(s => ({ ...s, [key]: val }));
     }
 
     if (!props.manga) return null; // todo show loading
@@ -189,7 +225,7 @@ function DataSection(props) {
                 displayDate={chapterSettings.displayDate}
                 grouped={chapterSettings.grouped}
                 onChange={handleChapterSettingChange}
-                uploaders={uploaders}
+                groups={groups}
             />
         </Container>
     )

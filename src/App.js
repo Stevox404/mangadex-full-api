@@ -9,18 +9,14 @@ import styled, { css } from 'styled-components';
 
 
 
-const LandingPromise = import('Pages/Landing');
-const Landing = React.lazy(() => LandingPromise);
-const TitlePromise = import('Pages/Title');
-const Title = React.lazy(() => TitlePromise);
-const LoginPromise = import('Pages/Login');
-const Login = React.lazy(() => LoginPromise);
-const ChapterPromise = import('Pages/Chapter');
-const Chapter = React.lazy(() => ChapterPromise);
+const Landing = React.lazy(() => import('Pages/Landing'));
+const Title = React.lazy(() => import('Pages/Title'));
+const Login = React.lazy(() => import('Pages/Login'));
+const Chapter = React.lazy(() => import('Pages/Chapter'));
+const Follows = React.lazy(() => import('Pages/Follows'));
 
 function App() {
     const dispatch = useDispatch();
-    const firstRender = useSelector(state => state.firstRender);
 
     useEffect(() => {
         dispatch(login());
@@ -34,6 +30,7 @@ function App() {
                     <Route path='/' exact component={Landing} />
                     <Route path='/title/:id' component={Title} />
                     <Route path='/chapter/:id/:page' component={Chapter} />
+                    <Route path='/follows' component={Follows} />
                     <Route path='/login' component={Login} />
                 </Switch>
             </Suspense>

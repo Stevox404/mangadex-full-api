@@ -1,4 +1,17 @@
-import { ACTIONS } from "Redux/actions";
+export function pending(state = [], action) {
+    switch (action.type) {
+        case 'pending/start': {
+            return [...state, action.payload]
+        }
+        case 'pending/end': {
+            const pending = [...state];
+            const idx = pending.findIndex(el => el == action.payload)
+            if(idx>-1) pending.splice(idx, 1);
+            return pending;
+        }
+        default: return state;
+    }
+}
 
 export function user(state = null, action) {
     switch (action.type) {
@@ -25,6 +38,23 @@ export function language(state = 'en', action) {
     }
 }
 
+
+const defaultSettings = {};
+export function settings(state = defaultSettings, action){
+    switch (action.type) {
+        case 'settings/change': {
+            const settings = {...state};
+            for(let [key, val] of Object.entries(action.payload)){
+                settings[key] = val;
+            }
+            return settings;
+        }
+        case 'settings/default': {
+            return defaultSettings;
+        }
+        default: return state;
+    }
+}
 
 
 
@@ -80,7 +110,7 @@ export function notifications(state = [], action) {
 }
 
 export function firstRender(state = true, action) {
-    if (state && action.type === 'pendingAction/end') {
+    if (state && action.type === 'pending/end') {
         return false;
     }
     return state;

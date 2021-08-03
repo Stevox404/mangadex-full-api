@@ -21,12 +21,12 @@ function ChapterListSettings(props) {
                 onChange={props.onChange}
                 name='sortOrder'
             >
-                <MenuItem value='chapter-asc' >Chapter ASC</MenuItem>
                 <MenuItem value='chapter-desc' >Chapter DESC</MenuItem>
-                <MenuItem value='updatedAt-asc' >Update ASC</MenuItem>
-                <MenuItem value='updatedAt-desc' >Update DESC</MenuItem>
-                <MenuItem value='createdAt-asc' >Publish ASC</MenuItem>
-                <MenuItem value='createdAt-desc' >Publish DESC</MenuItem>
+                <MenuItem value='chapter-asc' >Chapter ASC</MenuItem>
+                <MenuItem value='updatedAt-asc' >Newest Update</MenuItem>
+                <MenuItem value='updatedAt-desc' >Oldest Update</MenuItem>
+                <MenuItem value='createdAt-asc' >Latest Publish</MenuItem>
+                <MenuItem value='createdAt-desc' >Oldest Publish</MenuItem>
             </Select>
 
             <Typography id='group-lbl' component='label' >Group:</Typography>
@@ -35,10 +35,11 @@ function ChapterListSettings(props) {
                 name='group'
                 value={props.group}
                 onChange={props.onChange}
+                disabled={!Object.keys(props.groups || {}).length}
             >
                 <MenuItem value='all' >All</MenuItem>
-                {Object.entries(props.uploaders || {}).map(([id, username]) => 
-                    <MenuItem value={id} >{username}</MenuItem>
+                {Object.entries(props.groups || {}).map(([id, name]) => 
+                    <MenuItem value={id} >{name || '_undefined_'}</MenuItem>
                 )}
             </Select>
 
