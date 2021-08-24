@@ -29,12 +29,14 @@ export const login = (auth) => {
                 payload: user
             });
         } catch (err) {
-            dispatch(editNotification({
-                key,
-                message: 'Login failed',
-                persist: true,
-                group: 'login',
-            }));
+            if(auth){
+                dispatch(editNotification({
+                    key,
+                    message: 'Login failed',
+                    persist: true,
+                    group: 'login',
+                }));
+            }
         } finally {
             dispatch(endPending('login'));
         }

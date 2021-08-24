@@ -1,7 +1,7 @@
 import { Card as MuiCard, CardActionArea, CardContent, CardMedia, Typography } from '@material-ui/core';
 import manga404 from 'Assets/images/manga-404.jpg';
 import loadingGif from 'Assets/images/loading.gif';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import styled from 'styled-components';
 import PopularityDetails from './PopularityDetails';
 import UpdateDetails from './UpdateDetails';
@@ -20,29 +20,32 @@ function MangaCard(props) {
     const [cover, setCover] = useState();
     const { changePage } = useRouter();
 
+    const coverImgRef = useRef(null);
+    useEffect(() => {
+        // TODO wait till in viewport margin
+        const img = new Image();
+        img.src = props.manga.mainCover?.image256;
+        img.onload = e => {
+            /**@type {HTMLImageElement} */
+            const el = coverImgRef.current;
+            el.src = e.target.src;
+        }
+        img.onerror = e => {
+            /**@type {HTMLImageElement} */
+            const el = coverImgRef.current;
+            el.src = '';
+        }
+    }, []);
+    
     /**@param {Event} e */
     const handleClick = (e) => {
         /**@todo Use nicer url */
         changePage(`/title/${props.manga.id}`);
     }
-
-    const fetchCover = async () => {
-        if(!props.id) return;
-        try {
-            const cover = await Cover.get(props.id);
-            setCover(cover.image256);
-        } catch (err) {
-            setCover(manga404);
-        }
-    }
-
-    useEffect(() => {
-        // fetchCover();
-    }, [])
-
     const onCoverError = (e) => {
-        // console.debug(e);
-        e.target.src = '';
+        /**@type {HTMLImageElement} */
+        const el = coverImgRef.current;
+        el.src = '';
     }
 
     return (
@@ -53,7 +56,7 @@ function MangaCard(props) {
                     title={props.manga.title}
                 >
                     <img
-                        src={props.manga.mainCover?.image256 || loadingGif} loading="lazy" 
+                        src={loadingGif} loading="lazy" ref={coverImgRef}
                         alt={props.manga.title + ' cover'}
                         onError={onCoverError}
                     />

@@ -13,7 +13,7 @@ function UpdateDetails(props) {
             <div className='time' >
                 <TimelapseOutlined />
                 <Typography variant='subtitle2' >
-                    {moment(props.updateDate).fromNow(true)}
+                    {moment(props.updateDate).fromNow()}
                 </Typography>
             </div>
             <div className='chapter' >

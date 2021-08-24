@@ -26,7 +26,7 @@ function Landing() {
         try {
             const m = await Manga.search({
                 createdAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
-                limit: 15
+                limit: 40
             }, true);
             setNewestManga(m);
         } catch (err) {
@@ -44,7 +44,7 @@ function Landing() {
         try {
             const m = await Manga.search({
                 updatedAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
-                limit: 15
+                limit: 40
             }, true);
             setRecentManga(m);
         } catch (err) {
@@ -60,7 +60,9 @@ function Landing() {
             mangas.push({
                 id: `id_${i}`,
                 title: i % 2 ? 'Naruto' : 'How My Overly Cautious Classmate became OP in Another World!',
-                image: 'https://upload.wikimedia.org/wikipedia/en/c/c9/Nabarinoo.jpg',
+                mainCover:{
+                    image256: 'https://upload.wikimedia.org/wikipedia/en/c/c9/Nabarinoop.jpg',
+                },
                 views: Math.random() * (5000 - 1000) + 1000,
                 rating: Math.random() * (5 - 1) + 1,
                 updateDate: new Date() - (Math.random() * 86400000),

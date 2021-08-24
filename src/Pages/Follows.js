@@ -1,5 +1,10 @@
-import { AppBar, Button, ButtonGroup, Toolbar } from '@material-ui/core';
-import { KeyboardArrowDownOutlined } from '@material-ui/icons';
+import { 
+    AppBar, Button, ButtonGroup, Toolbar, Menu, MenuItem, ListItemIcon
+} from '@material-ui/core';
+import { 
+    KeyboardArrowDownOutlined, DeleteOutlined, ChromeReaderModeOutlined,
+    BookmarkOutlined, HourglassFullOutlined, LibraryAddCheckOutlined
+} from '@material-ui/icons';
 import { SystemAppBar } from 'Components';
 import { Manga as MfaManga } from 'mangadex-full-api';
 import moment from 'moment';
@@ -14,6 +19,9 @@ function Follows() {
     const [fetching, setFetching] = useState(true);
     const language = useSelector(state => state.language);
     const [feed, setFeed] = useState([]);
+    const [listAnchorEl, setListAnchorEl] = useState(null);
+    const [selectedTab, setSelectedTab] = useState('feed');
+    const [selectedList, setSelectedList] = useState(null);
 
     const user = useSelector(state => state.user);
     const loading = useSelector(state => state.pending.length > 0);
@@ -53,7 +61,22 @@ function Follows() {
         document.title = `Follows - Dexumi`;
     }, []);
 
+    const selectList = e => {
+        setSelectedList(e.currentTarget.textContent);
+        setSelectedTab('lists');
+        setListAnchorEl(null);
+    }
 
+    const getButtonProps = btn => {
+        if(btn === selectedTab){
+            return ({
+                color: 'primary',
+                variant: 'contained',
+                className: 'selected',
+            });
+        }
+        return {};
+    }
 
     if (!user && !loading) {
         // TODO if loading return loader
@@ -67,12 +90,25 @@ function Follows() {
                 <AppBar position="sticky" color="default" >
                     <Toolbar>
                         <ButtonGroup >
-                            <Button color='primary' variant='contained' >
-                                {/* TODO disable hover effects */}
+                            <Button
+                                onClick={_ => setSelectedTab('feed')}
+                                {...getButtonProps('feed')} 
+                            >
                                 Latest Updates
                             </Button>
-                            <Button endIcon={<KeyboardArrowDownOutlined/>} >
-                                Lists
+                            <Button 
+                                {...getButtonProps('lists')} 
+                                endIcon={<KeyboardArrowDownOutlined/>}
+                                onClick={e => setListAnchorEl(e.currentTarget)} 
+                            >
+                                {(selectedTab === 'lists') ? selectedList: 'Lists'}
+                            </Button>
+                            <Button 
+                                {...getButtonProps('customLists')} 
+                                onClick={_ => setSelectedTab('customLists')}
+                                disabled endIcon={<KeyboardArrowDownOutlined/>} 
+                            >
+                                Custom Lists
                             </Button>
                         </ButtonGroup>
                     </Toolbar>
@@ -80,6 +116,35 @@ function Follows() {
                 <div id="container">
                     
                 </div>
+                <Menu
+                    anchorEl={listAnchorEl} open={!!listAnchorEl}
+                    onClose={e => setListAnchorEl(null)} value='Reading'
+                    getContentAnchorEl={null} anchorOrigin={{
+                        vertical: 'bottom', horizontal: 'left'
+                    }}
+                >
+                    {[{
+                        label: 'Reading', icon: <ChromeReaderModeOutlined/>
+                    }, {
+                        label: 'Plan to Read', icon: <BookmarkOutlined/>
+                    }, {
+                        label: 'On Hold', icon: <HourglassFullOutlined/>
+                    }, {
+                        label: 'Completed', icon: <LibraryAddCheckOutlined/>
+                    }, {
+                        label: 'Dropped', icon: <DeleteOutlined/>
+                    }].map(el => (
+                        <MenuItem 
+                            value={el.label} selected={selectedList === el.label} 
+                            onClick={selectList}
+                        >
+                            <ListItemIcon>
+                                {el.icon}
+                            </ListItemIcon>
+                            {el.label}
+                        </MenuItem>
+                    ))}
+                </Menu>
             </Wrapper>
         </>
     )

@@ -26,17 +26,19 @@ function SideDrawer(props) {
         }
     })();
 
+    const maxWidthVal = /%$/.test(maxWidth) ? maxWidth: Number.parseInt(maxWidth) + 'px';
+
 
     return (temp ?
         <Wrapper 
             className={`uiSideDrawer-root uiSideDrawer-modal ${props.className || ''}`}
-            anchor={anchor} {...extraProps}
+            anchor={anchor} data-max-width={maxWidthVal} {...extraProps}
         >
             <Backdrop open={props.open} onClick={onClose} />
             <Slide in={props.open} direction={dir} timeout={200} >
                 <SideDrawerContainer
                     className={`uiSideDrawer-paper ${anchorCN}`} open={props.open}
-                    elevation={elevation} maxWidth={maxWidth}
+                    elevation={elevation} data-max-width={maxWidthVal}  square
                     {...paperProps}
                 >
                     {props.children}
@@ -46,7 +48,8 @@ function SideDrawer(props) {
         <Slide in={props.open} direction={dir} timeout={200} >
             <SideDrawerContainer
                 className={`uiSideDrawer-root uiSideDrawer-docked uiSideDrawer-paper ${anchorCN} ${props.className || ''}`} 
-                elevation={elevation} open={props.open} data-max-width={maxWidth} {...paperProps}
+                elevation={elevation} open={props.open} square
+                data-max-width={maxWidthVal} {...paperProps}
             >
                 {props.children}
             </SideDrawerContainer>
@@ -58,7 +61,8 @@ function SideDrawer(props) {
 /* transition: width .75s ease-out; */
 /* overflow-y: auto; */
 const Wrapper = styled.div`
-    width: 90%;
+    width: 100%;
+    /* max-width: ${p => p['data-max-width']}; */
     position: absolute;
     height: 100%;
     overflow: hidden;
@@ -82,13 +86,14 @@ const Wrapper = styled.div`
 
 const SideDrawerContainer = styled(Paper)`
     width: ${({ open }) => open ? '100%' : '0px'};
-    max-width: ${p => `${Number.parseInt(p['data-max-width'])}px`};
+    max-width: ${p => p['data-max-width'] || '75%'};
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
     z-index: ${({ theme }) => theme.zIndex.drawer};
+    position: relative;
 `;
 
 SideDrawer.defaultProps = {
