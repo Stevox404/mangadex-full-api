@@ -8,6 +8,7 @@ import { Search, Menu as MenuIcon } from '@material-ui/icons';
 import styled from 'styled-components';
 import { useRouter } from 'flitlib';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 function AppBarContent(props) {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -67,10 +68,10 @@ function AppBarContent(props) {
                                         setUserMenuAnchorEl(null)
                                     }
                                 >
-                                    <MenuItem>
+                                    <MenuItem component={Link} to='/follows' >
                                         Follows
                                     </MenuItem>
-                                    <MenuItem>
+                                    <MenuItem component={Link} to='/profile' >
                                         Profile
                                     </MenuItem>
                                     <MenuItem>

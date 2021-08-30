@@ -55,6 +55,15 @@ function ChapterListSettings(props) {
             </Select>
 
             <FormControlLabel
+                value={props.paginated}
+                onChange={props.onChange}
+                name='paginated'
+                control={<Checkbox color="primary" />}
+                label="Paginate"
+                labelPlacement="start"
+            />
+
+            <FormControlLabel
                 value={props.grouped}
                 onChange={props.onChange}
                 name='grouped'

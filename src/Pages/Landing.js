@@ -80,11 +80,11 @@ function Landing() {
                 <Featured />
                 <div className='content' >
                     <div>
-                        <MangaListSection
+                        {/* <MangaListSection
                             listName='Top rated'
                             mangaList={getMangaList()}
                             showUpdate={false}
-                        />
+                        /> */}
                         <MangaListSection
                             listName='Recently Updated'
                             mangaList={recentManga}
@@ -96,6 +96,12 @@ function Landing() {
                             showPopularity={false}
                             showUpdate={false}
                         />
+                        {/* <MangaListSection
+                            listName='Recommended for You'
+                            mangaList={newestManga}
+                            showPopularity={true}
+                            showUpdate={false}
+                        /> */}
                     </div>
                 </div>
             </Wrapper>

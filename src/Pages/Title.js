@@ -22,6 +22,9 @@ function Title() {
         try {
             const id = params.id;
             const manga = await MfaManga.get(id, true);
+            if(!manga.mainCover.image512){
+                manga.mainCover = await manga.mainCover.resolve();
+            }
             // const chapters = await manga.getFeed({
             //     order: {chapter: 'asc'},
             //     limit: Infinity,

@@ -31,7 +31,7 @@ function Follows() {
     const fetchFollows = async () => {
         try {
             const feed = await MfaManga.getFollowedFeed({
-                updatedAtSince: moment().subtract(3, 'months'),
+                updatedAtSince: moment().subtract(3, 'months').format('YYYY-MM-DDThh:mm:ss'),
                 limit: 100,
                 translatedLanguage: [language],
                 order: {

@@ -1,13 +1,14 @@
 import { Card as MuiCard, CardActionArea, CardContent, CardMedia, Typography } from '@material-ui/core';
 import manga404 from 'Assets/images/manga-404.jpg';
 import loadingGif from 'Assets/images/loading.gif';
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import PopularityDetails from './PopularityDetails';
 import UpdateDetails from './UpdateDetails';
 import PropTypes from 'prop-types';
 import { useRouter } from 'flitlib';
-import {Cover} from 'mangadex-full-api';
+import { Link } from 'react-router-dom';
+import { Manga } from 'mangadex-full-api';
 
 
 
@@ -22,21 +23,36 @@ function MangaCard(props) {
 
     const coverImgRef = useRef(null);
     useEffect(() => {
+        if (!props.manga) return;
         // TODO wait till in viewport margin
+        fetchCover();
+    }, [props.manga]);
+
+    const fetchCover = async _ => {
+        /**@type {import('mangadex-full-api').Manga} */
+        const manga = props.manga;
+        let cover = props.manga.mainCover.image256;
+        if (!cover) {
+            const mainCover = await manga.mainCover.resolve();
+            cover = mainCover.image256;
+        }
+
         const img = new Image();
-        img.src = props.manga.mainCover?.image256;
+        img.src = cover;
         img.onload = e => {
             /**@type {HTMLImageElement} */
             const el = coverImgRef.current;
+            if (!el) return;
             el.src = e.target.src;
         }
         img.onerror = e => {
             /**@type {HTMLImageElement} */
             const el = coverImgRef.current;
+            if (!el) return;
             el.src = '';
         }
-    }, []);
-    
+    }
+
     /**@param {Event} e */
     const handleClick = (e) => {
         /**@todo Use nicer url */
@@ -49,7 +65,7 @@ function MangaCard(props) {
     }
 
     return (
-        <Card>
+        <Card component={Link} to={`/title/${props.manga.id}`} >
             <CardActionArea onClick={handleClick} >
                 <CardMedia
                     image={manga404}

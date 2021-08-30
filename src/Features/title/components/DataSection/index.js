@@ -1,19 +1,17 @@
 import {
-    AppBar, IconButton, List, ListItem, ListItemText, Paper, Tab, TablePagination, Tabs
+    AppBar, IconButton, List, Paper, Tab, Tabs
 } from '@material-ui/core';
-import { Skeleton } from '@material-ui/lab';
 import { SettingsOutlined } from '@material-ui/icons';
+import { useRouter } from 'flitlib';
+import { Manga as MfaManga } from 'mangadex-full-api';
 import PropTypes from 'prop-types';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
 import ChapterListSettings from './ChapterListSettings';
 import InfoTab from './InfoTab';
-import moment from 'moment';
-import { useRouter } from 'flitlib';
-import { useDispatch, useSelector } from 'react-redux'
-import { Manga as MfaManga } from 'mangadex-full-api';
-import { addNotification } from 'Redux/actions';
-
+import ChaptersTab from './ChaptersTab';
 
 
 /** @param {DataSection.propTypes} props */
@@ -28,7 +26,6 @@ function DataSection(props) {
 
     const { changePage } = useRouter();
     const language = useSelector(state => state.language);
-    const settings = useSelector(state => state.settings);
     const dispatch = useDispatch();
 
     const [chapterSettings, setChapterSettings] = useState({
@@ -53,7 +50,7 @@ function DataSection(props) {
                 limit: Infinity,
                 translatedLanguage: [language]
             }
-            if(settings.dataSaverMode){
+            if (chapterSettings.paginated) {
                 params.limit = rowsPerPage;
                 params.offset = chapterPage * rowsPerPage;
             }
@@ -72,7 +69,10 @@ function DataSection(props) {
     }
 
     useEffect(() => {
-        if(settings.dataSaverMode) return;
+        fetchChapters();
+    }, [props.manga]);
+
+    useEffect(() => {
         fetchChapters();
     }, [chapterPage, rowsPerPage]);
 
@@ -108,71 +108,37 @@ function DataSection(props) {
         setRowsPerPage(e.target.value);
     }
 
-    // Put here so no re-render on tab change
-    const chapterList = React.useMemo(() => {
-        const groups = {};
+    const setLoadedGroups = g => {
+        // TODO is there a better way to get groups besides going through all chapters??
+        // Currently loads all chapters in first render
+        // Won't work if first render is paginated
+        if (groups && Object.keys(groups).length) return;
+        setGroups(g);
+    }
 
-        const list = chapters.reduce((acc, c, idx) => {
-            groups[c.groups[0].id] = c.groups[0].name;
-            if (chapterSettings.group !== 'all' && chapterSettings.group !== c.groups[0].id) {
-                return acc;
-            }
-
-            const getChapterText = () => {
-                let txt = c.chapter === null ? 'One-Shot' : `Chapter ${c.chapter}`;
-                if (c.title) {
-                    txt += `: ${c.title}`;
-                }
-                return txt;
-            }
-            acc[acc.length] = (
-                <ListItem key={c.id} button onClick={e => handleChapterClick(e, c)} >
-                    <ListItemText
-                        primary={getChapterText()}
-                        secondary={c.groups[0].name || c.uploader.username}
-                    />
-                    <ListItemText
-                        primary={moment(c[chapterSettings.displayDate]).fromNow()}
-                        primaryTypographyProps={{
-                            variant: 'subtitle1',
-                        }}
-                    />
-                </ListItem>);
-            return acc;
-        }, [])
-
-        setGroups(groups);
-
-        return list;
-    }, [language, props.manga, chapterSettings, chapters]);
+    const MemoizedChaptersTab = React.useMemo(_ => {
+        return (
+            <ChaptersTab
+                fetching={fetching}
+                manga={props.manga}
+                chapters={chapters}
+                totalChapterCount={100}
+                page={chapterPage}
+                chapterSettings={chapterSettings}
+                onPageChange={handleChangePage}
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                onLoadGroups={setLoadedGroups}
+                handleChapterClick={handleChapterClick}
+            />
+        );
+    }, [fetching, chapters, chapterPage, chapterSettings, rowsPerPage]);
 
     const getTabPanel = () => {
         switch (tabIndex) {
             case 0: return <InfoTab manga={props.manga} />;
-            case 1: {
-                if (fetching) {
-                    return (
-                        <ChapterTab>
-                            {Array.from(Array(10), (e, idx) => (
-                                <Skeleton key={idx} variant="rect" height={64} />
-                            ))}
-                        </ChapterTab>
-                    );
-                }
-                return (
-                    <ChapterTab>
-                        {chapterList}
-                        <TablePagination
-                            component="div"
-                            count={100}
-                            page={chapterPage}
-                            onPageChange={handleChangePage}
-                            rowsPerPage={rowsPerPage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}                          
-                        />
-                    </ChapterTab>
-                );
-            }
+            case 1:
+                return MemoizedChaptersTab
             default: break;
         }
     }
@@ -191,7 +157,7 @@ function DataSection(props) {
 
     const handleChapterSettingChange = e => {
         const key = e.target.name;
-        const val = e.target.value;
+        const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         setChapterSettings(s => ({ ...s, [key]: val }));
     }
 
@@ -224,6 +190,7 @@ function DataSection(props) {
                 group={chapterSettings.group}
                 displayDate={chapterSettings.displayDate}
                 grouped={chapterSettings.grouped}
+                paginated={chapterSettings.paginated}
                 onChange={handleChapterSettingChange}
                 groups={groups}
             />
