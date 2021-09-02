@@ -57,7 +57,7 @@ const Wrapper = styled.div`
     }
     .fill-screen {
         min-height: 100vh;
-        &.clear-appBar {
+        /* &.clear-appBar {
             min-height: calc(100vh - 56px);
             @media (min-width: 0px) and (orientation: landscape) {
                 min-height: calc(100vh - 48px);
@@ -65,6 +65,16 @@ const Wrapper = styled.div`
             @media (min-width: 600px) {
                 min-height: calc(100vh - 64px);
             }
+        } */
+    }
+
+    .clear-appBar {
+        min-height: calc(100% - 56px);
+        @media (min-width: 0px) and (orientation: landscape) {
+            min-height: calc(100% - 48px);
+        }
+        @media (min-width: 600px) {
+            min-height: calc(100% - 64px);
         }
     }
 

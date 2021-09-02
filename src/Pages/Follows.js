@@ -1,7 +1,8 @@
-import { 
-    AppBar, Button, ButtonGroup, Toolbar, Menu, MenuItem, ListItemIcon
+import {
+    AppBar, Button, ButtonGroup, Toolbar, Menu, MenuItem, ListItemIcon,
+    Typography, Divider, ListItem
 } from '@material-ui/core';
-import { 
+import {
     KeyboardArrowDownOutlined, DeleteOutlined, ChromeReaderModeOutlined,
     BookmarkOutlined, HourglassFullOutlined, LibraryAddCheckOutlined
 } from '@material-ui/icons';
@@ -18,6 +19,7 @@ import styled from 'styled-components';
 function Follows() {
     const [fetching, setFetching] = useState(true);
     const language = useSelector(state => state.language);
+    /**@type {[import "mangadex-full-api".Chapter[]]} */
     const [feed, setFeed] = useState([]);
     const [listAnchorEl, setListAnchorEl] = useState(null);
     const [selectedTab, setSelectedTab] = useState('feed');
@@ -32,14 +34,15 @@ function Follows() {
         try {
             const feed = await MfaManga.getFollowedFeed({
                 updatedAtSince: moment().subtract(3, 'months').format('YYYY-MM-DDThh:mm:ss'),
-                limit: 100,
+                limit: 10,
                 translatedLanguage: [language],
                 order: {
                     updatedAt: 'desc'
                 },
-            }, true);
-            setFeed(feed);
-
+            });
+            const resolvedFeed = await Promise.all(feed.map(f => resolveChapter(f)));
+            // Add show more button. Fetch in groups of 10?
+            setFeed(f => f.concat(resolvedFeed));
         } catch (err) {
             if (/TypeError/.test(err.message)) {
                 dispatch(addNotification({
@@ -51,6 +54,34 @@ function Follows() {
         } finally {
             setFetching(false);
         }
+    }
+
+    /**@param {import('mangadex-full-api').Chapter} chapter */
+    const resolveChapter = chapter => {
+        return new Promise(async (resolve) => {
+            const [mangaPr, groupPr, uploaderPr] = await Promise.allSettled([
+                chapter.manga.resolve(),
+                chapter.groups[0]?.resolve(),
+                chapter.uploader.resolve()
+            ]);
+
+            if (mangaPr.status === 'fulfilled') {
+                let manga = mangaPr.value;
+                manga.mainCover = await manga.mainCover.resolve();
+                chapter.manga = manga;
+            }
+
+            chapter.groups = [];
+            if (groupPr.status === 'fulfilled') {
+                chapter.groups = [groupPr.value];
+            }
+
+            if (uploaderPr.status === 'fulfilled') {
+                chapter.uploader = uploaderPr.value;
+            }
+
+            resolve(chapter);
+        })
     }
 
     useEffect(() => {
@@ -68,7 +99,7 @@ function Follows() {
     }
 
     const getButtonProps = btn => {
-        if(btn === selectedTab){
+        if (btn === selectedTab) {
             return ({
                 color: 'primary',
                 variant: 'contained',
@@ -76,6 +107,85 @@ function Follows() {
             });
         }
         return {};
+    }
+
+    const getUpdatesList = () => {
+        let currentTitleId;
+        let currentTitleCoverEl;
+        let titleChapters = [];
+        const list = feed.reduce((acc, title) => {
+            if (currentTitleId !== title.manga.id) {
+                if (currentTitleId) {
+                    acc.push(
+                        <>
+                            <div className='titleUpdate' key={currentTitleId + title.chapter} >
+                                {currentTitleCoverEl}
+                                <div className="chapters">
+                                    {titleChapters}
+                                </div>
+                            </div>
+                            <Divider key={currentTitleId + title.chapter + 'divider'} />
+                        </>
+                    );
+                }
+
+                currentTitleId = title.manga.id;
+                currentTitleCoverEl = (
+                    <div className="cover">
+                        <img src={title.manga.mainCover.image256} alt={title.manga.title + ' cover'} />
+                        <Typography variant='body2'>
+                            {title.manga.title}
+                        </Typography>
+                    </div>
+                );
+                titleChapters = [<ListItem button className='chapter' key={title.chapter}>
+                    <Typography variant='body2' >
+                        {title.volume ? `Vol. ${title.volume} ` : ''}
+                        {title.chapter ? `Ch. ${title.chapter} ` : ''}
+                        {title.title ? ` - ${title.title}` : ''}
+                    </Typography>
+                    <Typography variant='body2' >
+                        {title.groups[0]?.name || ''}
+                    </Typography>
+                    <Typography variant='body2' >
+                        {title.uploader.name || ''}
+                    </Typography>
+                    <Typography variant='body2' >
+                        {moment(title.updatedAt).fromNow() || ''}
+                    </Typography>
+                </ListItem>];
+            } else {
+                titleChapters.push(<ListItem button className='chapter' key={title.chapter}>
+                    <Typography variant='body2' >
+                        {title.volume ? `Vol. ${title.volume} ` : ''}
+                        {title.chapter ? `Ch. ${title.chapter} ` : ''}
+                        {title.title ? ` - ${title.title}` : ''}
+                    </Typography>
+                    <Typography variant='body2' >
+                        {title.groups[0]?.name || ''}
+                    </Typography>
+                    <Typography variant='body2' >
+                        {title.uploader.name || ''}
+                    </Typography>
+                    <Typography variant='body2' >
+                        {moment(title.updatedAt).fromNow() || ''}
+                    </Typography>
+                </ListItem>);
+            }
+
+            return acc;
+        }, []);
+
+        list.push(
+            <div className='titleUpdate' key={currentTitleId} >
+                {currentTitleCoverEl}
+                <div className="chapters">
+                    {titleChapters}
+                </div>
+            </div>
+        );
+
+        return list;
     }
 
     if (!user && !loading) {
@@ -86,35 +196,35 @@ function Follows() {
     return (
         <>
             <SystemAppBar />
-            <Wrapper className='page' >
+            <Wrapper className='page clear-appBar' >
                 <AppBar position="sticky" color="default" >
                     <Toolbar>
                         <ButtonGroup >
                             <Button
                                 onClick={_ => setSelectedTab('feed')}
-                                {...getButtonProps('feed')} 
+                                {...getButtonProps('feed')}
                             >
                                 Latest Updates
                             </Button>
-                            <Button 
-                                {...getButtonProps('lists')} 
-                                endIcon={<KeyboardArrowDownOutlined/>}
-                                onClick={e => setListAnchorEl(e.currentTarget)} 
+                            <Button
+                                {...getButtonProps('lists')}
+                                endIcon={<KeyboardArrowDownOutlined />}
+                                onClick={e => setListAnchorEl(e.currentTarget)}
                             >
-                                {(selectedTab === 'lists') ? selectedList: 'Lists'}
+                                {(selectedTab === 'lists') ? selectedList : 'Lists'}
                             </Button>
-                            <Button 
-                                {...getButtonProps('customLists')} 
+                            <Button
+                                {...getButtonProps('customLists')}
                                 onClick={_ => setSelectedTab('customLists')}
-                                disabled endIcon={<KeyboardArrowDownOutlined/>} 
+                                disabled endIcon={<KeyboardArrowDownOutlined />}
                             >
                                 Custom Lists
                             </Button>
                         </ButtonGroup>
                     </Toolbar>
                 </AppBar>
-                <div id="container">
-                    
+                <div id="container" className='clear-appBar' >
+                    {getUpdatesList()}
                 </div>
                 <Menu
                     anchorEl={listAnchorEl} open={!!listAnchorEl}
@@ -124,19 +234,19 @@ function Follows() {
                     }}
                 >
                     {[{
-                        label: 'Reading', icon: <ChromeReaderModeOutlined/>
+                        label: 'Reading', icon: <ChromeReaderModeOutlined />
                     }, {
-                        label: 'Plan to Read', icon: <BookmarkOutlined/>
+                        label: 'Plan to Read', icon: <BookmarkOutlined />
                     }, {
-                        label: 'On Hold', icon: <HourglassFullOutlined/>
+                        label: 'On Hold', icon: <HourglassFullOutlined />
                     }, {
-                        label: 'Completed', icon: <LibraryAddCheckOutlined/>
+                        label: 'Completed', icon: <LibraryAddCheckOutlined />
                     }, {
-                        label: 'Dropped', icon: <DeleteOutlined/>
+                        label: 'Dropped', icon: <DeleteOutlined />
                     }].map(el => (
-                        <MenuItem 
-                            value={el.label} selected={selectedList === el.label} 
-                            onClick={selectList}
+                        <MenuItem
+                            value={el.label} selected={selectedList === el.label}
+                            onClick={selectList} key={el.label}
                         >
                             <ListItemIcon>
                                 {el.icon}
@@ -151,6 +261,39 @@ function Follows() {
 }
 
 const Wrapper = styled.div`
+    /* #container {
+        min-height: calc(100% - 56px);
+        @media (min-width: 0px) and (orientation: landscape) {
+            min-height: calc(100% - 48px);
+        }
+        @media (min-width: 600px) {
+            min-height: calc(100% - 64px);
+        }
+    } */
+    .titleUpdate {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        padding: 0.8rem 0;
+        .cover {
+            display: grid;
+            justify-content: center;
+            justify-items: center;
+            text-align: center;
+            img {
+                height: 180px;
+                margin-bottom: .8rem;
+            }
+        }
+        .chapters {
+            display: grid;
+            align-content: flex-start;
+            align-items: flex-start;
+            .chapter {
+                display: grid;
+                grid-template-columns: 2fr 1fr .5fr .5fr;
+            }
+        }
+    }
 `;
 
 export default Follows;
