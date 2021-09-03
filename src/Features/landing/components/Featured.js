@@ -4,7 +4,7 @@ import {
 } from '@material-ui/core';
 import { KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined } from '@material-ui/icons';
 import { useRouter } from 'flitlib';
-import { Manga } from 'mangadex-full-api';
+import { Manga, Cover } from 'mangadex-full-api';
 import React, { useEffect, useState } from 'react';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
@@ -39,16 +39,24 @@ function Featured(props) {
             const ftIds = ft.ids;
             const ftDate = ft.date;
             if (!ftIds || new Date(ftDate).toDateString() !== new Date().toDateString()) throw new Error();
-            const promises = ftIds.map(id => Manga.get(id, true).catch(err => console.debug(err)));
+            const promises = ftIds.map(async id => {
+                const manga = await Manga.get(id);
+                manga.mainCover = await Cover.get(manga.mainCover.id);
+                return manga;
+            });
             fts.push(...(await Promise.all(promises)));
         } catch (err) {
             const ftCount = 3;
             const ftPromises = [];
             for (let idx = 0; idx < ftCount; idx++) {
-                ftPromises.push(Manga.getRandom(true).catch(err => console.debug(err)));
+                ftPromises.push(Manga.getRandom().catch(err => console.debug(err)));
             }
             const mangas = await Promise.all(ftPromises);
-            const ftIds = mangas.map(m => m.id);
+            const ftIds = [];
+            mangas.forEach(async m => {
+                ftIds.push(m.id);
+                m.mainCover = await Cover.get(m.mainCover.id);
+            });
             fts.push(...mangas);
             window.localStorage.setItem('featured', JSON.stringify({
                 ids: ftIds,

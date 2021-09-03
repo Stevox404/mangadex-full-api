@@ -7,6 +7,7 @@ import {
     BookmarkOutlined, HourglassFullOutlined, LibraryAddCheckOutlined
 } from '@material-ui/icons';
 import { SystemAppBar } from 'Components';
+import { FollowsList } from 'Features/follows';
 import { Manga as MfaManga } from 'mangadex-full-api';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
@@ -31,6 +32,7 @@ function Follows() {
     const dispatch = useDispatch();
 
     const fetchFollows = async () => {
+        setFetching(true);
         try {
             const feed = await MfaManga.getFollowedFeed({
                 updatedAtSince: moment().subtract(3, 'months').format('YYYY-MM-DDThh:mm:ss'),
@@ -109,85 +111,6 @@ function Follows() {
         return {};
     }
 
-    const getUpdatesList = () => {
-        let currentTitleId;
-        let currentTitleCoverEl;
-        let titleChapters = [];
-        const list = feed.reduce((acc, title) => {
-            if (currentTitleId !== title.manga.id) {
-                if (currentTitleId) {
-                    acc.push(
-                        <>
-                            <div className='titleUpdate' key={currentTitleId + title.chapter} >
-                                {currentTitleCoverEl}
-                                <div className="chapters">
-                                    {titleChapters}
-                                </div>
-                            </div>
-                            <Divider key={currentTitleId + title.chapter + 'divider'} />
-                        </>
-                    );
-                }
-
-                currentTitleId = title.manga.id;
-                currentTitleCoverEl = (
-                    <div className="cover">
-                        <img src={title.manga.mainCover.image256} alt={title.manga.title + ' cover'} />
-                        <Typography variant='body2'>
-                            {title.manga.title}
-                        </Typography>
-                    </div>
-                );
-                titleChapters = [<ListItem button className='chapter' key={title.chapter}>
-                    <Typography variant='body2' >
-                        {title.volume ? `Vol. ${title.volume} ` : ''}
-                        {title.chapter ? `Ch. ${title.chapter} ` : ''}
-                        {title.title ? ` - ${title.title}` : ''}
-                    </Typography>
-                    <Typography variant='body2' >
-                        {title.groups[0]?.name || ''}
-                    </Typography>
-                    <Typography variant='body2' >
-                        {title.uploader.name || ''}
-                    </Typography>
-                    <Typography variant='body2' >
-                        {moment(title.updatedAt).fromNow() || ''}
-                    </Typography>
-                </ListItem>];
-            } else {
-                titleChapters.push(<ListItem button className='chapter' key={title.chapter}>
-                    <Typography variant='body2' >
-                        {title.volume ? `Vol. ${title.volume} ` : ''}
-                        {title.chapter ? `Ch. ${title.chapter} ` : ''}
-                        {title.title ? ` - ${title.title}` : ''}
-                    </Typography>
-                    <Typography variant='body2' >
-                        {title.groups[0]?.name || ''}
-                    </Typography>
-                    <Typography variant='body2' >
-                        {title.uploader.name || ''}
-                    </Typography>
-                    <Typography variant='body2' >
-                        {moment(title.updatedAt).fromNow() || ''}
-                    </Typography>
-                </ListItem>);
-            }
-
-            return acc;
-        }, []);
-
-        list.push(
-            <div className='titleUpdate' key={currentTitleId} >
-                {currentTitleCoverEl}
-                <div className="chapters">
-                    {titleChapters}
-                </div>
-            </div>
-        );
-
-        return list;
-    }
-
     if (!user && !loading) {
         // TODO if loading return loader
         return <Redirect to='/login' />
@@ -224,7 +147,9 @@ function Follows() {
                     </Toolbar>
                 </AppBar>
                 <div id="container" className='clear-appBar' >
-                    {getUpdatesList()}
+                    <FollowsList
+                        feed={feed} fetching={fetching}
+                    />
                 </div>
                 <Menu
                     anchorEl={listAnchorEl} open={!!listAnchorEl}
@@ -261,39 +186,6 @@ function Follows() {
 }
 
 const Wrapper = styled.div`
-    /* #container {
-        min-height: calc(100% - 56px);
-        @media (min-width: 0px) and (orientation: landscape) {
-            min-height: calc(100% - 48px);
-        }
-        @media (min-width: 600px) {
-            min-height: calc(100% - 64px);
-        }
-    } */
-    .titleUpdate {
-        display: grid;
-        grid-template-columns: 200px 1fr;
-        padding: 0.8rem 0;
-        .cover {
-            display: grid;
-            justify-content: center;
-            justify-items: center;
-            text-align: center;
-            img {
-                height: 180px;
-                margin-bottom: .8rem;
-            }
-        }
-        .chapters {
-            display: grid;
-            align-content: flex-start;
-            align-items: flex-start;
-            .chapter {
-                display: grid;
-                grid-template-columns: 2fr 1fr .5fr .5fr;
-            }
-        }
-    }
 `;
 
 export default Follows;

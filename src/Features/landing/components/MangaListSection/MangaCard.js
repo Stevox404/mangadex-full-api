@@ -53,11 +53,6 @@ function MangaCard(props) {
         }
     }
 
-    /**@param {Event} e */
-    const handleClick = (e) => {
-        /**@todo Use nicer url */
-        changePage(`/title/${props.manga.id}`);
-    }
     const onCoverError = (e) => {
         /**@type {HTMLImageElement} */
         const el = coverImgRef.current;
@@ -66,7 +61,7 @@ function MangaCard(props) {
 
     return (
         <Card component={Link} to={`/title/${props.manga.id}`} >
-            <CardActionArea onClick={handleClick} >
+            <CardActionArea >
                 <CardMedia
                     image={manga404}
                     title={props.manga.title}

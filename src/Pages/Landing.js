@@ -25,9 +25,12 @@ function Landing() {
     const getNewestManga = async () => {
         try {
             const m = await Manga.search({
-                createdAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
+                order: {
+                    createdAt: 'desc'
+                },
+                createdAtSince: moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss'),
                 limit: 40
-            }, true);
+            });
             setNewestManga(m);
         } catch (err) {
             if (/TypeError/.test(err.message)) {
@@ -43,9 +46,12 @@ function Landing() {
     const getRecentManga = async () => {
         try {
             const m = await Manga.search({
-                updatedAtSince: moment().subtract(1, 'year').subtract(7, 'days').format('YYYY-MM-DDThh:mm:ss'),
+                order: {
+                    updatedAt: 'desc'
+                },
+                updatedAtSince: moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss'),
                 limit: 40
-            }, true);
+            });
             setRecentManga(m);
         } catch (err) {
             if (err.name === 'APIRequestError') {
@@ -89,6 +95,7 @@ function Landing() {
                             listName='Recently Updated'
                             mangaList={recentManga}
                             showPopularity={false}
+                            showUpdate={false}
                         />
                         <MangaListSection
                             listName='Newly Added'

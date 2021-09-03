@@ -2,7 +2,9 @@ import {
     IconButton, List, ListItem, ListItemSecondaryAction, ListItemText,
     TablePagination, ListItemIcon
 } from '@material-ui/core';
-import { CloudDownloadOutlined, VisibilityOutlined } from '@material-ui/icons';
+import { 
+    CloudDownloadOutlined, VisibilityOutlined, OpenInNewOutlined
+} from '@material-ui/icons';
 import { Skeleton } from '@material-ui/lab';
 import moment from 'moment';
 import PropTypes from 'prop-types';
@@ -37,6 +39,14 @@ function ChaptersTab(props) {
                 if (c.title) {
                     txt += `: ${c.title}`;
                 }
+
+                if(c.isExternal){
+                    txt = <>
+                        <OpenInNewOutlined />
+                        {txt}
+                    </>
+                }
+                
                 return txt;
             }
             acc[acc.length] = (
@@ -47,7 +57,7 @@ function ChaptersTab(props) {
                         </IconButton>
                     </ListItemIcon>
                     <ListItemText
-                        primary={getChapterText()}
+                        primary={getChapterText()} className='chapter-name'
                         secondary={c.groups[0].name || c.uploader.username}
                     />
                     <ListItemText
@@ -101,6 +111,15 @@ const Wrapper = styled(List)`
     .MuiListItem-root {
         /* display: grid;
         grid-template-columns: 1fr auto; */
+        .chapter-name .MuiTypography-root {
+            display: flex;
+            align-items: center;
+            svg {
+                font-size: 1.2rem;
+                margin-right: .2rem;
+            }
+        }
+        
         &[data-read="true"] {
             &:not(:hover){
                 background-color: ${p => p.theme.palette.background.default};

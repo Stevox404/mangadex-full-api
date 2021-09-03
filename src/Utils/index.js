@@ -28,3 +28,4 @@ export function getLocalizedString(localizedObj = {}, locale = 'en'){
 
 
 export * from './theme';
+export * from './mfa';

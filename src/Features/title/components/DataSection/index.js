@@ -89,7 +89,19 @@ function DataSection(props) {
     }
 
     const handleChapterClick = (e, chapter) => {
-        changePage(`/chapter/${chapter.id}/1`);
+        if(chapter.isExternal){
+            if(!chapter.externalUrl) {
+                return window.alert('Chapter is hosted externally but no link provided');
+            }
+            const a = document.createElement('a');
+            a.href = chapter.externalUrl;
+            a.target = '_blank';
+            document.append(a);
+            a.click();
+            document.removeChild(a);
+        } else {
+            changePage(`/chapter/${chapter.id}/1`);
+        }
     }
 
     /**
