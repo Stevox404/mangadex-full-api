@@ -8,18 +8,21 @@
 class LocalizedString {
     /**
      * Global locale setting
-     * @private
+     * @ignore
      * @type {String}
      */
     static locale = 'en';
 
+    /**
+     * @param {Object.<string, string>} stringObject 
+     */
     constructor(stringObject) {
         if (!stringObject) {
             this.availableLocales = [];
             return;
         }
 
-        for (let i in stringObject) if (i.length == 2) this[i] = stringObject[i];
+        for (let i in stringObject) if (typeof stringObject[i] === 'string') this[i] = stringObject[i];
 
         /**
          * Array with all locales with values in this object

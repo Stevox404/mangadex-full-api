@@ -3,8 +3,6 @@
 const Util = require('../util.js');
 const AuthUtil = require('../auth.js');
 const Relationship = require('../internal/relationship.js');
-const Group = require('./group.js');
-const Manga = require('./manga.js');
 
 /**
  * Represents a chapter with readable pages
@@ -21,7 +19,7 @@ class Chapter {
             return;
         } else if (!context) return;
 
-        if (context.data === undefined) context.data = {};
+        if (!context.data) context.data = {};
 
         /**
          * Mangadex id for this object
@@ -57,12 +55,6 @@ class Chapter {
         this.translatedLanguage = context.data.attributes.translatedLanguage;
 
         /**
-         * Hash id of this chapter
-         * @type {String}
-         */
-        this.hash = context.data.attributes.hash;
-
-        /**
          * The date of this chapter's creation
          * @type {Date}
          */
@@ -81,22 +73,16 @@ class Chapter {
         this.publishAt = context.data.attributes.publishAt ? new Date(context.data.attributes.publishAt) : null;
 
         /**
-         * Dont Use. This is an array of partial URLs. Use 'getReadablePages()' to retrieve full urls.
-         * @type {String[]}
+         * Page count
+         * @type {Number}
          */
-        this.pageNames = context.data.attributes.data;
-
-        /**
-         * Dont Use. This is an array of partial URLs. Use 'getReadablePages()' to retrieve full urls.
-         * @type {String[]}
-         */
-        this.saverPageNames = context.data.attributes.dataSaver;
+        this.pages = context.data.attributes.pages;
 
         /**
          * Is this chapter only a link to another website (eg Mangaplus) instead of being hosted on MD?
          * @type {Boolean}
          */
-        this.isExternal = 'externalUrl' in context.data.attributes;
+        this.isExternal = 'externalUrl' in context.data.attributes && context.data.attributes.externalUrl !== null;
         if (this.isExternal) {
             this.pageNames = [];
             this.saverPageNames = [];
@@ -110,25 +96,25 @@ class Chapter {
 
         /**
          * The scanlation groups that are attributed to this chapter
-         * @type {Relationship[]}
+         * @type {Relationship<import('../index').Group>[]}
          */
-        this.groups = Relationship.convertType('scanlation_group', context.relationships, this);
+        this.groups = Relationship.convertType('scanlation_group', context.data.relationships, this);
 
         /**
          * The manga this chapter belongs to
-         * @type {Relationship}
+         * @type {Relationship<import('../index').Manga>}
          */
-        this.manga = Relationship.convertType('manga', context.relationships, this).pop();
+        this.manga = Relationship.convertType('manga', context.data.relationships, this).pop();
 
         /**
          * The user who uploaded this chapter
-         * @type {Relationship}
+         * @type {Relationship<import('../index').User>}
          */
-        this.uploader = Relationship.convertType('user', context.relationships, this).pop();
+        this.uploader = Relationship.convertType('user', context.data.relationships, this).pop();
     }
 
     /**
-     * @private
+     * @ignore
      * @typedef {Object} ChapterParameterObject
      * @property {String} [ChapterParameterObject.title]
      * @property {String} [ChapterParameterObject.createdAtSince] DateTime string with following format: YYYY-MM-DDTHH:MM:SS
@@ -141,13 +127,16 @@ class Chapter {
      * @property {'asc'|'desc'} [ChapterParameterObject.order.volume]
      * @property {'asc'|'desc'} [ChapterParameterObject.order.chapter]
      * @property {String[]} [ChapterParameterObject.translatedLanguage]
+     * @property {String[]} [ChapterParameterObject.originalLanguage]
+     * @property {String[]} [ChapterParameterObject.excludedOriginalLanguage]
+     * @property {Array<'safe'|'suggestive'|'erotica'|'pornographic'>} [ChapterParameterObject.contentRating]
      * @property {String[]} [ChapterParameterObject.ids] Max of 100 per request
      * @property {Number} [ChapterParameterObject.limit] Not limited by API limits (more than 100). Use Infinity for maximum results (use at your own risk)
      * @property {Number} [ChapterParameterObject.offset]
-     * @property {String[]|Group[]} [ChapterParameterObject.groups]
-     * @property {String|User|Relationship} [ChapterParameterObject.uploader]
-     * @property {String|Manga|Relationship} [ChapterParameterObject.manga]
-     * @property {String} [ChapterParameterObject.volume]
+     * @property {String[]|import('../index').Group[]} [ChapterParameterObject.groups]
+     * @property {String|import('../index').User|Relationship<import('../index').User>} [ChapterParameterObject.uploader]
+     * @property {String|import('../index').Manga|Relationship<import('../index').Manga>} [ChapterParameterObject.manga]
+     * @property {String[]} [ChapterParameterObject.volume]
      * @property {String} [ChapterParameterObject.chapter]
      */
 
@@ -159,14 +148,14 @@ class Chapter {
      * @returns {Promise<Chapter[]>}
      */
     static search(searchParameters = {}, includeSubObjects = false) {
-        if (typeof searchParameters === 'string') searchParameters = { title: searchParameters };
+        if (typeof searchParameters === 'string') searchParameters = { title: searchParameters, groups };
         if (includeSubObjects) searchParameters.includes = ['scanlation_group', 'manga', 'user'];
         return Util.apiCastedRequest('/chapter', Chapter, searchParameters);
     }
 
     /**
      * Gets multiple chapters
-     * @param {...String|Chapter|Relationship} ids
+     * @param {...String|Chapter|Relationship<Chapter>} ids
      * @returns {Promise<Chapter[]>}
      */
     static getMultiple(...ids) {
@@ -214,12 +203,16 @@ class Chapter {
      * Therefore applications that download image data pleaese report failures as stated here:
      * https://api.mangadex.org/docs.html#section/Reading-a-chapter-using-the-API/Report
      * @param {Boolean} [saver=false] Use data saver images?
+     * @param {Boolean} [forcePort=false] Force the final URLs to use port 443
      * @returns {Promise<String[]>}
      */
-    async getReadablePages(saver = false) {
+    async getReadablePages(saver = false, forcePort = false) {
         if (this.isExternal) throw new Error('Cannot get readable pages for an external chapter.');
-        let res = await Util.apiRequest(`/at-home/server/${this.id}`);
-        return (saver ? this.saverPageNames : this.pageNames).map(name => `${res.baseUrl}/${saver ? 'data-saver' : 'data'}/${this.hash}/${name}`);
+        let res = await Util.apiParameterRequest(`/at-home/server/${this.id}`, { forcePort443: forcePort });
+        if (!res.baseUrl || !res.chapter.hash || !res.chapter.hash) {
+            throw new APIRequestError(`The API did not respond the correct structure for a MD@H chapter request:\n${JSON.stringify(res)}`, APIRequestError.INVALID_RESPONSE);
+        }
+        return res.chapter[saver ? 'dataSaver' : 'data'].map(file => `${res.baseUrl}/${saver ? 'data-saver' : 'data'}/${res.chapter.hash}/${file}`);
     }
 
     /**

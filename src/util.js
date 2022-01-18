@@ -93,7 +93,7 @@ function apiRequest(endpoint, method = 'GET', requestPayload = {}) {
                     }
                 } else {
                     if (res.statusCode === 429) reject(new APIRequestError('You have been rate limited', APIRequestError.INVALID_RESPONSE));
-                    else if (res.statusCode >= 400) reject(new APIRequestError(`Returned HTML error page ${res}`, APIRequestError.INVALID_RESPONSE));
+                    else if (res.statusCode >= 400) reject(new APIRequestError(`Returned HTML error page ${responsePayload}`, APIRequestError.INVALID_RESPONSE));
                     else if (res.statusCode >= 300) reject(new APIRequestError(`Bad/moved endpoint: ${endpoint}`, APIRequestError.INVALID_REQUEST));
                     else resolve(responsePayload);
                 }
@@ -129,29 +129,14 @@ exports.apiRequest = apiRequest;
  */
 async function apiParameterRequest(baseEndpoint, parameterObject) {
     if (typeof baseEndpoint !== 'string' || typeof parameterObject !== 'object') throw new Error('Invalid Argument(s)');
-    let cleanParameters = {};
-    for (let i in parameterObject) {
-        if (parameterObject[i] instanceof Array) cleanParameters[i] = parameterObject[i].map(elem => {
-            // Arrays are kept in their arrays because the query name is repeated and cannot be represented as pairs (?key[]=1&key[]=2)
-            if (typeof elem === 'string') return elem;
-            if (typeof elem === 'object' && 'id' in elem) return elem.id;
-            return elem.toString();
-        });
-        else if (typeof parameterObject[i] === 'object') {
-            if ('id' in parameterObject[i]) cleanParameters[i] = parameterObject[i].id;
-            else Object.keys(parameterObject[i]).forEach(elem => cleanParameters[`${i}[${elem}]`] = parameterObject[i][elem]);
-            // Objects are represented as new properties with a key of 'object[property]'
-        }
-        else if (typeof parameterObject[i] !== 'string') cleanParameters[i] = parameterObject[i].toString();
-        else cleanParameters[i] = parameterObject[i];
+    let params = new URLSearchParams();
+    for (let [key, value] of Object.entries(parameterObject)) {
+        if (value instanceof Array) value.forEach(elem => params.append(`${key}[]`, elem));
+        else if (typeof value === 'object') Object.entries(value).forEach(([k, v]) => params.set(`${key}[${k}]`, v));
+        else params.set(key, value);
     }
-
-    let endpoint = `${baseEndpoint}?`;
-    for (let i in cleanParameters) {
-        if (cleanParameters[i] instanceof Array) cleanParameters[i].forEach(e => endpoint += `${i}[]=${e}&`);
-        else endpoint += `${i}=${cleanParameters[i]}&`;
-    }
-    return await apiRequest(encodeURI(endpoint.slice(0, -1))); // Remove last char because its an extra & or ?
+    let paramsString = params.toString();
+    return await apiRequest(baseEndpoint + (paramsString.length > 0 ? '?' + paramsString : paramsString));
 }
 exports.apiParameterRequest = apiParameterRequest;
 
@@ -175,11 +160,11 @@ async function apiSearchRequest(baseEndpoint, parameterObject, maxLimit = 100, d
 
     // Need at least one request to find the total items available:
     let initialResponse = await apiParameterRequest(baseEndpoint, { ...parameterObject, limit: Math.min(limit, maxLimit) });
-    if (!(initialResponse.results instanceof Array) || typeof initialResponse.total !== 'number') {
-        throw new APIRequestError(`The API did not respond the correct structure for a search request:\n${initialResponse}`, APIRequestError.INVALID_RESPONSE);
+    if (!(initialResponse.data instanceof Array) || typeof initialResponse.total !== 'number') {
+        throw new APIRequestError(`The API did not respond the correct structure for a search request:\n${JSON.stringify(initialResponse)}`, APIRequestError.INVALID_RESPONSE);
     }
     // Return if only one request is needed (either the limit is low enough for one request or one request returned all available results)
-    if (limit <= maxLimit || initialResponse.total <= initialResponse.results.length + initialOffset) return initialResponse.results;
+    if (limit <= maxLimit || initialResponse.total <= initialResponse.data.length + initialOffset) return initialResponse.data.map(elem => { return { data: elem }; });
 
     // Subsequent concurrent requests for the rest of the results:
     limit = Math.min(initialResponse.total, limit);
@@ -187,12 +172,14 @@ async function apiSearchRequest(baseEndpoint, parameterObject, maxLimit = 100, d
     for (let offset = initialOffset + maxLimit; offset < limit; offset += maxLimit) {
         promises.push(apiParameterRequest(baseEndpoint, { ...parameterObject, limit: Math.min(limit - offset, maxLimit), offset: offset }));
     }
-    let finalArray = initialResponse.results;
+    let finalArray = initialResponse.data;
     for (let elem of await Promise.all(promises)) {
-        if (!(elem.results instanceof Array)) throw new APIRequestError('The API did not respond with an array when it was expected to', APIRequestError.INVALID_RESPONSE);
-        finalArray = finalArray.concat(elem.results);
+        if (!(elem.data instanceof Array)) {
+            throw new APIRequestError(`The API did not respond the correct structure for a search request:\n${JSON.stringify(elem)}`, APIRequestError.INVALID_RESPONSE);
+        }
+        finalArray = finalArray.concat(elem.data);
     }
-    return finalArray;
+    return finalArray.map(elem => { return { data: elem }; }); // Emulate an array of standard manga objects from the /manga/<id> endpoint
 }
 exports.apiSearchRequest = apiSearchRequest;
 
@@ -213,27 +200,22 @@ exports.apiCastedRequest = apiCastedRequest;
 /**
  * Retrieves an unlimted amount of an object via a search function and id array
  * @param {Function} searchFunction 
- * @param {String[]} ids
+ * @param {String[]|String[][]} ids
  * @param {Number} [limit=100]
  * @param {String} [searchProperty='ids']
  * @returns {Promise<Array>}
  */
 async function getMultipleIds(searchFunction, ids, limit = 100, searchProperty = 'ids') {
-    if (ids[0] instanceof Array) ids = ids[0];
-    ids = ids.map(elem => {
+    let newIds = ids.flat().map(elem => {
         if (typeof elem === 'string') return elem;
+        else if (elem === undefined || elem === null) throw new Error(`Invalid id: ${elem}`);
         else if (typeof elem === 'object' && 'id' in elem) return elem.id;
         else return elem.toString();
     });
-    let searchParameters = { limit: limit };
-    let finalArray = [];
     let promises = [];
-    while (ids.length > 0) {
-        searchParameters[searchProperty] = ids.splice(0, 100);
-        promises.push(searchFunction(searchParameters));
-    }
-    for (let i of await Promise.all(promises)) finalArray = finalArray.concat(i);
-    return finalArray;
+    // Create new search requests with a 100 ids (max allowed) at a time
+    while (newIds.length > 0) promises.push(searchFunction({ limit: limit, [searchProperty]: newIds.splice(0, 100) }));
+    return (await Promise.all(promises)).flat();
 }
 exports.getMultipleIds = getMultipleIds;
 

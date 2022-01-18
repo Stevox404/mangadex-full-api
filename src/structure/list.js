@@ -1,11 +1,8 @@
 'use strict';
 
-const Manga = require('./manga.js');
 const Relationship = require('../internal/relationship.js');
 const Util = require('../util.js');
 const AuthUtil = require('../auth.js');
-const Chapter = require('./chapter.js');
-const User = require('./user.js');
 
 /**
  * Represents a custom, user-created list of manga
@@ -22,7 +19,7 @@ class List {
             return;
         } else if (!context) return;
 
-        if (context.data === undefined) context.data = {};
+        if (!context.data) context.data = {};
 
         /**
          * Mangadex id for this object
@@ -54,15 +51,15 @@ class List {
 
         /**
          * Relationships to all of the manga in this custom list
-         * @type {Relationship[]}
+         * @type {Relationship<import('../index').Manga>[]}
          */
-        this.manga = Relationship.convertType('manga', context.relationships, this);
+        this.manga = Relationship.convertType('manga', context.data.relationships, this);
 
         /**
          * This list's owner
-         * @type {Relationship}
+         * @type {Relationship<import('../index').User>}
          */
-        this.owner = Relationship.convertType('user', context.relationships, this).pop();
+        this.owner = Relationship.convertType('user', context.data.relationships, this).pop();
     }
 
     /**
@@ -88,7 +85,7 @@ class List {
     /**
      * Create a new custom list. Must be logged in
      * @param {String} name
-     * @param {Manga[]|String[]} manga
+     * @param {import('../index').Manga[]|String[]} manga
      * @param {'public'|'private'} [visibility='private'] 
      * @returns {Promise<List>}
      */
@@ -116,7 +113,7 @@ class List {
     /**
      * Adds a manga to a custom list. Must be logged in
      * @param {String} listId
-     * @param {Manga|String} manga
+     * @param {import('../index').Manga|String} manga
      * @returns {Promise<void>}
      */
     static async addManga(listId, manga) {
@@ -129,7 +126,7 @@ class List {
     /**
      * Removes a manga from a custom list. Must be logged in
      * @param {String} listId
-     * @param {Manga|String} manga
+     * @param {import('../index').Manga|String} manga
      * @returns {Promise<void>}
      */
     static async removeManga(listId, manga) {
@@ -149,14 +146,12 @@ class List {
     static async getLoggedInUserLists(limit = 100, offset = 0, includeSubObjects = false) {
         await AuthUtil.validateTokens();
         let res = await Util.apiSearchRequest('/user/list', { limit: limit, offset: offset });
-        return await Promise.all(res.map(elem => List.get((elem.id || elem.data.id), includeSubObjects)));
-        // Currently (7/25/21) this endpoint does not include relationships, so each list must be individually 
-        // requested (getMultipe does not exist for Lists either). includes[] also does not work natively
+        return res.map(elem => new List({ data: elem }));
     }
 
     /**
      * Returns all public lists created by a user.
-     * @param {String|User|Relationship} user
+     * @param {String|import('../index').User|Relationship<import('../index').User>} user
      * @param {Number} [limit=100] Amount of lists to return (0 to Infinity)
      * @param {Number} [offset=0] How many lists to skip before returning
      * @param {Boolean} [includeSubObjects=false] Attempt to resolve sub objects (eg author, artists, etc) when available through the base request
@@ -165,25 +160,23 @@ class List {
     static async getUserLists(user, limit = 100, offset = 0, includeSubObjects = false) {
         if (typeof user !== 'string') user = user.id;
         let res = await Util.apiSearchRequest(`/user/${user}/list`, { limit: limit, offset: offset });
-        return await Promise.all(res.map(elem => List.get((elem.id || elem.data.id), includeSubObjects)));
-        // Currently (7/25/21) this endpoint does not include relationships, so each list must be individually 
-        // requested (getMultipe does not exist for Lists either). includes[] also does not work natively
+        return res.map(elem => new List({ data: elem }));
     }
 
     /**
-     * @private
+     * @ignore
      * @typedef {Object} FeedParameterObject
-     * @property {Number} FeedParameterObject.limit Not limited by API limits (more than 500). Use Infinity for maximum results (use at your own risk)
-     * @property {Number} FeedParameterObject.offset
-     * @property {String[]} FeedParameterObject.translatedLanguage
-     * @property {String} FeedParameterObject.createdAtSince DateTime string with following format: YYYY-MM-DDTHH:MM:SS
-     * @property {String} FeedParameterObject.updatedAtSince DateTime string with following format: YYYY-MM-DDTHH:MM:SS
-     * @property {String} FeedParameterObject.publishAtSince DateTime string with following format: YYYY-MM-DDTHH:MM:SS
-     * @property {Object} FeedParameterObject.order
-     * @property {'asc'|'desc'} FeedParameterObject.order.volume
-     * @property {'asc'|'desc'} FeedParameterObject.order.chapter
-     * @property {'asc'|'desc'} FeedParameterObject.order.createdAt
-     * @property {'asc'|'desc'} FeedParameterObject.order.updatedAt
+     * @property {Number} [FeedParameterObject.limit] Not limited by API limits (more than 500). Use Infinity for maximum results (use at your own risk)
+     * @property {Number} [FeedParameterObject.offset]
+     * @property {String[]} [FeedParameterObject.translatedLanguage]
+     * @property {String} [FeedParameterObject.createdAtSince] DateTime string with following format: YYYY-MM-DDTHH:MM:SS
+     * @property {String} [FeedParameterObject.updatedAtSince] DateTime string with following format: YYYY-MM-DDTHH:MM:SS
+     * @property {String} [FeedParameterObject.publishAtSince] DateTime string with following format: YYYY-MM-DDTHH:MM:SS
+     * @property {Object} [FeedParameterObject.order]
+     * @property {'asc'|'desc'} [FeedParameterObject.order.volume]
+     * @property {'asc'|'desc'} [FeedParameterObject.order.chapter]
+     * @property {'asc'|'desc'} [FeedParameterObject.order.createdAt]
+     * @property {'asc'|'desc'} [FeedParameterObject.order.updatedAt]
      */
 
     /**
@@ -247,7 +240,7 @@ class List {
 
     /**
      * Changes the manga in a custom list. Must be logged in
-     * @param {Manga[]|String[]} newList
+     * @param {import('../index').Manga[]|String[]} newList
      * @returns {Promise<List>}
      */
     async updateMangaList(newList) {
@@ -255,13 +248,13 @@ class List {
         let idList = newList.map(elem => typeof elem === 'string' ? elem : elem.id);
         await AuthUtil.validateTokens();
         let res = await Util.apiRequest(`/list/${this.id}`, 'PUT', { manga: idList, version: this.version });
-        this.manga = Relationship.convertType('manga', res.relationships, this);
+        this.manga = Relationship.convertType('manga', res.data.relationships, this);
         return this;
     }
 
     /**
      * Adds a manga to this list
-     * @param {Manga|String} manga
+     * @param {import('../index').Manga|String} manga
      * @returns {Promise<List>}
      */
     async addManga(manga) {
@@ -274,7 +267,7 @@ class List {
 
     /**
      * Removes a manga from this list
-     * @param {Manga|String} manga
+     * @param {import('../index').Manga|String} manga
      * @returns {Promise<List>}
      */
     async removeManga(manga) {
