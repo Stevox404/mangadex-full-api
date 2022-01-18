@@ -2,7 +2,6 @@
 
 const Util = require('../util.js');
 const Relationship = require('../internal/relationship.js');
-const Manga = require('./manga.js');
 
 /**
  * Represents an author or artist
@@ -19,7 +18,7 @@ class Author {
             return;
         } else if (!context) return;
 
-        if (context.data === undefined) context.data = {};
+        if (!context.data) context.data = {};
 
         /**
          * Mangadex id for this object
@@ -61,20 +60,20 @@ class Author {
 
         /**
          * Manga this author/artist has been attributed to
-         * @type {Relationship[]}
+         * @type {Relationship<import('../index').Manga>[]}
          */
-        this.manga = Relationship.convertType('manga', context.relationships, this);
+        this.manga = Relationship.convertType('manga', context.data.relationships, this);
     }
 
     /**
-     * @private
+     * @ignore
      * @typedef {Object} AuthorParameterObject
-     * @property {String} AuthorParameterObject.name
-     * @property {String[]} AuthorParameterObject.ids Max of 100 per request
-     * @property {Number} AuthorParameterObject.limit Not limited by API limits (more than 100). Use Infinity for maximum results (use at your own risk)
-     * @property {Number} AuthorParameterObject.offset
-     * @property {Object} AuthorParameterObject.order 
-     * @property {'asc'|'desc'} AuthorParameterObject.order.name
+     * @property {String} [AuthorParameterObject.name]
+     * @property {String[]} [AuthorParameterObject.ids] Max of 100 per request
+     * @property {Number} [AuthorParameterObject.limit] Not limited by API limits (more than 100). Use Infinity for maximum results (use at your own risk)
+     * @property {Number} [AuthorParameterObject.offset]
+     * @property {Object} [AuthorParameterObject.order] 
+     * @property {'asc'|'desc'} [AuthorParameterObject.order.name]
      */
 
     /**
@@ -92,7 +91,7 @@ class Author {
 
     /**
      * Gets multiple authors
-     * @param {...String|Author|Relationship} ids
+     * @param {...String|Author|Relationship<Author>} ids
      * @returns {Promise<Author[]>}
      */
     static getMultiple(...ids) {

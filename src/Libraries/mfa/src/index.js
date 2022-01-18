@@ -31,10 +31,10 @@ exports.Cover = Cover;
  */
 async function convertLegacyId(type, ...ids) {
     if (ids.length === 0) throw new Error('Invalid Argument(s)');
-    if (ids[0] instanceof Array) ids = ids[0];
+    ids = ids.flat();
     let res = await Util.apiRequest('/legacy/mapping', 'POST', { type: type, ids: ids });
-    if (!(res instanceof Array)) throw new APIRequestError('The API did not respond with an array when it was expected to', APIRequestError.INVALID_RESPONSE);
-    return res.map(e => e.data.attributes.newId);
+    if (!(res.data instanceof Array)) throw new APIRequestError('The API did not respond with an array when it was expected to', APIRequestError.INVALID_RESPONSE);
+    return res.data.map(e => e.attributes.newId);
 }
 exports.convertLegacyId = convertLegacyId;
 
@@ -79,10 +79,11 @@ Relationship.registerType('cover_art', Cover);
 
 /**
  * A shortcut for resolving all relationships in an array
- * @param {Relationship[]} relationshipArray
- * @returns {Promise}
+ * @template T
+ * @param {Relationship<T>[]} relationshipArray
+ * @returns {Promise<T[]>}
  */
- function resolveArray(relationshipArray) {
+function resolveArray(relationshipArray) {
     return Relationship.resolveAll(relationshipArray);
 }
 exports.resolveArray = resolveArray;

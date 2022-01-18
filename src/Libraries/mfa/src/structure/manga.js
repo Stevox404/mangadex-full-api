@@ -8,11 +8,9 @@ const Relationship = require('../internal/relationship.js');
 const Tag = require('../internal/tag.js');
 const Chapter = require('./chapter.js');
 const Cover = require('./cover.js');
-const Author = require('./author.js');
 const List = require('./list.js');
 const APIRequestError = require('../internal/requesterror.js');
 const UploadSession = require('../internal/uploadsession.js');
-const Group = require('./group.js');
 
 /**
  * Represents a manga object
@@ -29,7 +27,7 @@ class Manga {
             return;
         } else if (!context) return;
 
-        if (context.data === undefined) context.data = {};
+        if (!context.data) context.data = {};
 
         /**
          * Mangadex id for this object
@@ -127,21 +125,21 @@ class Manga {
 
         /**
          * Authors attributed to this manga
-         * @type {Relationship[]}
+         * @type {Relationship<import('../index').Author>[]}
          */
-        this.authors = Relationship.convertType('author', context.relationships, this);
+        this.authors = Relationship.convertType('author', context.data.relationships, this);
 
         /**
          * Artists attributed to this manga
-         * @type {Relationship[]}
+         * @type {Relationship<import('../index').Author>[]}
          */
-        this.artists = Relationship.convertType('artist', context.relationships, this);
+        this.artists = Relationship.convertType('artist', context.data.relationships, this);
 
         /**
          * This manga's main cover. Use 'getCovers' to retrive other covers
-         * @type {Relationship}
+         * @type {Relationship<Cover>}
          */
-        this.mainCover = Relationship.convertType('cover_art', context.relationships, this).pop();
+        this.mainCover = Relationship.convertType('cover_art', context.data.relationships, this).pop();
         if (!this.mainCover) this.mainCover = null;
 
         /**
@@ -149,6 +147,35 @@ class Manga {
          * @type {Tag[]}
          */
         this.tags = (context.data.attributes.tags || []).map(elem => new Tag(elem));
+
+        /**
+         * @ignore
+         * @typedef {Object} RelatedMangaObject
+		 * @property {Manga[]} RelatedMangaObject.monochrome
+		 * @property {Manga[]} RelatedMangaObject.main_story
+		 * @property {Manga[]} RelatedMangaObject.adapted_from
+		 * @property {Manga[]} RelatedMangaObject.based_on
+		 * @property {Manga[]} RelatedMangaObject.prequel
+		 * @property {Manga[]} RelatedMangaObject.side_story
+		 * @property {Manga[]} RelatedMangaObject.doujinshi
+		 * @property {Manga[]} RelatedMangaObject.same_franchise
+		 * @property {Manga[]} RelatedMangaObject.shared_universe
+		 * @property {Manga[]} RelatedMangaObject.sequel
+		 * @property {Manga[]} RelatedMangaObject.spin_off
+		 * @property {Manga[]} RelatedMangaObject.alternate_story
+		 * @property {Manga[]} RelatedMangaObject.preserialization
+		 * @property {Manga[]} RelatedMangaObject.colored
+		 * @property {Manga[]} RelatedMangaObject.serialization
+         */
+
+        /**
+         * @type {RelatedMangaObject}
+         */
+        this.relatedManga = Object.fromEntries([
+            'monochrome', 'main_story', 'adapted_from', 'based_on', 'prequel', 
+            'side_story', 'doujinshi', 'same_franchise', 'shared_universe', 'sequel', 
+            'spin_off', 'alternate_story', 'preserialization', 'colored', 'serialization'
+        ].map(k => [k, Relationship.convertType('manga', context.data.relationships.filter(r => r.related === k))]));
     }
 
     /**
@@ -179,7 +206,7 @@ class Manga {
     }
 
     /**
-     * @private
+     * @ignore
      * @typedef {Object} MangaParameterObject
      * @property {String} [MangaParameterObject.title]
      * @property {Number} [MangaParameterObject.year]
@@ -190,15 +217,24 @@ class Manga {
      * @property {Object} [MangaParameterObject.order]
      * @property {'asc'|'desc'} [MangaParameterObject.order.createdAt]
      * @property {'asc'|'desc'} [MangaParameterObject.order.updatedAt]
-     * @property {String[]|Author[]} [MangaParameterObject.authors] Array of author ids
-     * @property {String[]|Author[]} [MangaParameterObject.artists] Array of artist ids
+     * @property {'asc'|'desc'} [MangaParameterObject.order.title]
+     * @property {'asc'|'desc'} [MangaParameterObject.order.latestUploadedChapter]
+     * @property {'asc'|'desc'} [MangaParameterObject.order.followedCount]
+     * @property {'asc'|'desc'} [MangaParameterObject.order.relevance]
+     * @property {'asc'|'desc'} [MangaParameterObject.order.year]
+     * @property {String[]|import('../index').Author[]} [MangaParameterObject.authors] Array of author ids
+     * @property {String[]|import('../index').Author[]} [MangaParameterObject.artists] Array of artist ids
      * @property {String[]|Tag[]} [MangaParameterObject.includedTags]
      * @property {String[]|Tag[]} [MangaParameterObject.excludedTags]
      * @property {Array<'ongoing'|'completed'|'hiatus'|'cancelled'>} [MangaParameterObject.status]
      * @property {String[]} [MangaParameterObject.originalLanguage]
+     * @property {String[]} [MangaParameterObject.excludedOriginalLanguage]
+     * @property {String[]} [MangaParameterObject.availableTranslatedLanguage]
      * @property {Array<'shounen'|'shoujo'|'josei'|'seinen'|'none'>} [MangaParameterObject.publicationDemographic]
      * @property {String[]} [MangaParameterObject.ids] Max of 100 per request
      * @property {Array<'safe'|'suggestive'|'erotica'|'pornographic'>} [MangaParameterObject.contentRating]
+     * @property {Boolean} [MangaParameterObject.hasAvailableChapters]
+     * @property {String} [MangaParameterObject.group] Group id
      * @property {Number} [MangaParameterObject.limit] Not limited by API limits (more than 100). Use Infinity for maximum results (use at your own risk)
      * @property {Number} [MangaParameterObject.offset]
      */
@@ -218,7 +254,7 @@ class Manga {
 
     /**
      * Gets multiple manga
-     * @param {...String|Relationship} ids
+     * @param {...String|Relationship<Manga>} ids
      * @returns {Promise<Manga[]>}
      */
     static getMultiple(...ids) {
@@ -250,19 +286,20 @@ class Manga {
     }
 
     /**
-     * @private
+     * @ignore
      * @typedef {Object} FeedParameterObject
-     * @property {Number} FeedParameterObject.limit Not limited by API limits (more than 500). Use Infinity for maximum results (use at your own risk)
-     * @property {Number} FeedParameterObject.offset
-     * @property {String[]} FeedParameterObject.translatedLanguage
-     * @property {String} FeedParameterObject.createdAtSince DateTime string with following format: YYYY-MM-DDTHH:MM:SS
-     * @property {String} FeedParameterObject.updatedAtSince DateTime string with following format: YYYY-MM-DDTHH:MM:SS
-     * @property {String} FeedParameterObject.publishAtSince DateTime string with following format: YYYY-MM-DDTHH:MM:SS
-     * @property {Object} FeedParameterObject.order
-     * @property {'asc'|'desc'} FeedParameterObject.order.volume
-     * @property {'asc'|'desc'} FeedParameterObject.order.chapter
-     * @property {'asc'|'desc'} FeedParameterObject.order.createdAt
-     * @property {'asc'|'desc'} FeedParameterObject.order.updatedAt
+     * @property {Number} [FeedParameterObject.limit] Not limited by API limits (more than 500). Use Infinity for maximum results (use at your own risk)
+     * @property {Number} [FeedParameterObject.offset]
+     * @property {String[]} [FeedParameterObject.translatedLanguage]
+     * @property {String} [FeedParameterObject.createdAtSince] DateTime string with following format: YYYY-MM-DDTHH:MM:SS
+     * @property {String} [FeedParameterObject.updatedAtSince] DateTime string with following format: YYYY-MM-DDTHH:MM:SS
+     * @property {String} [FeedParameterObject.publishAtSince] DateTime string with following format: YYYY-MM-DDTHH:MM:SS
+     * @property {Object} [FeedParameterObject.order]
+     * @property {'asc'|'desc'} [FeedParameterObject.order.volume]
+     * @property {'asc'|'desc'} [FeedParameterObject.order.chapter]
+     * @property {'asc'|'desc'} [FeedParameterObject.order.createdAt]
+     * @property {'asc'|'desc'} [FeedParameterObject.order.updatedAt]
+     * @property {'asc'|'desc'} [FeedParameterObject.order.publishAt]
      */
 
     /**
@@ -297,7 +334,7 @@ class Manga {
         await AuthUtil.validateTokens();
         let params = { limit: limit, offset: offset };
         return await Util.apiCastedRequest('/user/follows/manga', Manga, params);
-        // Currently (7/25/21) MD does not support includes[]=artist&includes[]=author&includes[]=cover_art for this endpoint
+        // Currently (8/30/21) MD does not support includes[]=artist&includes[]=author&includes[]=cover_art for this endpoint
     }
 
     /**
@@ -382,7 +419,7 @@ class Manga {
 
     /**
      * Retrieves the read chapters for multiple manga
-     * @param  {...String|Manga|Relationship} ids
+     * @param  {...String|Manga|Relationship<Manga>} ids
      * @returns {Promise<Chapter[]>} 
      */
     static async getReadChapters(...ids) {
@@ -396,7 +433,7 @@ class Manga {
 
     /**
      * Returns all covers for a manga
-     * @param {...String|Manga|Relationship} id Manga id(s)
+     * @param {...String|Manga|Relationship<Manga>} id Manga id(s)
      * @returns {Promise<Cover[]>}
      */
     static getCovers(...id) {
@@ -404,14 +441,16 @@ class Manga {
     }
 
     /**
-     * @private
+     * @ignore
      * @typedef {Object} AggregateChapter
      * @property {String} AggregateChapter.chapter
      * @property {Number} AggregateChapter.count
+     * @property {String} AggregateChapter.id
+     * @property {String[]} AggregateChapter.others
      */
 
     /**
-     * @private
+     * @ignore
      * @typedef {Object} AggregateVolume
      * @property {String} AggregateVolume.volume
      * @property {Number} AggregateVolume.count
@@ -422,11 +461,11 @@ class Manga {
      * Returns a summary of every chapter for a manga including each of their numbers and volumes they belong to
      * https://api.mangadex.org/docs.html#operation/post-manga
      * @param {String} id
-     * @param {...String} languages 
+     * @param {...String|String[]} languages 
      * @returns {Promise<Object.<string, AggregateVolume>>}
      */
     static async getAggregate(id, ...languages) {
-        if (languages[0] instanceof Array) languages = languages[0];
+        languages = languages.flat();
         let res = await Util.apiParameterRequest(`/manga/${id}/aggregate`, { translatedLanguage: languages });
         if (!('volumes' in res)) throw new APIRequestError('The API did not respond with the appropriate aggregate structure', APIRequestError.INVALID_RESPONSE);
         return res.volumes;
@@ -435,7 +474,7 @@ class Manga {
     /**
      * Creates a new upload session with a manga as the target
      * @param {String} id
-     * @param {...String|Group} [groups]
+     * @param {...String|import('../index').Group} groups
      * @returns {Promise<UploadSession>}
      */
     static createUploadSession(id, ...groups) {
@@ -452,8 +491,35 @@ class Manga {
     }
 
     /**
+     * @ignore
+     * @typedef {Object} Statistics
+     * @property {Number} Statistics.follows
+     * @property {Object} Statistics.rating
+     * @property {Number} Statistics.rating.average
+     * @property {Object.<string, number>} Statistics.rating.distribution
+     */
+
+    /**
+     * Returns the rating and follow count of a manga
+     * @param {String} id 
+     * @returns {Statistics}
+     */
+    static async getStatistics(id) {
+        if (id === undefined) throw new Error('Invalid Argument(s)');
+        let res = await Util.apiRequest(`statistics/manga/${id}`);
+        if (!res.statistics || Object.values(res.statistics).length === 0) {
+            throw new APIRequestError('The API did not respond with any statistics', APIRequestError.INVALID_RESPONSE);
+        }
+        return Object.values(res.statistics)[0];
+    }
+
+    getStatistics() {
+        return Manga.getStatistics(this.id);
+    }
+
+    /**
      * Creates a new upload session with this manga as the target
-     * @param {...String|Group} [groups]
+     * @param {...String|import('../index').Group} groups
      * @returns {Promise<UploadSession>}
      */
     createUploadSession(...groups) {
@@ -530,7 +596,7 @@ class Manga {
      * Returns a summary of every chapter for this manga including each of their numbers and volumes they belong to
      * https://api.mangadex.org/docs.html#operation/post-manga
      * @param {...String} languages 
-     * @returns {Promise<Object>}
+     * @returns {Promise<Object.<string, AggregateVolume>>}
      */
     getAggregate(...languages) {
         return Manga.getAggregate(this.id, ...languages);
