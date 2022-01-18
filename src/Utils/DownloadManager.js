@@ -1,4 +1,5 @@
-import { Chapter } from 'mangadex-full-api';
+import { Chapter, Cover, Manga } from 'mangadex-full-api';
+import { getStorage, storageKeys, storageTypes } from './StorageManager';
 /**
  * @type {import('mangadex-full-api').Chapter[]}
  */
@@ -10,7 +11,7 @@ const downloadQueue = [];
  */
 export function beginDownload() {
     if (downloadQueue.length) return;
-    let q = window.localStorage.getItem('dexumiDownloadQueue')
+    let q = getStorage(storageTypes.CONFIGS).getItem(storageKeys.DOWNLOAD_QUEUE);
     if (q) q = JSON.parse(q);
     downloadQueue.push(...q);
     for (let ch of downloadQueue) {
@@ -22,18 +23,50 @@ export function beginDownload() {
             /**@TODO handle datasaver mode  */
             const savePr = [];
             for(let pg of await ch.getReadablePages()){
-                savePr.push(getChapterPageDataUrl(ch, pg))
+                savePr.push(getImageDataUrl(ch, pg))
             }
             const saveRes = await Promise.allSettled(savePr);
+            /**@type {import('mangadex-full-api').Manga} */
+            const manga = await ch.manga.resolve();
+            /**@type {import('mangadex-full-api').Cover} */
+            const cover = getImageDataUrl(await manga.mainCover.resolve());
+            const dexCover = await getImageDataUrl(cover.image512);
+            /**@type {import('mangadex-full-api').Author} */
+            const author = await manga.authors[0].resolve();
+            const dexPages = saveRes.map(res => res.value);
+            let dIds = [];
+            try {
+                dIds = JSON.parse(getStorage(storageTypes.CONFIGS).getItem(storageKeys.DOWNLOADED_MANGA_IDS));
+            } catch (err) { }
+            dIds.push(ch.id);
+            const store = getStorage(storageTypes.BLOBS).getItem(ch.id);
+            /**@type {import('mangadex-full-api').Manga} */
+            const manga;
+            getStorage(storageTypes.BLOBS).setItem(ch.id, {
+                title: ch.manga,
+                mainCover: dexCover,
+                // downloadedChaptersNum,
+                authorName: author.name,
+                genres,
+                description,
+                chapterNameText,
+                groupName,
+                updateDate,
+                dexPages
+            });
+            store
+            
+
+
         } else {/**Chapter not on mangadex */}
         downloadQueue.shift();
         updateQueueInLocalStorage();
     }
 
-    function getChapterPageDataUrl(chapter, pageUrl){
+    function getImageDataUrl(imgUrl){
         return new Promise((resolve, reject) => {
             const img = new Image();
-            img.src = pageUrl;
+            img.src = imgUrl;
             img.crossOrigin = 'anonymous';
             img.addEventListener('load', function () {
                 const canvas = document.createElement('canvas');
