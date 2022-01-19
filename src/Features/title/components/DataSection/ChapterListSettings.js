@@ -39,7 +39,7 @@ function ChapterListSettings(props) {
             >
                 <MenuItem value='all' >All</MenuItem>
                 {Object.entries(props.groups || {}).map(([id, name]) => 
-                    <MenuItem value={id} >{name || '_undefined_'}</MenuItem>
+                    <MenuItem key={id} value={id} >{name || '_undefined_'}</MenuItem>
                 )}
             </Select>
 

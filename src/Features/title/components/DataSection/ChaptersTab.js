@@ -1,8 +1,8 @@
-import { 
+import {
     IconButton, List, ListItem, ListItemSecondaryAction, ListItemText,
     TablePagination, ListItemIcon
 } from '@material-ui/core';
-import { 
+import {
     CloudDownloadOutlined, VisibilityOutlined, OpenInNewOutlined
 } from '@material-ui/icons';
 import { Skeleton } from '@material-ui/lab';
@@ -24,7 +24,7 @@ function ChaptersTab(props) {
         e.stopPropagation();
         // TODO
     }
-    
+
     const chapterList = React.useMemo(() => {
         const groups = {};
 
@@ -40,13 +40,13 @@ function ChaptersTab(props) {
                     txt += `: ${c.title}`;
                 }
 
-                if(c.isExternal){
+                if (c.isExternal) {
                     txt = <>
                         <OpenInNewOutlined />
                         {txt}
                     </>
                 }
-                
+
                 return txt;
             }
             acc[acc.length] = (
@@ -67,7 +67,7 @@ function ChaptersTab(props) {
                         }}
                     />
                     <ListItemSecondaryAction>
-                        <IconButton 
+                        <IconButton
                             edge="end" aria-label="actions"
                             onClick={e => downloadChapter(e, c)}
                         >
@@ -109,14 +109,18 @@ function ChaptersTab(props) {
 
 const Wrapper = styled(List)`
     .MuiListItem-root {
+        
         /* display: grid;
         grid-template-columns: 1fr auto; */
-        .chapter-name .MuiTypography-root {
-            display: flex;
-            align-items: center;
-            svg {
-                font-size: 1.2rem;
-                margin-right: .2rem;
+        .chapter-name {
+            flex: 3;
+            .MuiTypography-root {
+                display: flex;
+                align-items: center;
+                svg {
+                    font-size: 1.2rem;
+                    margin-right: .2rem;    
+                }
             }
         }
         

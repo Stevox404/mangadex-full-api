@@ -1,12 +1,13 @@
 import { SystemAppBar } from 'Components';
 import { DataSection, MainSection } from 'Features/title';
+import { Manga } from 'Libraries/mfa/src/index';
 import { Manga as MfaManga } from 'mangadex-full-api';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
-import { getLocalizedString } from 'Utils';
+import { getLocalizedString, resolveManga } from 'Utils';
 
 
 function Title() {
@@ -21,15 +22,9 @@ function Title() {
     const fetchManga = async () => {
         try {
             const id = params.id;
-            const manga = await MfaManga.get(id, true);
-            if(!manga.mainCover.image512){
-                manga.mainCover = await manga.mainCover.resolve();
-            }
-            // const chapters = await manga.getFeed({
-            //     order: {chapter: 'asc'},
-            //     limit: Infinity,
-            //     translatedLanguage: language,
-            // });
+            const manga = await resolveManga(await MfaManga.get(id, true));
+            manga.covers = await manga.getCovers();
+            
             manga.getAggregate().then(agg => {
                 let lastCh = 0;
                 for (let vol of Object.values(agg)) {
@@ -48,9 +43,10 @@ function Title() {
                 } else {
                     manga[t.group] = [val];
                 }
-            })
+            });
             setManga(manga);
         } catch (err) {
+            console.error(err);
             if (/TypeError/.test(err.message)) {
                 dispatch(addNotification({
                     message: "Check your network connection",

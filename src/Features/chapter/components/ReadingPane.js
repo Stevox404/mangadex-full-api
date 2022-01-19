@@ -70,6 +70,10 @@ function ReadingPane(props) {
             dir *= -1;
         }
 
+        if (props.readerSettings.displayMode === 'double') {
+            dir *= 2;
+        }
+
         /**@type {HTMLDivElement} */
         const imgBox = imgBoxRef.current;
         if (
@@ -161,7 +165,7 @@ function ReadingPane(props) {
                 pg1 = pg2;
                 pg2 = tmp;
             }
-
+            
             return <>
                 <img
                     id={`page-${pg1}`} data-page={pg1} alt={`page ${pg1}`}

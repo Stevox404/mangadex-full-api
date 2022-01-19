@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
+import { resolveChapter } from 'Utils/mfa';
 
 function Chapter() {
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -50,6 +51,10 @@ function Chapter() {
     const setUpLoadedChapter = async chapter => {
         const pages = await chapter.getReadablePages();
         chapter.pages = pages;
+        if(chapter.manga.resolve) {
+            chapter.manga = await chapter.manga.resolve();
+        }
+        // show loading spinner
         setChapter(chapter);
         setCurrentPage(params.page - 1);
         giveReadingPaneFocus();

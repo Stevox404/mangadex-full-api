@@ -38,12 +38,14 @@ function InfoTab(props) {
                     </Typography>
                 )}
             </InfoItem>
-            <InfoItem title='Demographic' >
-                <Chip clickable variant='outlined' label={props.manga.publicationDemographic} />
-            </InfoItem>
+            {props.manga.publicationDemographic &&
+                <InfoItem title='Demographic' >
+                    <Chip clickable variant='outlined' label={props.manga.publicationDemographic} />
+                </InfoItem>
+            }
             <InfoItem title='Genre' >
                 {props.manga.genre?.map(t =>
-                    <Chip clickable variant='outlined' label={t} />
+                    <Chip key={t} clickable variant='outlined' label={t} />
                 )}
             </InfoItem>
             <InfoItem title='Rating' >

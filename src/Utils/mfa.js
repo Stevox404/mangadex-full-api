@@ -1,35 +1,47 @@
-// TODO
 
-/**
- * @param {import('mangadex-full-api').Chapter} chapter
- */
-const resolveChapter = (
-    chapter, items = { 
-        manga: true, groups: true, uploader: true 
-    }, errorCb
-) => {
-    return new Promise(async (resolve) => {
-        const [mangaPr, uploaderPr, ...groupsPr] = await Promise.allSettled([
-            chapter.manga.resolve(),
-            chapter.uploader.resolve(),
-            ...chapter.groups(g => g.resolve())
-        ]);
+export async function resolveChapter(chapter, resolutionItems) {    
+    const reqs = ['manga', 'groups', 'uploader'];
+    const res = await resolveEntity(chapter, resolutionItems, reqs);
+    return res;
+}
 
-        if (mangaPr.status === 'fulfilled') {
-            let manga = mangaPr.value;
-            manga.mainCover = await manga.mainCover.resolve();
-            chapter.manga = manga;
+export async function resolveManga(manga, resolutionItems) {    
+    const reqs = ['mainCover', 'authors', 'artists'];
+    const res = await resolveEntity(manga, resolutionItems, reqs);
+    return res;
+}
+
+
+async function resolveEntity(src, resolutionItems, srcKeys) {
+    const promises = [];
+    srcKeys.forEach(r => {
+        if(req(r)) {
+            const item = src[r];
+            if(Array.isArray(item)) {
+                promises.push(Promise.allSettled(item.map(i =>
+                    i.resolve()
+                )));
+            } else {
+                promises.push(src[r].resolve());
+            }
+            src[r] = promises.length - 1;
         }
-
-        chapter.groups = [];
-        if (groupsPr.status === 'fulfilled') {
-            chapter.groups = [groupsPr.value];
+    });
+    const resolved = await Promise.allSettled(promises);
+    srcKeys.forEach(r => {
+        if(req(r)) {
+            var item = resolved[src[r]].value;
+            if(Array.isArray(item)) {
+                src[r] = item.map(i => i.value);
+            } else {
+                src[r] = item;
+            }
         }
+    });
 
-        if (uploaderPr.status === 'fulfilled') {
-            chapter.uploader = uploaderPr.value;
-        }
+    return src;
 
-        resolve(chapter);
-    })
+    function req(item){
+        return typeof resolutionItems === 'object' ? resolutionItems[item]: true;
+    }
 }

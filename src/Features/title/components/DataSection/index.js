@@ -12,7 +12,7 @@ import styled from 'styled-components';
 import ChapterListSettings from './ChapterListSettings';
 import InfoTab from './InfoTab';
 import ChaptersTab from './ChaptersTab';
-
+import GalleryTab from './GalleryTab/index';
 
 /** @param {DataSection.propTypes} props */
 function DataSection(props) {
@@ -56,6 +56,7 @@ function DataSection(props) {
             }
 
             const chapters = await manga.getFeed(params, true);
+            
             setChapters(chapters);
         } catch (err) {
             dispatch(addNotification({
@@ -96,9 +97,9 @@ function DataSection(props) {
             const a = document.createElement('a');
             a.href = chapter.externalUrl;
             a.target = '_blank';
-            document.append(a);
+            document.body.append(a);
             a.click();
-            document.removeChild(a);
+            document.body.removeChild(a);
         } else {
             changePage(`/chapter/${chapter.id}/1`);
         }
@@ -151,6 +152,7 @@ function DataSection(props) {
             case 0: return <InfoTab manga={props.manga} />;
             case 1:
                 return MemoizedChaptersTab
+            case 2: return <GalleryTab manga={props.manga} />;
             default: break;
         }
     }

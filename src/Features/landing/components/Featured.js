@@ -37,6 +37,7 @@ function Featured(props) {
         try {
             const ft = JSON.parse(window.localStorage.getItem('featured'));
             const ftIds = ft.ids;
+            if(!ftIds.length) throw new Error('No featured manga in storage');
             const ftDate = ft.date;
             if (!ftIds || new Date(ftDate).toDateString() !== new Date().toDateString()) throw new Error();
             const promises = ftIds.map(async id => {
@@ -84,7 +85,13 @@ function Featured(props) {
         <Container selectedIndex={selectedIndex} >
             <div id='img-box' className={loadingImg ? 'loading' : ''} >
                 <img
-                    src={ftManga[selectedIndex]?.mainCover.imageSource} alt="Cover"
+                    src={ftManga[selectedIndex]?.mainCover.imageSource} alt="Cover" className='bg'
+                    onLoad={_ => {
+                        setLoadingImg(false);
+                    }}
+                />
+                <img
+                    src={ftManga[selectedIndex]?.mainCover.imageSource} alt="Cover" className='main'
                     onLoad={_ => {
                         setLoadingImg(false);
                     }}
@@ -155,7 +162,16 @@ const Container = styled.div`
             height: 100%;
             object-fit: cover;
             object-position: right 30%;
-            /* image */
+            &.bg{
+                filter: blur(8px);
+            }
+            &.main{
+                position: absolute;
+                top: 0;
+                right: 0;
+                object-fit: none;
+                object-position: 70% 20%;
+            }
         }
     }
     

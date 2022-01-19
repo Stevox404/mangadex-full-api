@@ -3,6 +3,7 @@
 const Util = require('../util.js');
 const AuthUtil = require('../auth.js');
 const Relationship = require('../internal/relationship.js');
+const APIRequestError = require('../internal/requesterror');
 
 /**
  * Represents a chapter with readable pages
@@ -148,7 +149,7 @@ class Chapter {
      * @returns {Promise<Chapter[]>}
      */
     static search(searchParameters = {}, includeSubObjects = false) {
-        if (typeof searchParameters === 'string') searchParameters = { title: searchParameters, groups };
+        if (typeof searchParameters === 'string') searchParameters = { title: searchParameters };
         if (includeSubObjects) searchParameters.includes = ['scanlation_group', 'manga', 'user'];
         return Util.apiCastedRequest('/chapter', Chapter, searchParameters);
     }

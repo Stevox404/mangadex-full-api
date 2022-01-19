@@ -71,6 +71,7 @@ function ReaderSettings(props) {
                 label="Mouse Click Navigation"
                 labelPlacement="start"
                 className='full-width'
+                disabled
             />
             
             {props.readerSettings.showAdvanced && <>
