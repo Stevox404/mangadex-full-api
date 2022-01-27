@@ -63,6 +63,7 @@ function ImageCard(props) {
 const Card = styled(MuiCard)`
     .MuiCardMedia-root {
         background-size: 100%;
+        height: 100%;
         img {
             inline-size: 100%;
             block-size: 100%;

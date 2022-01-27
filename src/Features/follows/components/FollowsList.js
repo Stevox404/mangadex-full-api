@@ -1,19 +1,20 @@
-import { Divider, ListItem, Typography, Icon } from '@material-ui/core';
-import { Skeleton } from '@material-ui/lab';
+import { Divider, ListItem, Typography, Button } from '@material-ui/core';
 import { Chapter } from 'mangadex-full-api';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { memo } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { useRouter } from 'flitlib';
 import { OpenInNew } from '@material-ui/icons';
+import { Link } from 'react-router-dom';
+import { SkeletonListItem } from './SkeletonListItem';
 
 
 
 /**@param {FollowsList.propTypes} props */
 function FollowsList(props) {
     const { changePage } = useRouter();
-    
+
     const getUpdatesList = () => {
         let currentTitleId;
         let currentTitleCoverEl;
@@ -37,7 +38,7 @@ function FollowsList(props) {
                 currentTitleCoverEl = (
                     <div className="cover">
                         <img src={title.manga.mainCover.image256} alt={title.manga.title + ' cover'} />
-                        <Typography variant='body2'>
+                        <Typography variant='body1' component={Link} to={`/title/${title.manga.id}`} >
                             {title.manga.title}
                         </Typography>
                     </div>
@@ -62,18 +63,9 @@ function FollowsList(props) {
     }
 
     const handleChapterClick = (e, chapter) => {
-        if(chapter.isExternal){
-            if(!chapter.externalUrl) {
-                return window.alert('Chapter is hosted externally but no link provided');
-            }
-            const a = document.createElement('a');
-            a.href = chapter.externalUrl;
-            a.target = '_blank';
-            document.append(a);
-            a.click();
-            document.removeChild(a);
-        } else {
-            changePage(`/chapter/${chapter.id}/1`);
+        if (chapter.isExternal && !chapter.externalUrl) {
+            e.preventDefault();
+            window.alert('Chapter is hosted externally but no link provided');
         }
     }
 
@@ -89,7 +81,9 @@ function FollowsList(props) {
     const ChapterItem = ({ title }) => (
         <ListItem
             button className='chapter' key={title.chapter}
-            onClick={e => handleChapterClick(e, title)}
+            component={Link} onClick={e => handleChapterClick(e, title)}
+            to={title.isExternal ? title.externalUrl : `/chapter/${title.id}/1`}
+            target={title.isExternal ? '_blank' : ''}
         >
             <Typography className='name' variant='body2' >
                 {title.isExternal &&
@@ -113,28 +107,20 @@ function FollowsList(props) {
 
     return (
         <Wrapper>
-            {props.fetching ? (
-                Array.from(Array(3)).map(i => (
-                    <div className='titleUpdate' key={i} >
-                        <div className="cover">
-                            <Skeleton className='img-sk' variant="rect" />
-                            <Skeleton className='title-sk' variant="rect" />
-                        </div>
-                        <div className="chapters">
-                            <Skeleton className='chapter-sk' variant="rect" height={32} />
-                            <Skeleton className='chapter-sk' variant="rect" height={32} />
-                            <Skeleton className='chapter-sk' variant="rect" height={32} />
-                        </div>
-                    </div>
-                ))
-            ) : getUpdatesList()
-            }
+            <div>
+                {props.fetching ? (
+                    Array.from(Array(3)).map(i => (
+                        <SkeletonListItem key={i} />
+                    ))
+                ) : getUpdatesList()
+                }
+            </div>
         </Wrapper>
     )
 }
 
 
-const Wrapper = styled.div`
+const Wrapper = styled.div`    
     .titleUpdate {
         display: grid;
         grid-template-columns: 200px 1fr;
@@ -148,24 +134,14 @@ const Wrapper = styled.div`
                 height: 180px;
                 margin-bottom: .8rem;
             }
-            .img-sk {
-                height: 180px;
-                width: 160px;
-                margin-bottom: .8rem;
-            }
-            .title-sk {
-                height: 32px;
-                width: 124px;
+            .MuiTypography-root {
+                font-size: 1.2rem;
             }
         }
         .chapters {
             display: grid;
             align-content: flex-start;
             align-items: flex-start;
-            .chapter-sk {
-                width: 100%;
-                margin-bottom: .8rem;
-            }
             .chapter {
                 display: grid;
                 grid-template-columns: 2fr 1fr .5fr .5fr;
@@ -195,5 +171,6 @@ FollowsList.propTypes = {
     fetching: PropTypes.bool,
 }
 
-export default FollowsList
+export default memo(FollowsList);
+
 

@@ -169,7 +169,8 @@ const Container = styled.div`
                 position: absolute;
                 top: 0;
                 right: 0;
-                object-fit: none;
+                object-fit: contain;
+                height: 110%;
                 object-position: 70% 20%;
             }
         }

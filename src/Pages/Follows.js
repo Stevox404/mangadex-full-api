@@ -35,8 +35,8 @@ function Follows() {
         setFetching(true);
         try {
             const feed = await MfaManga.getFollowedFeed({
-                updatedAtSince: moment().subtract(3, 'months').format('YYYY-MM-DDThh:mm:ss'),
-                limit: 10,
+                updatedAtSince: moment().subtract(1, 'months').format('YYYY-MM-DDThh:mm:ss'),
+                // limit: 10,
                 translatedLanguage: [language],
                 order: {
                     updatedAt: 'desc'
@@ -94,6 +94,19 @@ function Follows() {
         document.title = `Follows - Dexumi`;
     }, []);
 
+
+    const lists = [{
+        label: 'Reading', icon: <ChromeReaderModeOutlined />
+    }, {
+        label: 'Plan to Read', icon: <BookmarkOutlined />
+    }, {
+        label: 'On Hold', icon: <HourglassFullOutlined />
+    }, {
+        label: 'Completed', icon: <LibraryAddCheckOutlined />
+    }, {
+        label: 'Dropped', icon: <DeleteOutlined />
+    }];
+    
     const selectList = e => {
         setSelectedList(e.currentTarget.textContent);
         setSelectedTab('lists');
@@ -124,7 +137,10 @@ function Follows() {
                     <Toolbar>
                         <ButtonGroup >
                             <Button
-                                onClick={_ => setSelectedTab('feed')}
+                                onClick={_ => {
+                                    setSelectedTab('feed');
+                                    setSelectedList(null);
+                                }}
                                 {...getButtonProps('feed')}
                             >
                                 Latest Updates
@@ -138,7 +154,10 @@ function Follows() {
                             </Button>
                             <Button
                                 {...getButtonProps('customLists')}
-                                onClick={_ => setSelectedTab('customLists')}
+                                onClick={_ => {
+                                    setSelectedTab('customLists');
+                                    setSelectedList(null);
+                                }}
                                 disabled endIcon={<KeyboardArrowDownOutlined />}
                             >
                                 Custom Lists
@@ -150,6 +169,9 @@ function Follows() {
                     <FollowsList
                         feed={feed} fetching={fetching}
                     />
+                    <Button variant='outlined' size='large' >
+                        Fetch More
+                    </Button>
                 </div>
                 <Menu
                     anchorEl={listAnchorEl} open={!!listAnchorEl}
@@ -158,17 +180,7 @@ function Follows() {
                         vertical: 'bottom', horizontal: 'left'
                     }}
                 >
-                    {[{
-                        label: 'Reading', icon: <ChromeReaderModeOutlined />
-                    }, {
-                        label: 'Plan to Read', icon: <BookmarkOutlined />
-                    }, {
-                        label: 'On Hold', icon: <HourglassFullOutlined />
-                    }, {
-                        label: 'Completed', icon: <LibraryAddCheckOutlined />
-                    }, {
-                        label: 'Dropped', icon: <DeleteOutlined />
-                    }].map(el => (
+                    {lists.map(el => (
                         <MenuItem
                             value={el.label} selected={selectedList === el.label}
                             onClick={selectList} key={el.label}
@@ -186,6 +198,18 @@ function Follows() {
 }
 
 const Wrapper = styled.div`
+    #container {
+        display: grid;
+        grid-template-columns: 1fr;
+
+        .MuiButton-root {
+            display: none;
+            margin: 2rem auto;
+            width: 50%;
+            min-width: 12rem;
+            justify-self: center;
+        }
+    }
 `;
 
 export default Follows;

@@ -20,9 +20,13 @@ function GalleryTab(props) {
 const Container = styled.div`
     display: grid;
     align-items: left;
-    /* grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); */
     grid-template-columns: repeat(auto-fit, 16rem);
     gap: 1rem;
+    padding: 1rem;
+    justify-content: space-around;
+    ${({ theme }) => theme.breakpoints.down('sm')} {
+        grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    }
 `;
 
 
