@@ -8,6 +8,10 @@ import { Manga, Cover } from 'mangadex-full-api';
 import React, { useEffect, useState } from 'react';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
+import { DexCache } from 'Utils/StorageManager';
+
+const recentCache = new DexCache();
+recentCache.name = 'recent';
 
 function Featured(props) {
     const [selectedIndex, setSelectedIndex] = useState(0);

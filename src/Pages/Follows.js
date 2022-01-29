@@ -15,7 +15,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
+import Dexie from 'dexie';
+import { DexCache } from 'Utils/StorageManager';
+import { standardize } from 'Utils/Standardize';
 
+const cache = new DexCache();
+cache.name = 'follows';
 
 function Follows() {
     const [fetching, setFetching] = useState(true);
@@ -26,6 +31,7 @@ function Follows() {
     const [selectedTab, setSelectedTab] = useState('feed');
     const [selectedList, setSelectedList] = useState(null);
 
+
     const user = useSelector(state => state.user);
     const loading = useSelector(state => state.pending.length > 0);
 
@@ -34,17 +40,24 @@ function Follows() {
     const fetchFollows = async () => {
         setFetching(true);
         try {
-            const feed = await MfaManga.getFollowedFeed({
-                updatedAtSince: moment().subtract(1, 'months').format('YYYY-MM-DDThh:mm:ss'),
-                // limit: 10,
-                translatedLanguage: [language],
-                order: {
-                    updatedAt: 'desc'
-                },
-            });
-            const resolvedFeed = await Promise.all(feed.map(f => resolveChapter(f)));
-            // Add show more button. Fetch in groups of 10?
-            setFeed(f => f.concat(resolvedFeed));
+            let follows = await cache.fetch();
+            if (!follows) {
+                const feed = await MfaManga.getFollowedFeed({
+                    updatedAtSince: moment().subtract(2, 'months').format('YYYY-MM-DDThh:mm:ss'),
+                    translatedLanguage: [language],
+                    order: {
+                        updatedAt: 'desc'
+                    },
+                });
+                const resolvedFeed = await Promise.all(feed.map(f => resolveChapter(f)));
+
+                follows = resolvedFeed.map(standardize);
+
+                // Add show more button. Fetch in groups of 10?
+                cache.data = follows;
+                cache.save();
+            }
+            setFeed(follows);
         } catch (err) {
             if (/TypeError/.test(err.message)) {
                 dispatch(addNotification({
@@ -52,6 +65,8 @@ function Follows() {
                     group: 'network',
                     persist: true,
                 }));
+            } else {
+                throw err;
             }
         } finally {
             setFetching(false);
@@ -106,7 +121,7 @@ function Follows() {
     }, {
         label: 'Dropped', icon: <DeleteOutlined />
     }];
-    
+
     const selectList = e => {
         setSelectedList(e.currentTarget.textContent);
         setSelectedTab('lists');

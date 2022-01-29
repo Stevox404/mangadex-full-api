@@ -2,9 +2,9 @@ import { Skeleton } from '@material-ui/lab';
 import React from 'react';
 import styled from 'styled-components';
 
-export function SkeletonListItem(i) {
+export function SkeletonListItem(props) {
     return (
-        <Wrapper key={i}>
+        <Wrapper {...props} >
             <div className="cover">
                 <Skeleton className='img-sk' variant="rect" />
                 <Skeleton className='title-sk' variant="rect" />

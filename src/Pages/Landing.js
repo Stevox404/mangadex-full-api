@@ -7,6 +7,13 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
+import { DexCache } from 'Utils/StorageManager';
+
+const recentCache = new DexCache();
+recentCache.name = 'recent';
+
+const newestCache = new DexCache();
+newestCache.name = 'newest';
 
 function Landing() {
     const [recentManga, setRecentManga] = useState();
@@ -24,13 +31,18 @@ function Landing() {
 
     const getNewestManga = async () => {
         try {
-            const m = await Manga.search({
-                order: {
-                    createdAt: 'desc'
-                },
-                createdAtSince: moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss'),
-                limit: 40
-            });
+            let m //= await recentCache.fetch();
+            if (!m) {
+                m = await Manga.search({
+                    order: {
+                        createdAt: 'desc'
+                    },
+                    createdAtSince: moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss'),
+                    limit: 40
+                });
+                // recentCache.data = m;
+                // recentCache.save();
+            }
             setNewestManga(m);
         } catch (err) {
             if (/TypeError/.test(err.message)) {
@@ -39,23 +51,32 @@ function Landing() {
                     group: 'network',
                     persist: true
                 }));
+            } else {
+                throw err;
             }
         }
     }
 
     const getRecentManga = async () => {
         try {
-            const m = await Manga.search({
-                order: {
-                    updatedAt: 'desc'
-                },
-                updatedAtSince: moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss'),
-                limit: 40
-            });
+            let m //= await newestCache.fetch();
+            if (!m) {
+                const m = await Manga.search({
+                    order: {
+                        updatedAt: 'desc'
+                    },
+                    updatedAtSince: moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss'),
+                    limit: 40
+                });
+            }
+            // newestCache.data = m;
+            // newestCache.save();
             setRecentManga(m);
         } catch (err) {
             if (err.name === 'APIRequestError') {
                 addNotification('Could not fetch mangas. Please check your network');
+            } else {
+                throw err;
             }
         }
     }
@@ -66,7 +87,7 @@ function Landing() {
             mangas.push({
                 id: `id_${i}`,
                 title: i % 2 ? 'Naruto' : 'How My Overly Cautious Classmate became OP in Another World!',
-                mainCover:{
+                mainCover: {
                     image256: 'https://upload.wikimedia.org/wikipedia/en/c/c9/Nabarinoop.jpg',
                 },
                 views: Math.random() * (5000 - 1000) + 1000,

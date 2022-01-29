@@ -1,10 +1,9 @@
-import { Divider, ListItem, Typography, Button } from '@material-ui/core';
+import { Divider, ListItem, Typography } from '@material-ui/core';
 import { Chapter } from 'mangadex-full-api';
 import PropTypes from 'prop-types';
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
-import { useRouter } from 'flitlib';
 import { OpenInNew } from '@material-ui/icons';
 import { Link } from 'react-router-dom';
 import { SkeletonListItem } from './SkeletonListItem';
@@ -13,8 +12,6 @@ import { SkeletonListItem } from './SkeletonListItem';
 
 /**@param {FollowsList.propTypes} props */
 function FollowsList(props) {
-    const { changePage } = useRouter();
-
     const getUpdatesList = () => {
         let currentTitleId;
         let currentTitleCoverEl;
