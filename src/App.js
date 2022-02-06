@@ -9,8 +9,9 @@ const Landing = React.lazy(() => import('Pages/Landing'));
 const Title = React.lazy(() => import('Pages/Title'));
 const Login = React.lazy(() => import('Pages/Login'));
 const Chapter = React.lazy(() => import('Pages/Chapter'));
-const Follows = React.lazy(() => import('Pages/Follows'));
+const Library = React.lazy(() => import('Pages/Library'));
 const Settings = React.lazy(() => import('Pages/Settings'));
+const Search = React.lazy(() => import('Pages/Search'));
 
 function App() {
     const dispatch = useDispatch();
@@ -27,7 +28,8 @@ function App() {
                     <Route path='/' exact component={Landing} />
                     <Route path='/title/:id' component={Title} />
                     <Route path='/chapter/:id/:page' component={Chapter} />
-                    <Route path='/follows' component={Follows} />
+                    <Route path='/library' component={Library} />
+                    <Route path='/search' component={Search} />
                     <Route path='/login' component={Login} />
                     <Route path='/(profile|downloads|settings)' component={Settings} />
                 </Switch>

@@ -8,7 +8,6 @@ import UpdateDetails from './UpdateDetails';
 import PropTypes from 'prop-types';
 import { useRouter } from 'flitlib';
 import { Link } from 'react-router-dom';
-import { Manga } from 'mangadex-full-api';
 
 
 
@@ -78,12 +77,12 @@ function MangaCard(props) {
                     </Typography>
                     {props.showPopularity &&
                         <PopularityDetails
-                            views={props.views} rating={props.rating}
+                            views={props.manga.views} rating={props.manga.rating}
                         />
                     }
                     {props.showUpdate &&
                         <UpdateDetails
-                            updateDate={props.updateDate}
+                            updateDate={props.manga.updatedAt}
                             chapterNum={props.chapterNum}
                         />
                     }
@@ -95,33 +94,35 @@ function MangaCard(props) {
 
 const Card = styled(MuiCard)`
     display: inline-block;
-    width: var(--width, 13rem);
+    width: var(--card-width, 13rem);
     flex: none;
     position: relative;
-    .MuiCardMedia-root {
-        height: var(--height, 13rem);
-        background-size: 100%;
-        img {
-            inline-size: 100%;
-            block-size: 100%;
-            object-fit: cover;
-            /* height: 100%;
-            width: 100%; */
+    height: var(--card-height, 16rem);
+    .MuiCardActionArea-root {
+        height: 100%;
+        .MuiCardMedia-root {
+            height: 100%;
+            background-size: 100%;
+            img {
+                inline-size: 100%;
+                block-size: 100%;
+                object-fit: cover;
+            }
         }
-    }
-    .MuiCardContent-root {
-        --card-color: ${({ theme }) => theme.palette.background.paper};
-        padding: .4rem;
-        position: absolute;
-        bottom: 0;
-        /* background-color: ${({ theme }) => theme.palette.background.paper}aa; */
-        background: linear-gradient(rgba(255, 255, 255, 0), var(--card-color) 30%);
-        width: 100%;
-        .MuiTypography-body1 {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            display: block;
+        .MuiCardContent-root {
+            --card-color: ${({ theme }) => theme.palette.background.paper};
+            padding: .4rem;
+            position: absolute;
+            bottom: 0;
+            /* background-color: ${({ theme }) => theme.palette.background.paper}aa; */
+            background: linear-gradient(rgba(255, 255, 255, 0), var(--card-color) 30%);
+            width: 100%;
+            .MuiTypography-body1 {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                display: block;
+            }
         }
     }
 
@@ -154,17 +155,7 @@ MangaCard.defaultProps = {
 
 MangaCard.propTypes = {
     id: PropTypes.string,
-    mangaName: PropTypes.string,
-    image: PropTypes.string,
-    views: PropTypes.number,
-    rating: PropTypes.number,
-    updateDate: PropTypes.oneOfType([
-        PropTypes.instanceOf(Date),
-        PropTypes.string, PropTypes.number,
-    ]),
-    chapterNum: PropTypes.oneOfType([
-        PropTypes.string, PropTypes.number,
-    ]),
+    manga: PropTypes.object,
     showUpdate: PropTypes.bool,
     showPopularity: PropTypes.bool,
 }

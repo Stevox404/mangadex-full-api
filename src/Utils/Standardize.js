@@ -31,10 +31,18 @@ export function standardize(obj) {
     // return JSON.stringify(std);
 }
 
+function clean(obj) {
+    const res = {};
+    for(let [k,v] of Object.entries(obj)){
+        if(v !== undefined) res[k] = v;
+    }
+    return res;
+}
+
 
 function stdAuthor(obj) {
     if (!obj) return obj;
-    return {
+    return clean({
         id: obj.id,
         biography: obj.biography,
         createdAt: obj.createdAt,
@@ -42,12 +50,12 @@ function stdAuthor(obj) {
         manga: obj.manga?.map(stdManga),
         name: obj.name,
         updatedAt: obj.updatedAt,
-    }
+    })
 }
 
 function stdChapter(obj) {
     if (!obj) return obj;
-    return {
+    return clean({
         id: obj.id,
         chapter: obj.chapter,
         createdAt: obj.createdAt,
@@ -64,12 +72,12 @@ function stdChapter(obj) {
         updatedAt: obj.updatedAt,
         uploader: stdUser(obj.uploader),
         volume: obj.volume,
-    }
+    })
 }
 
 function stdCover(obj) {
     if (!obj) return obj;
-    return {
+    return clean({
         id: obj.id,
         createdAt: obj.createdAt,
         description: obj.description,
@@ -80,12 +88,12 @@ function stdCover(obj) {
         updatedAt: obj.updatedAt,
         uploader: stdUser(obj.uploader),
         volume: obj.volume,
-    }
+    })
 }
 
 function stdGroup(obj) {
     if (!obj) return obj;
-    return {
+    return clean({
         id: obj.id,
         contactEmail: obj.contactEmail,
         createdAt: obj.createdAt,
@@ -105,12 +113,12 @@ function stdGroup(obj) {
         updatedAt: obj.updatedAt,
         verified: obj.verified,
         website: obj.website,
-    }
+    })
 }
 
 function stdList(obj) {
     if (!obj) return obj;
-    return {
+    return clean({
         id: obj.id,
         manga: stdManga(obj.manga),
         name: obj.name,
@@ -118,12 +126,12 @@ function stdList(obj) {
         public: obj.public,
         version: obj.version,
         visibility: obj.visibility,
-    }
+    })
 }
 
 function stdManga(obj) {
     if (!obj) return obj;
-    return {
+    return clean({
         id: obj.id,
         altTitles: obj.altTitles,
         artists: obj.artists?.map(stdAuthor),
@@ -151,15 +159,15 @@ function stdManga(obj) {
         updatedAt: obj.updatedAt,
         version: obj.version,
         year: obj.year,
-    }
+    })
 }
 
 function stdUser(obj) {
     if (!obj) return obj;
-    return {
+    return clean({
         id: obj.id,
         groups: obj.groups?.map(stdGroup),
         roles: obj.roles,
         username: obj.username,
-    }
+    })
 }

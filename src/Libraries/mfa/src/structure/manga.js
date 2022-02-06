@@ -386,9 +386,11 @@ class Manga {
      * Returns the reading status for every manga for this logged in user as an object with Manga ids as keys
      * @returns {Object.<string, 'reading'|'on_hold'|'plan_to_read'|'dropped'|'re_reading'|'completed'>}
      */
-    static async getAllReadingStatuses() {
+    static async getAllReadingStatuses(status = null) {
         await AuthUtil.validateTokens();
-        let res = await Util.apiRequest(`/manga/status`);
+        const queryParam = status ? `?status=${status}`: ''
+        let res = await Util.apiRequest(`/manga/status${queryParam}`);
+        // let res = await Util.apiRequest(`/manga/status`);
         if (!('statuses' in res)) throw new APIRequestError('The API did not respond with a statuses object when it was expected to', APIRequestError.INVALID_RESPONSE);
         return res.statuses;
     }

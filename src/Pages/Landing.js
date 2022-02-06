@@ -7,13 +7,19 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
+import { resolveManga } from 'Utils/mfa';
+import { standardize } from 'Utils/Standardize';
 import { DexCache } from 'Utils/StorageManager';
+
+window.Manga = Manga;
 
 const recentCache = new DexCache();
 recentCache.name = 'recent';
+recentCache.validFor = moment.duration(3, 'h');
 
 const newestCache = new DexCache();
 newestCache.name = 'newest';
+newestCache.validFor = moment.duration(3, 'h');
 
 function Landing() {
     const [recentManga, setRecentManga] = useState();
@@ -31,19 +37,23 @@ function Landing() {
 
     const getNewestManga = async () => {
         try {
-            let m //= await recentCache.fetch();
-            if (!m) {
-                m = await Manga.search({
+            let manga = await recentCache.fetch();
+            if (!manga) {
+                manga = await Manga.search({
                     order: {
                         createdAt: 'desc'
                     },
                     createdAtSince: moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss'),
                     limit: 40
                 });
-                // recentCache.data = m;
-                // recentCache.save();
+                manga = await Promise.all(manga.map(async m => {
+                    const md = await resolveManga(m, {mainCover: true});
+                    return standardize(md);
+                }));
+                recentCache.data = manga;
+                recentCache.save();
             }
-            setNewestManga(m);
+            setNewestManga(manga);
         } catch (err) {
             if (/TypeError/.test(err.message)) {
                 dispatch(addNotification({
@@ -59,19 +69,24 @@ function Landing() {
 
     const getRecentManga = async () => {
         try {
-            let m //= await newestCache.fetch();
-            if (!m) {
-                const m = await Manga.search({
+            let manga = await newestCache.fetch();
+            if (!manga) {
+                manga = await Manga.search({
                     order: {
                         updatedAt: 'desc'
                     },
                     updatedAtSince: moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss'),
                     limit: 40
                 });
+
+                manga = await Promise.all(manga.map(async m => {
+                    const md = await resolveManga(m, {mainCover: true});
+                    return standardize(md);
+                }));
+                newestCache.data = manga; 
+                newestCache.save();
             }
-            // newestCache.data = m;
-            // newestCache.save();
-            setRecentManga(m);
+            setRecentManga(manga);
         } catch (err) {
             if (err.name === 'APIRequestError') {
                 addNotification('Could not fetch mangas. Please check your network');

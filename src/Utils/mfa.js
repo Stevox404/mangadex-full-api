@@ -1,3 +1,4 @@
+import { Manga } from "mangadex-full-api";
 
 export async function resolveChapter(chapter, resolutionItems) {    
     const reqs = ['manga', 'groups', 'uploader'];
@@ -7,6 +8,7 @@ export async function resolveChapter(chapter, resolutionItems) {
 
 export async function resolveManga(manga, resolutionItems) {    
     const reqs = ['mainCover', 'authors', 'artists'];
+    if(typeof manga === 'string') manga = await Manga.get(manga);
     const res = await resolveEntity(manga, resolutionItems, reqs);
     return res;
 }

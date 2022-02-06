@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
     TextField, useMediaQuery, InputAdornment, IconButton, Button,
@@ -8,15 +8,34 @@ import { Search, Menu as MenuIcon } from '@material-ui/icons';
 import styled from 'styled-components';
 import { useRouter } from 'flitlib';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
+import { Manga } from 'mangadex-full-api';
 
 function AppBarContent(props) {
+    const [initVal] = useState(new URLSearchParams(window.location.search).get('query'));
     const [anchorEl, setAnchorEl] = useState(null);
     const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
 
     const { changePage } = useRouter();
     const isXs = useMediaQuery(theme => theme.breakpoints.down('xs'));
     const user = useSelector(state => state.user);
+
+    const searchRef = useRef(null);
+    // const {location} = useHistory();
+    // useEffect(() => {
+    //     const sp = new URLSearchParams(window.location.search);
+    //     const q = sp.get('query');
+    //     if (q) searchRef.current.value = q;
+    // }, []);
+
+    /**
+     * @param {KeyboardEvent} e 
+     */
+    const handleSearch = (e) => {
+        if (e.key === 'Enter') {
+            changePage(`/search?query=${e.target.value}`);
+        }
+    }
 
     return (
         <>
@@ -41,7 +60,12 @@ function AppBarContent(props) {
                 </XsContainer> :
                 <Container >
                     <TextField
-                        type='search' autoComplete='search' size='small' fullWidth
+                        size='small' ref={searchRef} fullWidth onKeyUp={handleSearch}
+                        defaultValue={initVal}
+                        inputProps={{
+                            type: 'search',
+                            autoComplete: 'search',
+                        }}
                         InputProps={{
                             startAdornment: (<InputAdornment position='start' >
                                 <Search />
@@ -68,8 +92,8 @@ function AppBarContent(props) {
                                         setUserMenuAnchorEl(null)
                                     }
                                 >
-                                    <MenuItem component={Link} to='/follows' >
-                                        Follows
+                                    <MenuItem component={Link} to='/library/follows' >
+                                        Library
                                     </MenuItem>
                                     <MenuItem component={Link} to='/profile' >
                                         Profile

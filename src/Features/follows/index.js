@@ -1,1 +1,0 @@
-export { default as FollowsList } from "./components/FollowsList";

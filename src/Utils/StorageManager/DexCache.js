@@ -19,54 +19,79 @@ export const DexCache = db._cache.defineClass({
     date: String,
     name: String,
     data: Object,
-    validTo: Date, // Date or `moment` object
-    validFor: Number, // Number(ms) or `moment` Duration. Takes precedence over valid To
+    validTo: Date, // Date or moment() object
+    validFor: Number, // Number(ms) or `moment.duration() Duration. Takes precedence over valid To
 });
 
-DexCache.prototype.save = function () {
+DexCache.prototype.save = async function () {
     if (!this.name) throw new Error('Save Failed. Cache has no name.');
     const date = new Date().toLocaleDateString();
     this.date = date;
-    this.createdAt = new Date();
-    
     if(this.validFor) {
-        const eol = moment().add(this.validFor);
-        if(eol.isValid()) this.destroyAt = eol.toDate();
-    } else if (this.validTo) {
-        const eol = moment(this.validTo);
-        if(eol.isValid()) this.destroyAt = eol.toDate();
+        if (this.validFor.toDate) {
+            this.validFor = this.validFor.toDate();
+        } else {
+            this.validFor = Number(this.validFor);
+        }
     }
+
+    if(this.validTo) {
+        if (this.validTo.toDate) {
+            this.validTo = this.validTo.toDate();
+        } else {
+            this.validTo = Date(this.validTo);
+        }
+    }
+    
+    this.createdAt = new Date();
+    this.destroyAt = getEol(this);
     
     if(!this.destroyAt) {
         this.destroyAt = moment('24:00', 'hh:mm').toDate();    
     }
 
-    const obj = this;
+    const cache = this;
     return db.transaction('rw', db._cache, async function () {
-        await db._cache.delete(obj.name);
-        await db._cache.put(obj);
+        await cache.clear();
+        await db._cache.put(cache);
     });
 }
 
 DexCache.prototype.fetch = async function () {
     if (!this.name) throw new Error('Fetch Failed. Cache has no name.');
     const res = await db._cache.get(this.name);
-    let destroyAt = res?.destroyAt;
-    
-    if(process.env.NODE_ENV == 'development'){
-        if(this.validFor) {
-            const eol = moment().add(this.validFor);
-            if(eol.isValid()) destroyAt = eol.toDate();
-        } else if (this.validTo) {
-            const eol = moment(this.validTo);
-            if(eol.isValid()) destroyAt = eol.toDate();
-        }
-    }
-    
-    if(res && destroyAt && moment(destroyAt) < moment()) {
-        await db._cache.delete(this.name);
+
+    const cacheInvalid = res && res.destroyAt && moment(res.destroyAt) < moment();
+    const cacheInconsistent = () => res && (!moment(res.validFor).isSame(moment(this.validFor)) &&
+        !moment(res.validTo).isSame(moment(this.validTo)))
+        
+    if(cacheInvalid || cacheInconsistent()) {
+        await this.clear();
         return null;
     }
     return res ? res.data : null;
 }
 
+DexCache.prototype.clear = function () {
+    if (!this.name) throw new Error('Clear Failed. Cache has no name.');
+    return db._cache.delete(this.name);
+}
+
+DexCache.delete = async function () {
+    db.close();
+    await db.delete();
+    db.version(1).stores({
+        _cache: 'name'
+    });
+}
+
+function getEol(cache) {
+    let eol;
+    if(cache.validFor) {
+        eol = moment().add(cache.validFor);
+    } else if (cache.validTo) {
+        eol = moment(cache.validTo);
+    }
+    if(eol && eol.isValid()) return eol.toDate();
+    return null;
+}

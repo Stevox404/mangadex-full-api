@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight } from '@material-ui/icons';
 import PropTypes from 'prop-types';
 import React, { useRef } from 'react';
 import styled from 'styled-components';
-import MangaCard from './MangaCard';
+import MangaCard from '../../../../Components/shared/MangaCard';
 import { Skeleton } from '@material-ui/lab';
 
 
@@ -89,12 +89,12 @@ const Container = styled.div`
         }
     }
     >div.list {
-        --width: ${p => p['data-card-width']};
-        --height: ${p => p['data-card-height']};
+        --card-width: ${p => p['data-card-width']};
+        --card-height: ${p => p['data-card-height']};
 
         .MuiSkeleton-root {
-            height: var(--height, 13rem);
-            width: var(--width, 13rem);
+            height: var(--card-height, 13rem);
+            width: var(--card-width, 13rem);
         }
         
         --gap: 4.8rem;
