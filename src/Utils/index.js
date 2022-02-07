@@ -1,3 +1,6 @@
+import { Chapter } from 'mangadex-full-api';
+import { DexCache } from './StorageManager/DexCache';
+
 export function abbreviateNumber(value) {
     if(value === '--') return value;
     var newValue = Number.parseInt(value);
@@ -26,6 +29,14 @@ export function getLocalizedString(localizedObj = {}, locale = 'en'){
     return localizedObj[locale];
 }
 
+export function markChapterAsRead(chapter, isRead = true) {
+    const id = typeof chapter === 'string' ? chapter: chapter.id;
+    Chapter.changeReadMarker(id, isRead);
+    DexCache.clear('readership');
+}
 
 export * from './theme';
 export * from './mfa';
+export * from './Standardize';
+export * from './socket';
+export * from './StorageManager';

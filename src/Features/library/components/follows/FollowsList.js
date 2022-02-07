@@ -7,6 +7,7 @@ import moment from 'moment';
 import { OpenInNew } from '@material-ui/icons';
 import { Link } from 'react-router-dom';
 import { SkeletonListItem } from './SkeletonListItem';
+import { markChapterAsRead } from 'Utils/index';
 
 
 
@@ -23,6 +24,7 @@ function FollowsList(props) {
                         <>
                             <TitleItem
                                 id={currentTitleId + title.chapter}
+                                key={currentTitleId + title.chapter}
                                 cover={currentTitleCoverEl}
                                 chapters={titleChapters}
                             />
@@ -50,7 +52,7 @@ function FollowsList(props) {
 
         list.push(
             <TitleItem
-                id={currentTitleId}
+                id={currentTitleId} key={currentTitleId}
                 cover={currentTitleCoverEl}
                 chapters={titleChapters}
             />
@@ -63,7 +65,9 @@ function FollowsList(props) {
         if (chapter.isExternal && !chapter.externalUrl) {
             e.preventDefault();
             window.alert('Chapter is hosted externally but no link provided');
+            return;
         }
+        markChapterAsRead(chapter);
     }
 
     const TitleItem = ({ id, cover, chapters }) => (
@@ -75,29 +79,32 @@ function FollowsList(props) {
         </div>
     );
 
-    const ChapterItem = ({ title }) => (
+    const ChapterItem = ({ title: chapter }) => (
         <ListItem
-            button className='chapter' key={title.chapter}
-            component={Link} onClick={e => handleChapterClick(e, title)}
-            to={title.isExternal ? title.externalUrl : `/chapter/${title.id}/1`}
-            target={title.isExternal ? '_blank' : ''}
+            button className='chapter' key={chapter.chapter}
+            data-read={props.readership[chapter.id]}
+            component={chapter.isExternal ? 'a': Link}
+            onClick={e => handleChapterClick(e, chapter)}
+            to={chapter.isExternal ? chapter.externalUrl : `/chapter/${chapter.id}/1`}
+            href={chapter.externalUrl}
+            target={chapter.isExternal ? '_blank' : ''}
         >
             <Typography className='name' variant='body2' >
-                {title.isExternal &&
+                {chapter.isExternal &&
                     <OpenInNew />
                 }
-                {title.volume ? `Vol. ${title.volume} ` : ''}
-                {title.chapter ? `Ch. ${title.chapter} ` : ''}
-                {title.title ? ` - ${title.title}` : ''}
+                {chapter.volume ? `Vol. ${chapter.volume} ` : ''}
+                {chapter.chapter ? `Ch. ${chapter.chapter} ` : ''}
+                {chapter.title ? ` - ${chapter.title}` : ''}
             </Typography>
             <Typography variant='body2' >
-                {title.groups[0]?.name || ''}
+                {chapter.groups[0]?.name || ''}
             </Typography>
             <Typography variant='body2' >
-                {title.uploader.name || ''}
+                {chapter.uploader.name || ''}
             </Typography>
             <Typography className='update' variant='body2' >
-                {moment(title.updatedAt).fromNow() || ''}
+                {moment(chapter.updatedAt).fromNow() || ''}
             </Typography>
         </ListItem>
     );
@@ -155,6 +162,15 @@ const Wrapper = styled.div`
                     overflow: hidden;
                     white-space: nowrap;
                 }
+
+                &[data-read="true"] {
+                    &:not(:hover){
+                        background-color: ${p => p.theme.palette.background.default};
+                    }
+                    .MuiTypography-root {
+                        color: ${p => p.theme.palette.text.secondary};
+                    }
+                }
             }
         }
     }
@@ -166,6 +182,7 @@ FollowsList.propTypes = {
     /**@type {Chapter[]} */
     feed: PropTypes.arrayOf(Chapter),
     fetching: PropTypes.bool,
+    readership: PropTypes.object,
 }
 
 export default memo(FollowsList);

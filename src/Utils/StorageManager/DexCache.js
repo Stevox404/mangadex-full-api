@@ -77,6 +77,11 @@ DexCache.prototype.clear = function () {
     return db._cache.delete(this.name);
 }
 
+DexCache.clear = async function (name) {
+    if (!name) throw new Error('Invalid argument.');
+    return db._cache.delete(name);
+}
+
 DexCache.delete = async function () {
     db.close();
     await db.delete();

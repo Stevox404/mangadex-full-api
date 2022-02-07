@@ -14,8 +14,12 @@ import styled from 'styled-components';
 const cache = new DexCache();
 cache.name = 'follows';
 
+const readCache = new DexCache();
+readCache.name = 'readership';
+
 function Follows(props) {
     const [fetching, setFetching] = useState(true);
+    const [readership, setReadership] = useState({});
     const language = useSelector(state => state.language);
     /**@type {[import "mangadex-full-api".Chapter[]]} */
     const [feed, setFeed] = useState([]);
@@ -43,6 +47,7 @@ function Follows(props) {
                 cache.data = follows;
                 cache.save();
             }
+            fetchReadership(follows);
             setFeed(follows);
         } catch (err) {
             if (/TypeError/.test(err.message)) {
@@ -57,6 +62,34 @@ function Follows(props) {
         } finally {
             setFetching(false);
         }
+    }
+
+    const fetchReadership = async (manga) => {
+        const ids = Array.from(new Set(manga.map(m => m.manga.id)));
+        try {
+            let readership = await readCache.fetch();
+            if (!readership) {
+                readership = await MfaManga.getReadChapterIds(ids);
+                readership = readership.reduce((agg, chId) => {
+                    agg[chId] = true
+                    return agg;
+                }, {});
+
+                readCache.data = readership;
+                readCache.save();
+            }
+            setReadership(readership);
+        } catch (err) {
+            if (/TypeError/.test(err.message)) {
+                dispatch(addNotification({
+                    message: "Check your network connection",
+                    group: 'network',
+                    persist: true,
+                }));
+            } else {
+                throw err;
+            }
+        } 
     }
 
     /**@param {import('mangadex-full-api').Chapter} chapter */
@@ -99,7 +132,7 @@ function Follows(props) {
     return (
         <Wrapper>
             <FollowsList
-                feed={feed} fetching={fetching}
+                feed={feed} fetching={fetching} readership={readership}
             />
             <Button variant='outlined' size='large' >
                 Fetch More
