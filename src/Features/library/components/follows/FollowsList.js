@@ -133,6 +133,7 @@ const Wrapper = styled.div`
             display: grid;
             justify-content: center;
             justify-items: center;
+            align-content: flex-start;
             text-align: center;
             img{
                 height: 180px;

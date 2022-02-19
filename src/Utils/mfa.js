@@ -44,6 +44,7 @@ async function resolveEntity(src, resolutionItems, srcKeys) {
     return src;
 
     function req(item){
-        return typeof resolutionItems === 'object' ? resolutionItems[item]: true;
+        return typeof resolutionItems === 'object' && resolutionItems[item] !== undefined ?
+            resolutionItems[item]: true;
     }
 }

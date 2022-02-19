@@ -1,43 +1,73 @@
+import { DexDld } from './StorageManager/DexDld';
+
+
 /**
  * @type {import('mangadex-full-api').Chapter[]}
  */
 const downloadQueue = [];
+let downloading = false;
 
 /**
  * To be called at start of application. Fetches download queue from local
  * storage and begins processing. Is idempotent.
  */
-export function beginDownload() { }
+export function beginDownload() {
+    if (downloading) return;
+    _downloadNextInQueue();
+}
 
 /**
  * @param {import('mangadex-full-api').Chapter} chapter 
- * @return {boolean} Success
+ * @return {number} Index in the downloadQueue
  */
 export function addChapterToDownloadQueue(chapter) {
-    return false;
+    return downloadQueue.push(chapter);
 }
 
 /**
  * @return {import('mangadex-full-api').Chapter[]} An array of chapter objects
  *  with some extra properties
+ * @todo return immutable reference, Proxy?
  */
 export function getDownloadQueue() {
-    return [];
+    return downloadQueue;
 }
 
 /**
- * @param {string} chapterId 
- * @return {boolean} Success
+ * @param {number} idx 
+ * @return {number} New size of download queue
  */
-export function removeChapterFromDownloadQueue(chapterId) {
-    return false;
+export function removeChapterFromDownloadQueue(idx) {
+    downloadQueue.splice(idx);
+    return downloadQueue.length;
 }
 
-/**
- * @param {string} chapterId
- * @param {number} newIndex
- * @return {boolean} Success
- */
-export function reorderDownloadQueue(chapterId, newIndex) {
-    return false;
+
+
+
+
+
+/** Private **/
+
+function _downloadNextInQueue() {
+    const ch = downloadQueue[0];
+    if (ch) {
+        _downloadChapter(ch);
+    } else {
+        downloading = false;
+    }
+}
+
+
+async function _downloadChapter(chapter) {
+    const promises = chapter.pages.map(async pg => {
+        const db = new DexDld();
+        db.url = pg;
+        db.chapter = chapter;
+        await db.save();
+        // @todo update progressbar
+    });
+    await Promise.allSettled(promises);
+    downloadQueue.shift();
+    _downloadNextInQueue();
 }

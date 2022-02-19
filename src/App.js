@@ -23,7 +23,6 @@ function App() {
     return (
         <Wrapper className="App">
             <Suspense fallback={<div />} >
-                {/* <SystemAppBar /> */}
                 <Switch>
                     <Route path='/' exact component={Landing} />
                     <Route path='/title/:id' component={Title} />

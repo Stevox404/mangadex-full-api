@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
 import Flag from 'react-world-flags';
+import { Link } from 'react-router-dom';
 
 /**@param {SidePane.propTypes} props */
 function SidePane(props) {
@@ -36,11 +37,15 @@ function SidePane(props) {
         >
             <div id="drawer">
                 <div id="title">
-                    <Flag code={'jp'} height={16} />
+                    <Flag code={props.chapter?.manga.originalLanguage} height={16} />
                     <Tooltip title={props.chapter?.manga.title} >
-                        <Typography id='title' color='secondary' variant='h6' >
-                            {props.chapter?.manga.title}
-                        </Typography>
+                        <Link to={`/title/${props.chapter?.manga.id}`} >
+                            <Typography
+                                id='title' color='secondary' variant='h6' 
+                            >
+                                {props.chapter?.manga.title}
+                            </Typography>
+                        </Link>
                     </Tooltip>
                 </div>
                 <Divider />

@@ -129,7 +129,8 @@ function ReadingPane(props) {
             return;
         }
         // If at end of chapter, preload next chapter
-        const l = props.readerSettings.preloadPages;
+        let l = props.readerSettings.preloadPages;
+        if(l === -1) l = props.chapter.pages.length;
         for (let i = 0; i < l; i++) {
             const img = new Image();
             img.src = props.chapter.pages[i + props.currentPage];

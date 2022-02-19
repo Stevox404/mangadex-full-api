@@ -6,14 +6,14 @@ db.version(1).stores({
     _cache: 'name'
 });
 
-db.open().catch(async err => {
-    console.warn(err);
-    db.close();
-    await db.delete();
-    db.version(1).stores({
-        _cache: 'name'
-    });
-});
+// db.open().catch(async err => {
+//     console.warn(err);
+//     db.close();
+//     await db.delete();
+//     db.version(1).stores({
+//         _cache: 'name'
+//     });
+// });
 
 export const DexCache = db._cache.defineClass({
     date: String,

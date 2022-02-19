@@ -121,6 +121,9 @@ const Container = styled.main`
         }
         #summary {
             margin-top: 1.6rem;
+            .MuiTypography-root {
+                white-space: pre-line;
+            }
             .MuiSkeleton-root {
                 width: 100%;
                 height: 2.8rem;
