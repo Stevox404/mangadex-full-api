@@ -77,7 +77,7 @@ function AppBarContent(props) {
                         {Boolean(user) ?
                             <>
                                 <Avatar onClick={e => setUserMenuAnchorEl(e.target)} >
-                                    B
+                                    {user.username[0]}
                                 </Avatar>
                                 <Menu
                                     open={!!userMenuAnchorEl} onClose={() => setUserMenuAnchorEl(null)}

@@ -30,10 +30,9 @@ function MangaCard(props) {
     const fetchCover = async _ => {
         /**@type {import('mangadex-full-api').Manga} */
         const manga = props.manga;
-        let cover = props.manga.mainCover.image256;
+        let cover = props.manga.mainCover?.image256;
         if (!cover) {
-            const mainCover = await manga.mainCover.resolve();
-            cover = mainCover.image256;
+            cover = '404';
         }
 
         const img = new Image();

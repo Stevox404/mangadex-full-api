@@ -10,7 +10,7 @@ const Title = React.lazy(() => import('Pages/Title'));
 const Login = React.lazy(() => import('Pages/Login'));
 const Chapter = React.lazy(() => import('Pages/Chapter'));
 const Library = React.lazy(() => import('Pages/Library'));
-const Settings = React.lazy(() => import('Pages/Settings'));
+const Profile = React.lazy(() => import('Pages/Profile'));
 const Search = React.lazy(() => import('Pages/Search'));
 
 function App() {
@@ -30,7 +30,7 @@ function App() {
                     <Route path='/library' component={Library} />
                     <Route path='/search' component={Search} />
                     <Route path='/login' component={Login} />
-                    <Route path='/(profile|downloads|settings)' component={Settings} />
+                    <Route path='/profile' component={Profile} />
                 </Switch>
             </Suspense>
         </Wrapper>
@@ -88,7 +88,6 @@ const Wrapper = styled.div`
     }
     a {
         text-decoration: none;
-        font-size: .9em;
     }
     ${({ theme }) => theme.palette.type === 'dark' && css`
         a {

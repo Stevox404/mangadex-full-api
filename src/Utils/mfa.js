@@ -14,36 +14,51 @@ export async function resolveManga(manga, resolutionItems) {
 }
 
 
-async function resolveEntity(src, resolutionItems, srcKeys) {
+async function resolveEntity(entity, resolutionItems, srcKeys) {
     const promises = [];
-    srcKeys.forEach(r => {
-        if(req(r)) {
-            const item = src[r];
-            if(Array.isArray(item)) {
-                promises.push(Promise.allSettled(item.map(i =>
-                    i.resolve()
-                )));
-            } else {
-                promises.push(src[r].resolve());
+    srcKeys.forEach(key => {
+        if(shouldResolve(key)) {
+            const property = entity[key];
+            const resolveProperty = prop => {
+                if(!prop) {
+                    return Promise.resolve(prop);
+                } else if(!prop.id) {
+                    throw new Error('Cannot resolve property without id');
+                } else if(!prop.type) {
+                    return Promise.resolve(prop);
+                } else {
+                    return prop.resolve();
+                }
             }
-            src[r] = promises.length - 1;
+
+            if(Array.isArray(property)) {
+                promises.push(Promise.allSettled(property.map(resolveProperty)));
+            } else {
+                promises.push(resolveProperty(property));
+            }
+            entity[key] = promises.length - 1;
         }
     });
     const resolved = await Promise.allSettled(promises);
-    srcKeys.forEach(r => {
-        if(req(r)) {
-            var item = resolved[src[r]].value;
-            if(Array.isArray(item)) {
-                src[r] = item.map(i => i.value);
+    srcKeys.forEach(key => {
+        if(shouldResolve(key)) {
+            const res = resolved[entity[key]];
+            if(res.status === 'rejected' || !res.value){
+                return entity[key] = null;
+            }
+            
+            var propVal = res.value;
+            if(Array.isArray(propVal)) {
+                entity[key] = propVal.map(i => i.value);
             } else {
-                src[r] = item;
+                entity[key] = propVal;
             }
         }
     });
 
-    return src;
+    return entity;
 
-    function req(item){
+    function shouldResolve(item){
         return typeof resolutionItems === 'object' && resolutionItems[item] !== undefined ?
             resolutionItems[item]: true;
     }

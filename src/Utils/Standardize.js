@@ -6,29 +6,23 @@ export function standardize(obj) {
     let std;
     if (obj instanceof Author) {
         std = stdAuthor(obj);
-    }
-    if (obj instanceof Chapter) {
+    } else if (obj instanceof Chapter) {
         std = stdChapter(obj);
-    }
-    if (obj instanceof Cover) {
+    } else if (obj instanceof Cover) {
         std = stdCover(obj);
-    }
-    if (obj instanceof Group) {
+    } else if (obj instanceof Group) {
         std = stdGroup(obj);
-    }
-    if (obj instanceof List) {
+    } else if (obj instanceof List) {
         std = stdList(obj);
-    }
-    if (obj instanceof Manga) {
+    } else if (obj instanceof Manga) {
         std = stdManga(obj);
-    }
-    if (obj instanceof User) {
+    } else if (obj instanceof User) {
         std = stdUser(obj);
+    } else {
+        std = clean(obj);
     }
 
     return std;
-    // return JSON.parse(JSON.stringify(std));
-    // return JSON.stringify(std);
 }
 
 function clean(obj) {
