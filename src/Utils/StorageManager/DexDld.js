@@ -224,7 +224,7 @@ DexPage.prototype.download = function() {
             await db._dld_page.put(this);
             resolve();
         };
-        image.onerror = e => {
+        image.onerror = async e => {
             this.error = true;
             await db._dld_page.put(this);
             resolve();
