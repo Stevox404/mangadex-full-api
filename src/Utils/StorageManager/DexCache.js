@@ -62,7 +62,7 @@ DexCache.prototype.fetch = async function () {
     const res = await db._cache.get(this.name);
 
     const cacheInvalid = res && res.destroyAt && moment(res.destroyAt) < moment();
-    const cacheInconsistent = () => res && (!moment(res.validFor).isSame(moment(this.validFor)) &&
+    const cacheInconsistent = () => res && (!moment(res.validFor).isSame(moment.duration(this.validFor)) &&
         !moment(res.validTo).isSame(moment(this.validTo)))
         
     if(cacheInvalid || cacheInconsistent()) {
