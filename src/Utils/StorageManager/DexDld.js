@@ -1,6 +1,7 @@
 import Dexie from "dexie";
 import { Manga, Chapter } from "Libraries/mfa/src/index";
 import { resolveChapter, resolveManga } from "Utils/mfa";
+import { standardize } from "Utils/Standardize";
 
 
 const db = new Dexie("_dld");
@@ -14,6 +15,7 @@ db.version(1).stores({
 const _downloadQueue = [];
 let _downloading = false;
 let _current = null;
+const _eventFns = {};
 
 
 const handler = {
@@ -26,7 +28,7 @@ const handler = {
 }
 
 
-export class DexDld {
+export class ChapterDl {
     /**
      * @param {Chapter} chapter 
      */
@@ -36,34 +38,26 @@ export class DexDld {
 
     #index = null;
 
-    /**
-     * @return {Chapter[]} A read-only array of chapter objects
-     */
-    get queue() {
-        return new Proxy(_downloadQueue, handler);
-    }
-
     get index() {
         return this.#index;
     }
 
     /**
-     * @param {Chapter} chapter 
      * @return {number} Index in the downloadQueue
      */
     addToQueue() {
-        const idx = _downloadQueue.push(this.chapter);
+        const idx = _downloadQueue.push(this);
         this.#index = idx;
+        ChapterDl.beginDownload();
         return this.#index;
     }
 
     /**
-     * @param {number} idx 
      * @return {number} New size of download queue
      */
     removeFromQueue() {
         if (this.#index == null) throw new Error('Not in queue');
-        _downloadQueue.splice(idx, 1);
+        _downloadQueue.splice(this.#index, 1);
         return _downloadQueue.length;
     }
 
@@ -82,8 +76,8 @@ export class DexDld {
 
         const idx = this.#index;
         if (idx === 0) return 0;
-        const ch = _downloadQueue.splice(idx, 1);
-        _downloadQueue.splice(idx - 1, 0, ch);
+        const cDl = _downloadQueue.splice(idx, 1);
+        _downloadQueue.splice(idx - 1, 0, cDl);
         return idx - 1;
     }
 
@@ -95,8 +89,8 @@ export class DexDld {
 
         const idx = this.#index;
         if (idx === _downloadQueue.length - 1) return _downloadQueue.length - 1;
-        const ch = _downloadQueue.splice(idx, 1);
-        _downloadQueue.splice(idx + 1, 0, ch);
+        const cDl = _downloadQueue.splice(idx, 1);
+        _downloadQueue.splice(idx + 1, 0, cDl);
         return idx + 1;
     }
 
@@ -108,8 +102,8 @@ export class DexDld {
 
         const idx = this.#index;
         if (idx === 0) return 0;
-        const ch = _downloadQueue.splice(idx, 1);
-        _downloadQueue.splice(0, 0, ch);
+        const cDl = _downloadQueue.splice(idx, 1);
+        _downloadQueue.splice(0, 0, cDl);
         return 0;
     }
 
@@ -122,12 +116,19 @@ export class DexDld {
         const idx = this.#index;
         const last = _downloadQueue.length - 1;
         if (idx === last) return last;
-        const ch = _downloadQueue.splice(idx, 1);
-        _downloadQueue.splice(last, 0, ch);
+        const cDl = _downloadQueue.splice(idx, 1);
+        _downloadQueue.splice(last, 0, cDl);
         return last;
     }
 
 
+    /**
+     * @return {Chapter[]} A read-only array of chapter objects
+     */
+     static get queue() {
+        return new Proxy(_downloadQueue, handler);
+    }
+    
     /**
      * To be called at start of application. Fetches download queue from local
      * storage and begins processing. Is idempotent.
@@ -154,7 +155,7 @@ export class DexDld {
      * Not `beginDownload()`
      */
     static resume() {
-        DexDld.beginDownload();
+        ChapterDl.beginDownload();
     }
 
     /**
@@ -185,6 +186,56 @@ export class DexDld {
             pages
         });
     }
+
+
+
+    /**
+     * @param {"progress"|"start"|"end"} event
+     * @param {Function} fn
+     */
+     static on(event, fn) {
+        var fns = _eventFns[event] || [];
+        fns.push(fn);
+    }
+    
+    /**
+     * @param {"progress"|"start"|"end"} event
+     * @param {Function} fn
+     */
+    static un(event, fn) {
+        var fns = _eventFns[event] || [];
+        var idx = fns.findIndex(_fn => _fn === fn);
+        fns.splice(idx, 1);
+    }
+    
+    /**
+     * @param {"progress"|"start"|"end"} event
+     * @param {{
+     *  chapter: Chapter,
+     * }} args
+     */
+    static emit(event, args) {
+        let fnArgs = [];
+        if(event === 'start') {
+            this.#progress = 0;
+            this.#progressTotal = args.chapter.pages.length;
+            fnArgs = [args.chapter];
+        } else if(event === 'end') {
+            fnArgs = [args.chapter];
+        } else if(event === 'progress') {
+            this.#progress += 1;
+            const pc = this.#progress/this.#progressTotal * 100;
+            fnArgs = [pc, args.chapter];
+        }
+        
+        var fns = _eventFns[event] || [];
+        for(let fn in fns) {
+            fn(...fnArgs);
+        }
+    }
+
+    static #progress = 0;
+    static #progressTotal = 0;
 
 }
 
@@ -217,16 +268,31 @@ DexPage.prototype.download = function() {
 
         delete this.chapter;
 
+        // Use fetch instead of img to get the blob, helper func
+        // fetch('flowers.jpg').then(function(response) {
+        //     return response.blob();
+        //   }).then(function(myBlob) {
+        //     var objectURL = URL.createObjectURL(myBlob);
+        //     myImage.src = objectURL;
+        //   });
+
         const image = new Image();
         image.src = this.url;
         image.onload = async e => {
+            // const blob = new Blob([image.])
             this.image = image;
             await db._dld_page.put(this);
+            ChapterDl.emit("progress", {
+                chapter: ch
+            });
             resolve();
         };
         image.onerror = async e => {
             this.error = true;
             await db._dld_page.put(this);
+            ChapterDl.emit("progress", {
+                chapter: ch
+            });
             resolve();
         };
     });
@@ -238,10 +304,10 @@ DexPage.prototype.download = function() {
 async function _saveChapterDetails(chapter) {
     var manga = await db._dld_manga.get(chapter.manga.id);
     if (!manga) {
-        const _manga = resolveManga(chapter.manga);
+        const _manga = await resolveManga(chapter.manga);
         await db._dld_manga.put(_manga);
     }
-    const _chapter = resolveChapter(chapter, { manga: false });
+    const _chapter = await resolveChapter(chapter, { manga: false });
     _chapter.mangaId = chapter.manga.id;
     delete chapter.manga;
     await db._dld_chapter.put(_chapter);
@@ -250,29 +316,54 @@ async function _saveChapterDetails(chapter) {
 function _downloadNextInQueue() {
     if (!_downloading) return;
 
-    const ch = _downloadQueue[0];
-    if (ch) {
-        _downloadChapter(ch);
+    const cDl = _downloadQueue[0];
+    if (cDl) {
+        _downloadChapter(cDl);
     } else {
         _downloading = false;
     }
 }
 
-async function _downloadChapter(chapter) {
-    _current = chapter;
-
-    const promises = chapter.pages.map(pg => {
-        const page = new DexPage();
-        page.chapter = chapter;
-        page.url = pg;
-        return page.download();
+/**
+ * @param {ChapterDl} cDl 
+ */
+async function _downloadChapter(cDl) {
+    _current = cDl;
+    const pages = await cDl.chapter.getReadablePages();
+    let chapter = standardize(cDl.chapter);
+    
+    ChapterDl.emit("start", {
+        chapter: chapter,
+        ChapterDl: cDl,
     });
-    await Promise.allSettled(promises);
-    const ch = _downloadQueue[0];
-    if (ch === _current) {
+    
+
+    console.log(chapter);
+    chapter.pages = pages;
+    
+    const page = new DexPage();
+    page.chapter = chapter;
+    page.url = pages[0];
+    page.download();
+
+    // const promises = pages.map(pg => {
+    //     const page = new DexPage();
+    //     page.chapter = chapter;
+    //     page.url = pg;
+    //     return page.download();
+    // });
+    // await Promise.allSettled(promises);
+
+    ChapterDl.emit("end", {
+        chapter: chapter,
+        ChapterDl: cDl,
+    });
+    
+    const pCDl = _downloadQueue[0];
+    if (pCDl === _current) {
         _downloadQueue.shift();
     } else {
-        const idx = _downloadQueue.findIndex(dCh => dCh.id === ch.id);
+        const idx = _downloadQueue.indexOf(cDl);
         _downloadQueue.splice(idx, 1);
     }
     

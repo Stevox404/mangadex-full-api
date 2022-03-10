@@ -1,18 +1,34 @@
-import { Manga } from "mangadex-full-api";
+import { Manga, Chapter } from "mangadex-full-api";
 
 export async function resolveChapter(chapter, resolutionItems) {    
     const reqs = ['manga', 'groups', 'uploader'];
+    if(typeof chapter === 'string') {
+        chapter = await Chapter.get(chapter);
+    } else if(!isMfaObject(chapter, reqs)) {
+        chapter = await Chapter.get(chapter.id);
+    }
+    
     const res = await resolveEntity(chapter, resolutionItems, reqs);
     return res;
 }
 
 export async function resolveManga(manga, resolutionItems) {    
     const reqs = ['mainCover', 'authors', 'artists'];
-    if(typeof manga === 'string') manga = await Manga.get(manga);
+    if(typeof manga === 'string') {
+        manga = await Manga.get(manga);
+    } else if(!isMfaObject(manga, reqs)) {
+        manga = await Manga.get(manga.id);
+    }
     const res = await resolveEntity(manga, resolutionItems, reqs);
     return res;
 }
 
+function isMfaObject(entity, keys) {
+    for(let key of keys) {
+        if(!entity[key] || typeof entity[key].resolve !== 'function') return false;
+    }
+    return true;
+}
 
 async function resolveEntity(entity, resolutionItems, srcKeys) {
     const promises = [];

@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { ChapterDl } from 'Utils/StorageManager/DexDld';
 
 function ChaptersTab(props) {
     const language = useSelector(state => state.language);
@@ -22,6 +23,9 @@ function ChaptersTab(props) {
 
     const downloadChapter = (e, c) => {
         e.stopPropagation();
+        const cDl = new ChapterDl(c);
+        cDl.addToQueue();
+        console.log(ChapterDl.queue);
         // TODO
     }
 
