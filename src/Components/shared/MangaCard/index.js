@@ -59,7 +59,7 @@ function MangaCard(props) {
 
     return (
         <Card component={Link} to={`/title/${props.manga.id}`} >
-            <CardActionArea >
+            <CardActionArea tabIndex='-1' >
                 <CardMedia
                     image={manga404}
                     title={props.manga.title}
@@ -125,7 +125,7 @@ const Card = styled(MuiCard)`
         }
     }
 
-    &:hover {
+    &:hover, &:focus-visible, &:focus-within {
         .MuiCardContent-root {
             .MuiTypography-body1 {
                 overflow: unset;
@@ -133,6 +133,10 @@ const Card = styled(MuiCard)`
                 white-space: unset;
             }
         }
+    }
+
+    &:focus-visible, &:focus-within {
+        outline: 2px solid orangered;
     }
 
     /* Don't display covers if in data-saver mode */
