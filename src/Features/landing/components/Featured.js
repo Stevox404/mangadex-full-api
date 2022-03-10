@@ -76,7 +76,10 @@ function Featured(props) {
         setLoadingImg(true);
         const ftCount = ftManga.length;
         // Handle wrap-around
-        setSelectedIndex(i => (i + dir + (ftCount * Math.ceil(i + dir / ftCount))) % ftCount);
+        let idx = selectedIndex + dir;
+        if(idx >= ftCount) idx = 0;
+        else if(idx < 0) idx = ftCount - 1;
+        setSelectedIndex(idx);
     }
 
     const isUnderMdSize = useMediaQuery(theme => theme.breakpoints.down('md'));
