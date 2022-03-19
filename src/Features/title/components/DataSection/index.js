@@ -13,6 +13,9 @@ import ChapterListSettings from './ChapterListSettings';
 import InfoTab from './InfoTab';
 import ChaptersTab from './ChaptersTab';
 import GalleryTab from './GalleryTab/index';
+import { DexCache } from 'Utils/StorageManager/DexCache';
+import { resolveChapter } from 'Utils/mfa';
+import { standardize } from 'Utils/Standardize';
 
 /** @param {DataSection.propTypes} props */
 function DataSection(props) {
@@ -20,6 +23,7 @@ function DataSection(props) {
     const [chapterSettingsOpen, setChapterSettingsOpen] = useState(false);
     const [fetching, setFetching] = useState(false);
     const [chapters, setChapters] = useState([]);
+    const [readership, setReadership] = useState({});
     const [groups, setGroups] = useState({});
     const [chapterPage, setChapterPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -47,7 +51,7 @@ function DataSection(props) {
                 order: {
                     [sort[0]]: sort[1]
                 },
-                limit: Infinity,
+                limit: 10,
                 translatedLanguage: [language]
             }
             if (chapterSettings.paginated) {
@@ -55,7 +59,11 @@ function DataSection(props) {
                 params.offset = chapterPage * rowsPerPage;
             }
 
-            const chapters = await manga.getFeed(params, true);
+            const chFeed = await manga.getFeed(params, true);
+            const chapters = await Promise.all(chFeed.map(async ch => {
+                const resolvedCh = await resolveChapter(ch);
+                return standardize(resolvedCh);
+            }));
             
             setChapters(chapters);
         } catch (err) {
@@ -69,8 +77,41 @@ function DataSection(props) {
         }
     }
 
+    const fetchReadership = async () => {
+        if (!props.manga) return;
+        const readCache = new DexCache();
+        readCache.name = 'manga-readership';
+        try {
+            const manga = props.manga;
+            let readership = await readCache.fetch();
+            if (!readership || readCache.getMeta('mangaId') !== manga.id) {
+                readership = await MfaManga.getReadChapterIds(manga.id);
+                readership = readership.reduce((agg, chId) => {
+                    agg[chId] = true
+                    return agg;
+                }, {});
+
+                readCache.data = readership;
+                readCache.setMeta('mangaId', manga.id);
+                readCache.save();
+            }
+            setReadership(readership);
+        } catch (err) {
+            if (/TypeError/.test(err.message)) {
+                dispatch(addNotification({
+                    message: "Check your network connection",
+                    group: 'network',
+                    persist: true,
+                }));
+            } else {
+                throw err;
+            }
+        } 
+    }
+
     useEffect(() => {
         fetchChapters();
+        fetchReadership();
     }, [props.manga]);
 
     useEffect(() => {
@@ -135,6 +176,7 @@ function DataSection(props) {
                 fetching={fetching}
                 manga={props.manga}
                 chapters={chapters}
+                readership={readership}
                 totalChapterCount={100}
                 page={chapterPage}
                 chapterSettings={chapterSettings}

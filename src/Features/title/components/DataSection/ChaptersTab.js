@@ -3,7 +3,7 @@ import {
     TablePagination, ListItemIcon
 } from '@material-ui/core';
 import {
-    CloudDownloadOutlined, VisibilityOutlined, OpenInNewOutlined
+    CloudDownloadOutlined, VisibilityOutlined, OpenInNewOutlined, VisibilityOffOutlined
 } from '@material-ui/icons';
 import { Skeleton } from '@material-ui/lab';
 import moment from 'moment';
@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { markChapterAsRead } from 'Utils/index';
 import { ChapterDl } from 'Utils/StorageManager/DexDld';
 
 function ChaptersTab(props) {
@@ -18,23 +19,25 @@ function ChaptersTab(props) {
 
     const changeChapterReadStatus = (e, c) => {
         e.stopPropagation();
-        // TODO
+        markChapterAsRead(c);
     }
 
     const downloadChapter = (e, c) => {
         e.stopPropagation();
         const cDl = new ChapterDl(c);
         cDl.addToQueue();
-        console.log(ChapterDl.queue);
-        // TODO
     }
 
     const chapterList = React.useMemo(() => {
         const groups = {};
 
         const list = props.chapters.reduce((acc, c, idx) => {
-            groups[c.groups[0].id] = c.groups[0].name;
-            if (props.chapterSettings.group !== 'all' && props.chapterSettings.group !== c.groups[0].id) {
+            const chapterGroups = {};
+            for (let group of (c.groups || [])) {
+                if (!groups[group.id]) groups[group.id] = group;
+                chapterGroups[group.id] = group;
+            }
+            if (props.chapterSettings.group !== 'all' && !chapterGroups[props.chapterSettings.group]) {
                 return acc;
             }
 
@@ -54,15 +57,21 @@ function ChaptersTab(props) {
                 return txt;
             }
             acc[acc.length] = (
-                <ListItem key={c.id} button onClick={e => props.handleChapterClick(e, c)} >
-                    <ListItemIcon onClick={e => changeChapterReadStatus(e, c)} >
+                <ListItem
+                    key={c.id} data-read={props.readership?.[c.id]} button
+                    onClick={e => props.handleChapterClick(e, c)}
+                >
+                    <ListItemIcon className='read-status' onClick={e => changeChapterReadStatus(e, c)} >
                         <IconButton edge="start" aria-label="actions">
-                            <VisibilityOutlined />
+                            {props.readership?.[c.id] ?
+                                <VisibilityOffOutlined /> :
+                                <VisibilityOutlined />
+                            }
                         </IconButton>
                     </ListItemIcon>
                     <ListItemText
                         primary={getChapterText()} className='chapter-name'
-                        secondary={c.groups[0].name || c.uploader.username}
+                        secondary={c.groups[0]?.name || c.uploader.username}
                     />
                     <ListItemText
                         primary={moment(c[props.chapterSettings.displayDate]).fromNow()}
@@ -70,14 +79,12 @@ function ChaptersTab(props) {
                             variant: 'subtitle1',
                         }}
                     />
-                    <ListItemSecondaryAction>
-                        <IconButton
-                            edge="end" aria-label="actions"
-                            onClick={e => downloadChapter(e, c)}
-                        >
-                            <CloudDownloadOutlined />
-                        </IconButton>
-                    </ListItemSecondaryAction>
+                    <IconButton
+                        edge="end" aria-label="actions"
+                        onClick={e => downloadChapter(e, c)}
+                    >
+                        <CloudDownloadOutlined />
+                    </IconButton>
                 </ListItem>);
             return acc;
         }, [])
@@ -135,6 +142,9 @@ const Wrapper = styled(List)`
             .MuiTypography-root {
                 color: ${p => p.theme.palette.text.secondary};
             }
+            svg {
+                fill: ${p => p.theme.palette.text.disabled};
+            } 
         }
     }
     .MuiSkeleton-root {
@@ -148,6 +158,7 @@ const Wrapper = styled(List)`
 Wrapper.propTypes = {
     fetching: PropTypes.bool,
     chapters: PropTypes.array,
+    readership: PropTypes.object,
     totalChapterCount: PropTypes.number,
     chapterPage: PropTypes.number,
     rowsPerPage: PropTypes.number,

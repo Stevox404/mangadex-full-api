@@ -38,8 +38,8 @@ function ChapterListSettings(props) {
                 disabled={!Object.keys(props.groups || {}).length}
             >
                 <MenuItem value='all' >All</MenuItem>
-                {Object.entries(props.groups || {}).map(([id, name]) => 
-                    <MenuItem key={id} value={id} >{name || '_undefined_'}</MenuItem>
+                {Object.entries(props.groups || {}).map(([id, group]) => 
+                    <MenuItem key={id} value={id} >{group.name || '_undefined_'}</MenuItem>
                 )}
             </Select>
 
