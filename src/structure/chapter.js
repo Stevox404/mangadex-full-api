@@ -217,6 +217,25 @@ class Chapter {
     }
 
     /**
+     * Retrieves URLs for actual images from Mangadex @ Home.
+     * This only gives URLs, so it does not report the status of the server to Mangadex @ Home.
+     * Therefore applications that download image data pleaese report failures as stated here:
+     * https://api.mangadex.org/docs.html#section/Reading-a-chapter-using-the-API/Report
+     * @param {String} id
+     * @param {Boolean} [saver=false] Use data saver images?
+     * @param {Boolean} [forcePort=false] Force the final URLs to use port 443
+     * @returns {Promise<String[]>}
+     */
+    static async getReadablePages(id, saver = false, forcePort = false) {
+        if (this.isExternal) throw new Error('Cannot get readable pages for an external chapter.');
+        let res = await Util.apiParameterRequest(`/at-home/server/${id}`, { forcePort443: forcePort });
+        if (!res.baseUrl || !res.chapter.hash || !res.chapter.hash) {
+            throw new APIRequestError(`The API did not respond the correct structure for a MD@H chapter request:\n${JSON.stringify(res)}`, APIRequestError.INVALID_RESPONSE);
+        }
+        return res.chapter[saver ? 'dataSaver' : 'data'].map(file => `${res.baseUrl}/${saver ? 'data-saver' : 'data'}/${res.chapter.hash}/${file}`);
+    }
+
+    /**
      * Marks this chapter as either read or unread
      * @param {Boolean} [read=true] True to mark as read, false to mark unread
      * @returns {Promise<Chapter>}
