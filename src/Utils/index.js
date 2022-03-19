@@ -33,6 +33,7 @@ export function markChapterAsRead(chapter, isRead = true) {
     const id = typeof chapter === 'string' ? chapter: chapter.id;
     Chapter.changeReadMarker(id, isRead);
     DexCache.clear('readership');
+    DexCache.clear('manga-readership');
 }
 
 export * from './theme';

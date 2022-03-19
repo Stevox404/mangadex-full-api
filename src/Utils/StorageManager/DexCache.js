@@ -6,19 +6,11 @@ db.version(1).stores({
     _cache: 'name'
 });
 
-// db.open().catch(async err => {
-//     console.warn(err);
-//     db.close();
-//     await db.delete();
-//     db.version(1).stores({
-//         _cache: 'name'
-//     });
-// });
-
 export const DexCache = db._cache.defineClass({
     date: String,
     name: String,
     data: Object,
+    meta: Object,
     validTo: Date, // Date or moment() object
     validFor: Number, // Number(ms) or `moment.duration() Duration. Takes precedence over valid To
 });
@@ -61,15 +53,31 @@ DexCache.prototype.fetch = async function () {
     if (!this.name) throw new Error('Fetch Failed. Cache has no name.');
     const res = await db._cache.get(this.name);
 
-    const cacheInvalid = res && res.destroyAt && moment(res.destroyAt) < moment();
-    const cacheInconsistent = () => res && (!moment(res.validFor).isSame(moment.duration(this.validFor)) &&
-        !moment(res.validTo).isSame(moment(this.validTo)))
+    const shouldDestroy = res?.destroyAt && moment(res.destroyAt) < moment();
+    const validForValid = res?.validFor ? moment(moment.duration(res.validFor)).isSame(moment.duration(this.validFor)): true;
+    const validToValid = res?.validTo ? moment(res.validTo).isSame(moment(this.validTo)): true;
         
-    if(cacheInvalid || cacheInconsistent()) {
+    if(shouldDestroy || !validForValid || !validToValid) {
         await this.clear();
         return null;
     }
-    return res ? res.data : null;
+    let data = null;
+    if(res) {
+        data = res.data;
+        this.data = data;
+        this.meta = res.meta;
+    }
+    return data;
+}
+
+DexCache.prototype.getMeta = function (key) {
+    if(typeof this.meta !== 'object') return null;
+    return this.meta[key];
+}
+DexCache.prototype.setMeta = function (key, val) {
+    if(typeof this.meta !== 'object') this.meta = {};
+    this.meta[key] = val;
+    return true;
 }
 
 DexCache.prototype.clear = function () {
