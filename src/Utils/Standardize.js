@@ -1,3 +1,8 @@
+/**
+ * @todo Add the get functions for each object as properties e.g. getCovers as covers
+ */
+
+
 import {
     Author, Chapter, Cover, Group, List, Manga, User
 } from "mangadex-full-api";
