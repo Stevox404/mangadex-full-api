@@ -9,22 +9,25 @@ import {
 
 export function standardize(obj) {
     let std;
-    if (obj instanceof Author) {
-        std = stdAuthor(obj);
-    } else if (obj instanceof Chapter) {
-        std = stdChapter(obj);
-    } else if (obj instanceof Cover) {
-        std = stdCover(obj);
-    } else if (obj instanceof Group) {
-        std = stdGroup(obj);
-    } else if (obj instanceof List) {
-        std = stdList(obj);
-    } else if (obj instanceof Manga) {
-        std = stdManga(obj);
-    } else if (obj instanceof User) {
-        std = stdUser(obj);
-    } else {
-        std = clean(obj);
+
+    if (!obj._isStandardized) {
+        if (obj instanceof Author) {
+            std = stdAuthor(obj);
+        } else if (obj instanceof Chapter) {
+            std = stdChapter(obj);
+        } else if (obj instanceof Cover) {
+            std = stdCover(obj);
+        } else if (obj instanceof Group) {
+            std = stdGroup(obj);
+        } else if (obj instanceof List) {
+            std = stdList(obj);
+        } else if (obj instanceof Manga) {
+            std = stdManga(obj);
+        } else if (obj instanceof User) {
+            std = stdUser(obj);
+        } else {
+            std = clean(obj);
+        }
     }
 
     return std;
@@ -35,6 +38,7 @@ function clean(obj) {
     for(let [k,v] of Object.entries(obj)){
         if(v !== undefined) res[k] = v;
     }
+    res._isStandardized = true;
     return res;
 }
 
@@ -132,12 +136,16 @@ function stdManga(obj) {
     if (!obj) return obj;
     return clean({
         id: obj.id,
+        aggregate: obj.aggregate,
         altTitles: obj.altTitles,
         artists: obj.artists?.map(stdAuthor),
         authors: obj.authors?.map(stdAuthor),
+        chapterCount: obj.chapterCount,
         contentRating: obj.contentRating,
+        covers: obj.covers?.map(stdCover),
         createdAt: obj.createdAt,
         description: obj.description,
+        follows: obj.follows,
         isLocked: obj.isLocked,
         lastChapter: obj.lastChapter,
         lastVolume: obj.lastVolume,
@@ -148,14 +156,19 @@ function stdManga(obj) {
         mainCover: stdCover(obj.mainCover),
         originalLanguage: obj.originalLanguage,
         publicationDemographic: obj.publicationDemographic,
+        rating: obj.rating,
+        readChapterIds: obj.readChapterIds,
+        readingStatus: obj.readingStatus,
         relatedManga: obj.relatedManga ? Object.entries(obj.relatedManga).reduce((acc, [k, v]) => {
             acc[k] = v?.map(stdManga);
             return acc;
         }, {}): obj.relatedManga,
+        statistics: obj.statistics,
         status: obj.status,
         tags: obj.tags,
         title: obj.title,
         updatedAt: obj.updatedAt,
+        volumeCount: obj.volumeCount,
         version: obj.version,
         year: obj.year,
     })

@@ -37,21 +37,21 @@ function Landing() {
 
     const getNewestManga = async () => {
         try {
-            let manga = await recentCache.fetch();
+            let manga = await newestCache.fetch();
             if (!manga) {
                 manga = await Manga.search({
                     order: {
                         createdAt: 'desc'
                     },
                     createdAtSince: moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss'),
-                    limit: 40
+                    limit: 10
                 });
                 manga = await Promise.all(manga.map(async m => {
                     const md = await resolveManga(m, {mainCover: true});
                     return standardize(md);
                 }));
-                recentCache.data = manga;
-                recentCache.save();
+                newestCache.data = manga;
+                newestCache.save();
             }
             setNewestManga(manga);
         } catch (err) {
@@ -69,22 +69,22 @@ function Landing() {
 
     const getRecentManga = async () => {
         try {
-            let manga = await newestCache.fetch();
+            let manga = await recentCache.fetch();
             if (!manga) {
                 manga = await Manga.search({
                     order: {
                         updatedAt: 'desc'
                     },
                     updatedAtSince: moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss'),
-                    limit: 40
+                    limit: 10
                 });
 
                 manga = await Promise.all(manga.map(async m => {
                     const md = await resolveManga(m, {mainCover: true});
                     return standardize(md);
                 }));
-                newestCache.data = manga; 
-                newestCache.save();
+                recentCache.data = manga; 
+                recentCache.save();
             }
             setRecentManga(manga);
         } catch (err) {
@@ -130,7 +130,7 @@ function Landing() {
                         <MangaListSection
                             listName='Recently Updated'
                             mangaList={recentManga}
-                            showPopularity={false}
+                            showPopularity={true}
                             showUpdate={false}
                         />
                         <MangaListSection

@@ -77,41 +77,11 @@ function DataSection(props) {
         }
     }
 
-    const fetchReadership = async () => {
-        if (!props.manga) return;
-        const readCache = new DexCache();
-        readCache.name = 'manga-readership';
-        try {
-            const manga = props.manga;
-            let readership = await readCache.fetch();
-            if (!readership || readCache.getMeta('mangaId') !== manga.id) {
-                readership = await MfaManga.getReadChapterIds(manga.id);
-                readership = readership.reduce((agg, chId) => {
-                    agg[chId] = true
-                    return agg;
-                }, {});
-
-                readCache.data = readership;
-                readCache.setMeta('mangaId', manga.id);
-                readCache.save();
-            }
-            setReadership(readership);
-        } catch (err) {
-            if (/TypeError/.test(err.message)) {
-                dispatch(addNotification({
-                    message: "Check your network connection",
-                    group: 'network',
-                    persist: true,
-                }));
-            } else {
-                throw err;
-            }
-        } 
-    }
 
     useEffect(() => {
+        if(!props.manga) return;
+        setReadership(props.manga.readChapterIds);
         fetchChapters();
-        fetchReadership();
     }, [props.manga]);
 
     useEffect(() => {

@@ -1,6 +1,7 @@
 import { Typography } from '@material-ui/core';
 import { 
-    StarBorderOutlined, StarHalfOutlined, StarOutlined, VisibilityOutlined 
+    StarBorderOutlined, StarHalfOutlined, StarOutlined,
+    Bookmark,
 } from '@material-ui/icons';
 import React from 'react';
 import styled from 'styled-components';
@@ -12,7 +13,7 @@ import PropTypes from 'prop-types';
 function PopularityDetails(props) {
     const getStars = (rating) => {
         const stars = [];
-        const ct = Number(rating);
+        const ct = Math.round(rating)/2;
         if(Number.isNaN(ct)) return stars;
 
         const full = Math.min(5, Number.parseInt(ct));
@@ -32,10 +33,10 @@ function PopularityDetails(props) {
 
     return (
         <Container >
-            <div className='views' >
-                <VisibilityOutlined />
+            <div className='follows' >
+                <Bookmark />
                 <Typography variant='subtitle2' >
-                    {abbreviateNumber(Number.parseInt(props.views) || 0)}
+                    {abbreviateNumber(Number.parseInt(props.follows) || 0)}
                 </Typography>
             </div>
             <div className='rating' >
@@ -51,10 +52,13 @@ const Container = styled.div`
     svg {
         font-size: 1.2rem;
     }
-    >.views {
+    >.follows {
         display: flex;
         align-items: center;
         gap: .1rem;
+        svg {
+            fill: ${({theme}) => theme.palette.text.secondary};
+        }
     }
     >.rating {
         flex: 1;
@@ -69,7 +73,7 @@ const Container = styled.div`
 
 
 PopularityDetails.propTypes = {
-    views: PropTypes.number,
+    follows: PropTypes.number,
     rating: PropTypes.number,
 }
 

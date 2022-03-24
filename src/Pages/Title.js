@@ -22,19 +22,16 @@ function Title() {
     const fetchManga = async () => {
         try {
             const id = params.id;
-            const manga = await resolveManga(await MfaManga.get(id, true));
+            const manga = await resolveManga(await MfaManga.get(id, true), {
+                aggregate: true,
+                covers: true,
+                readChapterIds: true,
+                readingStatus: true,
+                authors: true,
+                artists: true,
+            });
             manga.covers = await manga.getCovers();
             
-            manga.getAggregate().then(agg => {
-                let lastCh = 0;
-                for (let vol of Object.values(agg)) {
-                    const chKeys = Object.keys(vol.chapters);
-                    const lCh = Number(chKeys[chKeys.length - 1]);
-                    if (lCh > lastCh) lastCh = lCh;
-                }
-                setChaptersNum(lastCh);
-            });
-
             manga.tags.forEach(t => {
                 // Genre, format, content, themes,
                 const val = getLocalizedString(t.localizedName);
@@ -45,6 +42,7 @@ function Title() {
                 }
             });
             setManga(manga);
+            setChaptersNum(manga.chapterCount);
         } catch (err) {
             console.error(err);
             if (/TypeError/.test(err.message)) {
@@ -77,14 +75,7 @@ function Title() {
                 <div className='content' >
                     <MainSection
                         fetching={fetching}
-                        title={manga?.title}
-                        cover={manga?.mainCover.image512}
-                        chaptersNum={chaptersNum}
-                        rating={'--'}
-                        views={'--'}
-                        authorName={manga?.authors?.[0]?.name}
-                        genres={manga?.genres}
-                        description={manga?.description}
+                        manga={manga}
                     />
                     <DataSection
                         manga={manga}

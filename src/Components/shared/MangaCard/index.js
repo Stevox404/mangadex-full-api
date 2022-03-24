@@ -29,7 +29,6 @@ function MangaCard(props) {
 
     const fetchCover = async _ => {
         /**@type {import('mangadex-full-api').Manga} */
-        const manga = props.manga;
         let cover = props.manga.mainCover?.image256;
         if (!cover) {
             cover = '404';
@@ -76,7 +75,7 @@ function MangaCard(props) {
                     </Typography>
                     {props.showPopularity &&
                         <PopularityDetails
-                            views={props.manga.views} rating={props.manga.rating}
+                            follows={props.manga.follows} rating={props.manga.rating}
                         />
                     }
                     {props.showUpdate &&
@@ -157,7 +156,6 @@ MangaCard.defaultProps = {
 }
 
 MangaCard.propTypes = {
-    id: PropTypes.string,
     manga: PropTypes.object,
     showUpdate: PropTypes.bool,
     showPopularity: PropTypes.bool,

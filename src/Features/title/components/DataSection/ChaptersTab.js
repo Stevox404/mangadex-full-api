@@ -8,7 +8,7 @@ import {
 import { Skeleton } from '@material-ui/lab';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { markChapterAsRead } from 'Utils/index';
@@ -16,6 +16,12 @@ import { ChapterDl } from 'Utils/StorageManager/DexDld';
 
 function ChaptersTab(props) {
     const language = useSelector(state => state.language);
+    const [groups, setGroups] = useState({});
+
+    useEffect(() => {
+        props.onLoadGroups(groups);    
+    }, [groups]);
+    
 
     const changeChapterReadStatus = (e, c) => {
         e.stopPropagation();
@@ -29,12 +35,12 @@ function ChaptersTab(props) {
     }
 
     const chapterList = React.useMemo(() => {
-        const groups = {};
+        const _groups = {};
 
         const list = props.chapters.reduce((acc, c, idx) => {
             const chapterGroups = {};
             for (let group of (c.groups || [])) {
-                if (!groups[group.id]) groups[group.id] = group;
+                if (!_groups[group.id]) _groups[group.id] = group;
                 chapterGroups[group.id] = group;
             }
             if (props.chapterSettings.group !== 'all' && !chapterGroups[props.chapterSettings.group]) {
@@ -89,7 +95,7 @@ function ChaptersTab(props) {
             return acc;
         }, [])
 
-        props.onLoadGroups(groups);
+        setGroups(_groups)
 
         return list;
     }, [language, props.manga, props.chapterSettings, props.chapters]);

@@ -1,7 +1,7 @@
 import {
     Typography
 } from '@material-ui/core';
-import { StarOutlined, VisibilityOutlined } from '@material-ui/icons';
+import { StarOutlined, Bookmark } from '@material-ui/icons';
 import { Skeleton } from '@material-ui/lab';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -36,36 +36,36 @@ function MainSection(props) {
 
     return (
         <Container>
-            <img className='main-cover' src={props.cover} />
+            <img className='main-cover' src={props.manga?.mainCover?.image512} />
             <div id="info">
                 <header>
                     <Typography variant='h3' component='h1' >
-                        {props.title}
+                        {props.manga?.title}
                     </Typography>
                 </header>
                 <div id='details' >
                     <Typography color='textSecondary' >
-                        {props.chaptersNum} Chapters | {props.authorName}
+                        {props.manga?.chapterCount} Chapters | {props.manga?.authors?.[0]?.name}
                     </Typography>
                     <Typography component='div' id='popularity' color='textSecondary' >
                         <div>
-                            <StarOutlined id='star' /> {props.rating}
+                            <StarOutlined id='star' /> {Math.round(props.manga?.rating) || '--'}
                         </div>
                         <div>
-                            <VisibilityOutlined /> {
-                                abbreviateNumber(props.views || 0)
+                            <Bookmark /> {
+                                abbreviateNumber(props.manga?.follows || 0)
                             }
                         </div>
                     </Typography>
                 </div>
                 <div id='details' >
                     <Typography color='textSecondary' variant='body2' >
-                        {props.genres?.join(', ')}
+                        {props.manga?.genres?.join(', ')}
                     </Typography>
                 </div>
                 <div id='summary' >
                     <Typography>
-                        {props.description}
+                        {props.manga?.description}
                     </Typography>
                 </div>
             </div>
@@ -133,23 +133,8 @@ const Container = styled.main`
 `;
 
 MainSection.propTypes = {
-    title: PropTypes.string,
-    cover: PropTypes.string,
-    description: PropTypes.string,
-    authorName: PropTypes.string,
-    chaptersNum: PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.string,
-    ]), 
-    genres: PropTypes.arrayOf(PropTypes.string),
-    views: PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.string,
-    ]), 
-    rating: PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.string,
-    ]), 
+    manga: PropTypes.object,
+    fetching: PropTypes.bool,
 }
 
 export default MainSection

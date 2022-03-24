@@ -8,7 +8,7 @@ function GalleryTab(props) {
     
     return (
         <Container>
-            {props.manga.covers.map(c => 
+            {props.manga.covers?.map(c => 
                 <ImageCard key={c.id} cover={c} />
             )}
         </Container>

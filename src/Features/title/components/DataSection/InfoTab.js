@@ -17,6 +17,8 @@ import mu from 'Assets/images/sites/mu.svg';
 import nu from 'Assets/images/sites/nu.png';
 
 function InfoTab(props) {
+    if(!props.manga) return null;
+    
     return (
         <Container>
             <InfoItem title='Alt Names' >
@@ -53,7 +55,7 @@ function InfoTab(props) {
                     {props.manga.userRating || '--'}
                 </IconTextItem>
                 <IconTextItem icon={StarOutlined} >
-                    {props.manga.rating || '--'}
+                    {Math.round(props.manga?.rating) || '--'}/10
                 </IconTextItem>
                 <IconButton disabled >
                     <BarChartOutlined />
@@ -63,8 +65,9 @@ function InfoTab(props) {
                 <Typography>{props.manga.status}</Typography>
             </InfoItem>
             <InfoItem title='Stats' >
-                <IconTextItem icon={VisibilityOutlined} >--</IconTextItem>
-                <IconTextItem icon={BookmarkOutlined} >--</IconTextItem>
+                <IconTextItem icon={BookmarkOutlined} >
+                    {props.manga.follows}
+                </IconTextItem>
             </InfoItem>
             {props.manga.links.raw &&
                 <InfoItem title='Official' >
@@ -73,60 +76,79 @@ function InfoTab(props) {
                     </IconTextItem>
                 </InfoItem>
             }
-            <InfoItem title='Retail' >
-                <ExtLink
-                    name='Official English Translation'
-                    href={props.manga.links.engtl}
-                />
-                <ExtLink
-                    img={amz} name='Amazon'
-                    href={props.manga.links.amz}
-                />
-                <ExtLink
-                    img={bw} name='Bookwalker'
-                    href={props.manga.links.bw}
-                />
-                <ExtLink
-                    img={ebj} name='eBookJapan'
-                    href={props.manga.links.ebj}
-                />
-                <ExtLink
-                    img={cdj} name='CD Japan'
-                    href={props.manga.links.cdj}
-                />
-            </InfoItem>
-            <InfoItem title='Info' >
-                <ExtLink
-                    img={al} name='Anilist'
-                    href={props.manga.links.al}
-                />
-                <ExtLink
-                    img={ap} name='Anime-Planet'
-                    href={props.manga.links.ap}
-                />
-                <ExtLink
-                    img={kt} name='Kitsu'
-                    href={props.manga.links.kt}
-                />
-                <ExtLink
-                    img={mal} name='MyAnimeList'
-                    href={props.manga.links.mal}
-                />
-                <ExtLink
-                    img={mu} name='NovelUpdates'
-                    href={props.manga.links.mu}
-                />
-                <ExtLink
-                    img={nu} name='NovelUpdates'
-                    href={props.manga.links.nu}
-                />
-            </InfoItem>
+            {(
+                props.manga.links.engtl ||
+                props.manga.links.amz ||
+                props.manga.links.bw ||
+                props.manga.links.ebj ||
+                props.manga.links.cdj
+            ) &&
+                <InfoItem title='Retail' >
+                    <ExtLink
+                        name='Official English Translation'
+                        href={props.manga.links.engtl}
+                    />
+                    <ExtLink
+                        img={amz} name='Amazon'
+                        href={props.manga.links.amz}
+                    />
+                    <ExtLink
+                        img={bw} name='Bookwalker'
+                        href={props.manga.links.bw}
+                    />
+                    <ExtLink
+                        img={ebj} name='eBookJapan'
+                        href={props.manga.links.ebj}
+                    />
+                    <ExtLink
+                        img={cdj} name='CD Japan'
+                        href={props.manga.links.cdj}
+                    />
+                </InfoItem>
+            }
+            {(
+                props.manga.links.al ||
+                props.manga.links.ap ||
+                props.manga.links.kt ||
+                props.manga.links.mal ||
+                props.manga.links.mu ||
+                props.manga.links.nu
+            ) &&
+                <InfoItem title='Info' >
+                    <ExtLink
+                        img={al} name='Anilist'
+                        href={props.manga.links.al}
+                    />
+                    <ExtLink
+                        img={ap} name='Anime-Planet'
+                        href={props.manga.links.ap}
+                    />
+                    <ExtLink
+                        img={kt} name='Kitsu'
+                        href={props.manga.links.kt}
+                    />
+                    <ExtLink
+                        img={mal} name='MyAnimeList'
+                        href={props.manga.links.mal}
+                    />
+                    <ExtLink
+                        img={mu} name='NovelUpdates'
+                        href={props.manga.links.mu}
+                    />
+                    <ExtLink
+                        img={nu} name='NovelUpdates'
+                        href={props.manga.links.nu}
+                    />
+                </InfoItem>
+            }
             <InfoItem title='Reading Progress' >
+                {props.manga.volumeCount > 1 &&
+                    <ProgressItem>
+                        Volume 0/{props.manga.volumeCount}
+                    </ProgressItem>
+                }
                 <ProgressItem>
-                    Volume 0/?
-                </ProgressItem>
-                <ProgressItem>
-                    Chapter 0/?
+                    Chapter 0/{props.manga.chapterCount}
                 </ProgressItem>
                 <IconButton disabled size='small' ><EditOutlined /> </IconButton>
             </InfoItem>

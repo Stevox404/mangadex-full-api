@@ -56,13 +56,7 @@ function MangaListSection(props) {
                 {props.mangaList ? props.mangaList.map((manga, idx) => (
                     <MangaCard
                         key={manga.id}
-                        id={manga.id}
                         manga={manga}
-                        mangaName={manga.name}
-                        views={manga.views}
-                        rating={manga.rating}
-                        updateDate={manga.updateDate}
-                        chapterNum={manga.chapterNum}
                         showPopularity={props.showPopularity}
                         showUpdate={props.showUpdate}
                     />

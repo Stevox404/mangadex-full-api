@@ -7,10 +7,15 @@ import {
     Manga, Chapter, Author, Cover, Group, User
 } from "mangadex-full-api";
 
-import {standardize} from './index';
+import { standardize } from './index';
+import { DexCache } from "./StorageManager/DexCache";
 
 export async function resolveChapter(chapter, resolutionItems) {
-    const reqs = ['manga', 'groups', 'uploader'];
+    const reqs = {
+        manga: true,
+        groups: true,
+        uploader: true
+    };
     if (typeof chapter === 'string') {
         chapter = await Chapter.get(chapter);
     } else if (!isMfaObject(chapter, reqs)) {
@@ -24,7 +29,16 @@ export async function resolveChapter(chapter, resolutionItems) {
 }
 
 export async function resolveManga(manga, resolutionItems) {
-    const reqs = ['mainCover', 'authors', 'artists'];
+    const reqs = {
+        mainCover: true,
+        statistics: true,
+        authors: false,
+        artists: false,
+        aggregate: false,
+        covers: false,
+        readChapterIds: false,
+        readingStatus: false,
+    };
     if (typeof manga === 'string') {
         manga = await Manga.get(manga);
     } else if (!isMfaObject(manga, reqs)) {
@@ -34,33 +48,50 @@ export async function resolveManga(manga, resolutionItems) {
     // const _manga = standardize(manga);
     const _manga = manga;
     const res = await resolveEntity(_manga, resolutionItems, reqs);
+    if (shouldResolve('aggregate', resolutionItems, reqs)) {
+        let ct = 0;
+        for (let volName of Object.keys(res.aggregate)) {
+            const vol = res.aggregate[volName];
+            ct += Object.keys(vol.chapters).length;
+        }
+        res.chapterCount = ct;
+        res.volumeCount = Object.keys(res.aggregate).length;
+    }
+
+    if (shouldResolve('statistics', resolutionItems, reqs)) {
+        res.follows = res.statistics.follows;
+        res.rating = res.statistics.rating.average;        
+    }
+
     return res;
 }
 
-function isMfaObject(entity, keys) {
-    for (let key of keys) {
+function isMfaObject(entity, reqs) {
+    for (let key of Object.keys(reqs)) {
+        if (!reqs[key]) continue;
         if (!entity[key] || typeof entity[key].resolve !== 'function') return false;
     }
     return true;
 }
 
-async function resolveEntity(entity, resolutionItems, srcKeys) {
+async function resolveEntity(entity, resolutionItems, reqs) {
     const promises = [];
+    const srcKeys = Object.keys(reqs);
     srcKeys.forEach(key => {
-        if (shouldResolve(key)) {
+        if (shouldResolve(key, resolutionItems, reqs)) {
             const item = entity[key];
 
             if (Array.isArray(item)) {
-                promises.push(Promise.allSettled(item.map(resolveItem)));
+                promises.push(Promise.allSettled(item.map(i => resolveItem(i, { entity, key }))));
             } else {
-                promises.push(resolveItem(item));
+                promises.push(resolveItem(item, { entity, key }));
             }
             entity[key] = promises.length - 1;
         }
     });
     const resolved = await Promise.allSettled(promises);
     srcKeys.forEach(key => {
-        if (shouldResolve(key)) {
+        if (shouldResolve(key, resolutionItems, reqs)) {
             const res = resolved[entity[key]];
             if (res.status === 'rejected' || !res.value) {
                 return entity[key] = null;
@@ -77,12 +108,42 @@ async function resolveEntity(entity, resolutionItems, srcKeys) {
 
     return entity;
 
-    function shouldResolve(item) {
-        return typeof resolutionItems === 'object' && resolutionItems[item] !== undefined ?
-            resolutionItems[item] : true;
-    }
 
-    function resolveItem(item) {
+    function resolveItem(item, { entity, key }) {
+        switch (key) {
+            case 'aggregate':
+                return Manga.getAggregate(entity.id);
+            case 'statistics':
+                return Manga.getStatistics(entity.id);
+            case 'covers':
+                return Manga.getCovers(entity.id);
+            case 'readChapterIds': {
+                return new Promise(async (resolve, reject) => {
+                    try {
+                        const readCache = new DexCache();
+                        readCache.name = 'manga-readership';
+                        let readership = await readCache.fetch();
+                        if (!readership || readCache.getMeta('mangaId') !== entity.id) {
+                            readership = await Manga.getReadChapterIds(entity.id);
+                            readership = readership.reduce((agg, chId) => {
+                                agg[chId] = true
+                                return agg;
+                            }, {});
+                            readCache.data = readership;
+                            readCache.setMeta('mangaId', entity.id);
+                            readCache.save();
+                        }
+                        resolve(readership);
+                    } catch (err) {
+                        reject(err);
+                    }
+                });
+            }
+            case 'readingStatus':
+                return Manga.getReadingStatus(entity.id);
+        }
+
+
         if (!item) {
             return Promise.resolve(item);
         } else if (!item.id) {
@@ -105,4 +166,10 @@ async function resolveEntity(entity, resolutionItems, srcKeys) {
             }
         }
     }
+}
+
+function shouldResolve(key, resolutionItems, reqs) {
+    const def = reqs[key];
+    return typeof resolutionItems === 'object' && resolutionItems[key] !== undefined ?
+        resolutionItems[key] : def;
 }
