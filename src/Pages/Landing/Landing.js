@@ -31,8 +31,14 @@ function Landing() {
         };
         if (listType === 'newest') {
             searchProps['createdAtSince'] = moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss');
-        } else if (listType === 'recent') {
+            searchProps['order'] = {
+                createdAt: 'desc'
+            };
+        } else {
             searchProps['updatedAtSince'] = moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss');
+            searchProps['order'] = {
+                updatedAt: 'desc'
+            };
         }
         
         const currentList = listType === 'newest' ? newestManga: recentManga;

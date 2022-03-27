@@ -1,8 +1,3 @@
-/**
- * @todo Add more resolution items e.g. covers etc. so as to standardize at this point
- */
-
-
 import {
     Manga, Chapter, Author, Cover, Group, User
 } from "mangadex-full-api";
@@ -21,8 +16,6 @@ export async function resolveChapter(chapter, resolutionItems) {
     } else if (!isMfaObject(chapter, reqs)) {
         chapter = await Chapter.get(chapter.id);
     }
-    // todo
-    // const _ch = standardize(chapter);
     const _ch = chapter;
     const res = await resolveEntity(_ch, resolutionItems, reqs);
     return standardize(res);
@@ -44,8 +37,6 @@ export async function resolveManga(manga, resolutionItems) {
     } else if (!isMfaObject(manga, reqs)) {
         manga = await Manga.get(manga.id);
     }
-    // todo
-    // const _manga = standardize(manga);
     const _manga = manga;
     const res = await resolveEntity(_manga, resolutionItems, reqs);
     if (shouldResolve('aggregate', resolutionItems, reqs)) {
@@ -62,6 +53,11 @@ export async function resolveManga(manga, resolutionItems) {
         res.follows = res.statistics.follows;
         res.rating = res.statistics.rating.average;        
     }
+
+    const covers = await Promise.all([
+        Manga.getCovers(res.id),
+        res.getCovers()
+    ]);
 
     return standardize(res);
 }
@@ -93,13 +89,22 @@ async function resolveEntity(entity, resolutionItems, reqs) {
     srcKeys.forEach(key => {
         if (shouldResolve(key, resolutionItems, reqs)) {
             const res = resolved[entity[key]];
-            if (res.status === 'rejected' || !res.value) {
+            if (res.status === 'rejected') {
                 return entity[key] = null;
             }
-
+            
             var itemVal = res.value;
             if (Array.isArray(itemVal)) {
-                entity[key] = itemVal.map(i => i.value);
+                entity[key] = itemVal.map(i => {
+                    if(i?.status) {
+                        if (i.status === 'rejected') {
+                            return null;
+                        }
+                        return i.value;
+                    } else {
+                        return i;
+                    }
+                });
             } else {
                 entity[key] = itemVal;
             }

@@ -59,14 +59,13 @@ function DataSection(props) {
                 params.offset = chapterPage * rowsPerPage;
             }
 
-            const chFeed = await manga.getFeed(params, true);
-            const chapters = await Promise.all(chFeed.map(async ch => {
-                const resolvedCh = await resolveChapter(ch);
-                return standardize(resolvedCh);
-            }));
+            const chFeed = await MfaManga.getFeed(manga.id, params, true);
+            const chapters = await Promise.all(chFeed.map(async ch => resolveChapter(ch)
+            ));
             
             setChapters(chapters);
         } catch (err) {
+            console.error(err);
             dispatch(addNotification({
                 message: "Check your network connection and refresh",
                 group: 'network',

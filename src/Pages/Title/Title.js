@@ -29,7 +29,7 @@ function Title() {
                 authors: true,
                 artists: true,
             });
-            manga.covers = await manga.getCovers();
+            // manga.covers = await manga.getCovers();
             
             manga.tags.forEach(t => {
                 // Genre, format, content, themes,
