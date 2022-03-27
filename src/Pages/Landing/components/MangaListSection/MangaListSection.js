@@ -1,9 +1,9 @@
 import {
-    Button, ButtonGroup, Typography, useMediaQuery
+    Button, ButtonGroup, Icon, Typography, useMediaQuery
 } from '@material-ui/core';
-import { ArrowLeft, ArrowRight } from '@material-ui/icons';
+import { ArrowLeft, ArrowRight, KeyboardArrowRight } from '@material-ui/icons';
 import PropTypes from 'prop-types';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import MangaCard from 'Components/shared/MangaCard';
 import { Skeleton } from '@material-ui/lab';
@@ -13,6 +13,52 @@ import { Skeleton } from '@material-ui/lab';
 /** @param {MangaListSection.propTypes} props */
 function MangaListSection(props) {
     const listRef = useRef(null);
+    const lastMangaRef = useRef(null);
+    const [isRequestingMoreManga, setIsRequestingMoreManga] = useState(false);
+    
+    /**
+     * @param {IntersectionObserverEntry[]} entries 
+     * @param {IntersectionObserver} observer 
+     */
+    const requestMoreManga = React.useCallback((entries, observer) => {
+        for (let entry of entries) {
+            if (entry.isIntersecting) {
+                setIsRequestingMoreManga(true);
+                observer.unobserve(entry.target);
+            }
+        }
+    }, [props]);
+
+    useEffect(() => {
+      if(isRequestingMoreManga) {
+          props.requestMoreManga(props.mangaList);
+      }
+    }, [props, isRequestingMoreManga]);
+    
+    
+    const observerRef = useRef(null);
+
+    useEffect(() => {        
+        // create observer when list is loaded
+        const list = listRef.current;
+        if(!list) return;
+        let observer = observerRef.current;
+        observerRef.current = new IntersectionObserver(requestMoreManga, { root: listRef.current, rootMargin: '0px 640px 0px 0px' })
+        return _ => {
+            observer.disconnect();
+        }
+    }, []);
+
+    useEffect(() => {
+        // Observe the last manga card
+        const lastManga = lastMangaRef.current;
+        if(!lastManga || lastManga.getAttribute('_isObserved')) return;
+        const observer = observerRef.current;
+        observer.observe(lastManga);
+        lastManga.setAttribute('_isObserved', true);
+        setIsRequestingMoreManga(false);
+    // }, [lastMangaRef.current]);
+    }, [props.mangaList]);
 
     const scrollList = (dir) => {
         /** @type {Element} */
@@ -28,7 +74,7 @@ function MangaListSection(props) {
     const getSkeletonNum = () => {
         /** @type {Element} */
         const el = listRef.current;
-        if(!el) return;
+        if (!el) return;
         return Number.parseInt(el.clientWidth / (parseFloat(CARD_WIDTH) * 16)) - 1;
     }
 
@@ -36,9 +82,10 @@ function MangaListSection(props) {
         <Container data-card-width={CARD_WIDTH} data-card-height={CARD_HEIGHT} >
             <header>
                 <Button variant='text' >
-                    <Typography gutterBottom variant="h6" component="h2" >
+                    <Typography variant="h6" component="h2" >
                         {props.listName}
                     </Typography>
+                    <KeyboardArrowRight />
                 </Button>
                 <div className='flex-spacer' />
                 {props.mangaList &&
@@ -53,12 +100,13 @@ function MangaListSection(props) {
                 }
             </header>
             <div className='list' ref={listRef} >
-                {props.mangaList ? props.mangaList.map((manga, idx) => (
+                {props.mangaList?.length ? props.mangaList.map((manga, idx) => (
                     <MangaCard
                         key={manga.id}
                         manga={manga}
                         showPopularity={props.showPopularity}
                         showUpdate={props.showUpdate}
+                        ref={idx === props.mangaList.length - 1 ? lastMangaRef : null}
                     />
                 )) : <>
                     {
@@ -67,6 +115,10 @@ function MangaListSection(props) {
                         ))
                     }
                 </>}
+                {isRequestingMoreManga && [
+                    <Skeleton key={0} variant="rect" />,
+                    <Skeleton key={1} variant="rect" />
+                ]}
             </div>
         </Container>
     )
@@ -153,19 +205,8 @@ MangaListSection.propTypes = {
     listName: PropTypes.string,
     showUpdate: PropTypes.bool,
     showPopularity: PropTypes.bool,
-    mangaList: PropTypes.arrayOf(PropTypes.shape({
-        name: PropTypes.string,
-        image: PropTypes.string,
-        views: PropTypes.number,
-        rating: PropTypes.number,
-        updateDate: PropTypes.oneOfType([
-            PropTypes.instanceOf(Date),
-            PropTypes.string, PropTypes.number,
-        ]),
-        chapterNum: PropTypes.oneOfType([
-            PropTypes.string, PropTypes.number,
-        ]),
-    })),
+    requestMoreManga: PropTypes.func,
+    mangaList: PropTypes.arrayOf(PropTypes.object),
 }
 
 export default MangaListSection

@@ -25,7 +25,7 @@ export async function resolveChapter(chapter, resolutionItems) {
     // const _ch = standardize(chapter);
     const _ch = chapter;
     const res = await resolveEntity(_ch, resolutionItems, reqs);
-    return res;
+    return standardize(res);
 }
 
 export async function resolveManga(manga, resolutionItems) {
@@ -63,7 +63,7 @@ export async function resolveManga(manga, resolutionItems) {
         res.rating = res.statistics.rating.average;        
     }
 
-    return res;
+    return standardize(res);
 }
 
 function isMfaObject(entity, reqs) {

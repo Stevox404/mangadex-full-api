@@ -7,52 +7,65 @@ import { useDispatch } from 'react-redux';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
 import { resolveManga } from 'Utils/mfa';
-import { standardize } from 'Utils/Standardize';
 import { DexCache } from 'Utils/StorageManager';
 
-window.Manga = Manga;
-
-const recentCache = new DexCache();
-recentCache.name = 'recent';
-recentCache.validFor = moment.duration(3, 'h');
-
-const newestCache = new DexCache();
-newestCache.name = 'newest';
-newestCache.validFor = moment.duration(3, 'h');
-
 function Landing() {
-    const [recentManga, setRecentManga] = useState();
-    const [newestManga, setNewestManga] = useState();
+    const [recentManga, setRecentManga] = useState(null);
+    const [newestManga, setNewestManga] = useState(null);
 
     useEffect(() => {
         document.title = 'Dexumi';
-        getRecentManga();
-        getNewestManga();
-        // Manga.search({ limit: 2 });
+        addToList('newest');
+        addToList('recent');
     }, []);
 
     const dispatch = useDispatch();
 
 
-    const getNewestManga = async () => {
-        try {
-            let manga = await newestCache.fetch();
-            if (!manga) {
-                manga = await Manga.search({
-                    order: {
-                        createdAt: 'desc'
-                    },
-                    createdAtSince: moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss'),
-                    limit: 10
-                });
-                manga = await Promise.all(manga.map(async m => {
-                    const md = await resolveManga(m, {mainCover: true});
-                    return standardize(md);
-                }));
-                newestCache.data = manga;
-                newestCache.save();
+    const addToList = async (listType) => {
+        const searchProps = {
+            order: {
+                createdAt: 'desc'
+            },
+            limit: 10,            
+        };
+        if (listType === 'newest') {
+            searchProps['createdAtSince'] = moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss');
+        } else if (listType === 'recent') {
+            searchProps['updatedAtSince'] = moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss');
+        }
+        
+        const currentList = listType === 'newest' ? newestManga: recentManga;
+        const list = currentList ? [...currentList]: [];
+        console.log({list, newestManga, recentManga});
+
+        const cache = new DexCache();
+        cache.name = listType;
+        cache.validFor = moment.duration(3, 'h');
+
+        if (!list.length) {
+            // If the list is empty, page was just loaded.
+            // Check cache and if has data, load that and return
+
+            let cachedList = await cache.fetch();
+            if (cachedList) {
+                return listType === 'newest' ? setNewestManga(cachedList): setRecentManga(cachedList);
             }
-            setNewestManga(manga);
+        }
+
+
+        // else load the next list starting from offset        
+        searchProps.offset = list.length + 1;
+        
+        try {
+            let fetchedManga = await Manga.search(searchProps);
+            fetchedManga = await Promise.all(fetchedManga.map(m =>
+                resolveManga(m, { mainCover: true })
+            ));
+            const newList = [...list, ...fetchedManga];
+            cache.data = newList;
+            cache.save();
+            listType === 'newest' ? setNewestManga(newList): setRecentManga(newList);
         } catch (err) {
             if (/TypeError/.test(err.message)) {
                 dispatch(addNotification({
@@ -61,58 +74,11 @@ function Landing() {
                     persist: true
                 }));
             } else {
-                throw err;
+                console.error(err);
             }
         }
     }
 
-    const getRecentManga = async () => {
-        try {
-            let manga = await recentCache.fetch();
-            if (!manga) {
-                manga = await Manga.search({
-                    order: {
-                        updatedAt: 'desc'
-                    },
-                    updatedAtSince: moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss'),
-                    limit: 10
-                });
-
-                manga = await Promise.all(manga.map(async m => {
-                    const md = await resolveManga(m, {mainCover: true});
-                    return standardize(md);
-                }));
-                recentCache.data = manga; 
-                recentCache.save();
-            }
-            setRecentManga(manga);
-        } catch (err) {
-            if (err.name === 'APIRequestError') {
-                addNotification('Could not fetch mangas. Please check your network');
-            } else {
-                throw err;
-            }
-        }
-    }
-
-    const getMangaList = () => {
-        const mangas = [];
-        for (let i = 0; i < 14; i++) {
-            mangas.push({
-                id: `id_${i}`,
-                title: i % 2 ? 'Naruto' : 'How My Overly Cautious Classmate became OP in Another World!',
-                mainCover: {
-                    image256: 'https://upload.wikimedia.org/wikipedia/en/c/c9/Nabarinoop.jpg',
-                },
-                views: Math.random() * (5000 - 1000) + 1000,
-                rating: Math.random() * (5 - 1) + 1,
-                updateDate: new Date() - (Math.random() * 86400000),
-                chapterNum: Math.random() * (200 - 5) + 5,
-            });
-        }
-
-        return mangas;
-    }
 
     return (
         <>
@@ -130,13 +96,19 @@ function Landing() {
                             listName='Recently Updated'
                             mangaList={recentManga}
                             showPopularity={true}
-                            showUpdate={false}
+                            showUpdate={true}
+                            requestMoreManga={_ => {
+                                return addToList('recent');
+                            }}
                         />
                         <MangaListSection
                             listName='Newly Added'
                             mangaList={newestManga}
                             showPopularity={false}
                             showUpdate={false}
+                            requestMoreManga={_ => {
+                                return addToList('newest');
+                            }}
                         />
                         {/* <MangaListSection
                             listName='Recommended for You'

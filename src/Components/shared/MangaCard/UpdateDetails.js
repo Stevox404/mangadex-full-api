@@ -30,6 +30,7 @@ const Container = styled.div`
     align-items: center;
     svg {
         font-size: 1.2rem;
+        fill: ${({theme}) => theme.palette.text.secondary};
     }
     >.time {
         display: flex;
