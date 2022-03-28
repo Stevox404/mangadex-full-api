@@ -54,10 +54,10 @@ export async function resolveManga(manga, resolutionItems) {
         res.rating = res.statistics.rating.average;        
     }
 
-    const covers = await Promise.all([
-        Manga.getCovers(res.id),
-        res.getCovers()
-    ]);
+    if (shouldResolve('readChapterIds', resolutionItems, reqs)) {
+        res.readChapterCount = Object.keys(res.readChapterIds).length;
+    }
+
 
     return standardize(res);
 }

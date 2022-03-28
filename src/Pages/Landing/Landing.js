@@ -12,11 +12,15 @@ import { DexCache } from 'Utils/StorageManager';
 function Landing() {
     const [recentManga, setRecentManga] = useState(null);
     const [newestManga, setNewestManga] = useState(null);
+    const [topManga, setTopManga] = useState(null);
+    const [hotManga, setHotManga] = useState(null);
 
     useEffect(() => {
         document.title = 'Dexumi';
         addToList('newest');
         addToList('recent');
+        addToList('top');
+        addToList('hot');
     }, []);
 
     const dispatch = useDispatch();
@@ -27,23 +31,39 @@ function Landing() {
             order: {
                 createdAt: 'desc'
             },
-            limit: 10,            
+            limit: 7,            
         };
+        let currentList, fn;
         if (listType === 'newest') {
             searchProps['createdAtSince'] = moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss');
             searchProps['order'] = {
                 createdAt: 'desc'
             };
+            fn = setNewestManga;
+            currentList = newestManga;
+        } else if (listType === 'hot') {
+            searchProps['updatedAtSince'] = moment().subtract(1, 'day').format('YYYY-MM-DDThh:mm:ss');
+            searchProps['order'] = {
+                followedCount: 'desc',
+            };
+            fn = setHotManga;
+            currentList = hotManga;
+        } else if (listType === 'top') {
+            searchProps['order'] = {
+                followedCount: 'desc'
+            };
+            fn = setTopManga;
+            currentList = topManga;
         } else {
             searchProps['updatedAtSince'] = moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss');
             searchProps['order'] = {
                 updatedAt: 'desc'
             };
+            fn = setRecentManga;
+            currentList = recentManga;
         }
         
-        const currentList = listType === 'newest' ? newestManga: recentManga;
         const list = currentList ? [...currentList]: [];
-        console.log({list, newestManga, recentManga});
 
         const cache = new DexCache();
         cache.name = listType;
@@ -55,7 +75,8 @@ function Landing() {
 
             let cachedList = await cache.fetch();
             if (cachedList) {
-                return listType === 'newest' ? setNewestManga(cachedList): setRecentManga(cachedList);
+                // return listType === 'newest' ? setNewestManga(cachedList): setRecentManga(cachedList);
+                return fn(cachedList);
             }
         }
 
@@ -71,7 +92,8 @@ function Landing() {
             const newList = [...list, ...fetchedManga];
             cache.data = newList;
             cache.save();
-            listType === 'newest' ? setNewestManga(newList): setRecentManga(newList);
+            // listType === 'newest' ? setNewestManga(newList): setRecentManga(newList);
+            fn(newList);
         } catch (err) {
             if (/TypeError/.test(err.message)) {
                 dispatch(addNotification({
@@ -93,11 +115,6 @@ function Landing() {
                 <Featured />
                 <div className='content' >
                     <div>
-                        {/* <MangaListSection
-                            listName='Top rated'
-                            mangaList={getMangaList()}
-                            showUpdate={false}
-                        /> */}
                         <MangaListSection
                             listName='Recently Updated'
                             mangaList={recentManga}
@@ -105,6 +122,22 @@ function Landing() {
                             showUpdate={true}
                             requestMoreManga={_ => {
                                 return addToList('recent');
+                            }}
+                            />
+                        <MangaListSection
+                            listName='Hot'
+                            mangaList={hotManga}
+                            requestMoreManga={_ => {
+                                return addToList('hot');
+                            }}
+                        />
+                        <MangaListSection
+                            listName='Top rated'
+                            mangaList={topManga}
+                            showPopularity={true}
+                            showUpdate={true}
+                            requestMoreManga={_ => {
+                                return addToList('top');
                             }}
                         />
                         <MangaListSection

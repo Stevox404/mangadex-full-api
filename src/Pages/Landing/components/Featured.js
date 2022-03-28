@@ -6,6 +6,7 @@ import { KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined } from '@material
 import { useRouter } from 'flitlib';
 import { Manga, Cover } from 'mangadex-full-api';
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
 import { DexCache } from 'Utils/StorageManager';
@@ -125,7 +126,8 @@ function Featured(props) {
                             </Typography>
                         }
                         <Button
-                            variant='contained' color='primary' onClick={readManga}
+                            variant='contained' color='primary'
+                            component={Link} to={`/title/${ftManga[selectedIndex]?.id}`}
                             size={isUnderMdSize ? 'small' : 'medium'} disabled={fetching}
                         >
                             Read Now

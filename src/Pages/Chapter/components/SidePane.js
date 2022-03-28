@@ -1,15 +1,41 @@
 import { Button, Divider, IconButton, MenuItem, TextField, Toolbar, Tooltip, Typography } from '@material-ui/core';
-import { AspectRatio, AspectRatioOutlined, CommentOutlined, KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined, Settings, WebAssetOutlined } from '@material-ui/icons';
+import { AspectRatio, AspectRatioOutlined, CommentOutlined, KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined, Settings, SettingsOverscanOutlined, WebAssetOutlined } from '@material-ui/icons';
 import Close from '@material-ui/icons/Close';
 import SideDrawer from 'Components/shared/mui-x/SideDrawer';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Flag from 'react-world-flags';
 import { Link } from 'react-router-dom';
 
 /**@param {SidePane.propTypes} props */
 function SidePane(props) {
+    const [inZenMode, setInZenMode] = useState(false);
+    useEffect(() => {
+        /**@type {HTMLElement} */
+        const elem = props.readingPaneRef.current;
+        if (!elem) return;
+        window.document.addEventListener('keypress', fn);
+        return _ => elem.removeEventListener('keypress', fn);
+        function fn(ev) {
+            if(ev.key === 'f') toggleZenMode(ev);
+        }
+    }, [props.readingPaneRef]);
+
+    useEffect(() => {
+        /**@type {HTMLElement} */
+        const elem = props.readingPaneRef.current;
+        if (!elem) return;
+        elem.addEventListener('fullscreenchange', fn);
+        return _ => elem.removeEventListener('fullscreenchange', fn);
+        function fn(ev) {
+            if(!window.document.fullscreenElement) {
+                setInZenMode(false);
+            }
+        }
+    }, [props.readingPaneRef]);
+    
+
     const getChapterNumText = () => {
         if (!props.chapter) return 'Ch';
         let txt = '';
@@ -30,6 +56,38 @@ function SidePane(props) {
         } else props.onPrevChapterClick();
     }
 
+    const toggleZenMode = _ => {
+        /**@type {HTMLElement} */
+        const elem = props.readingPaneRef.current;
+        if (!elem) return;
+
+        try {
+            if (!inZenMode) {
+                if(!window.document.fullscreenElement) {
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen();
+                    } else if (elem.webkitRequestFullscreen) { /* Safari */
+                        elem.webkitRequestFullscreen();
+                    } else if (elem.msRequestFullscreen) { /* IE11 */
+                        elem.msRequestFullscreen();
+                    }
+                }
+                setInZenMode(true);
+            } else {
+                if(window.document.fullscreenElement) {
+                    window.document.exitFullscreen();
+                }
+                setInZenMode(false);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+
+        function fn(ev) {
+            if(ev.key === 'F') toggleZenMode(ev);
+        }
+    }
+
     return (
         <Container
             open={props.open} anchor='right' onClose={props.onClose}
@@ -41,7 +99,7 @@ function SidePane(props) {
                     <Tooltip title={props.chapter?.manga.title} >
                         <Link to={`/title/${props.chapter?.manga.id}`} >
                             <Typography
-                                id='title' color='secondary' variant='h6' 
+                                id='title' color='secondary' variant='h6'
                             >
                                 {props.chapter?.manga.title}
                             </Typography>
@@ -72,7 +130,7 @@ function SidePane(props) {
                 <div id='scanlator' >
                     <Flag code={'us'} height={16} />
                     <Typography variant='subtitle1' >
-                        {props.chapter?.groups[0].name}
+                        {props.chapter?.groups[0]?.name}
                     </Typography>
                 </div>
                 <Divider />
@@ -87,8 +145,8 @@ function SidePane(props) {
                                 <WebAssetOutlined />
                             </Button>
                         </Tooltip>
-                        <Tooltip title='Zen Mode' >
-                            <Button variant='outlined' >
+                        <Tooltip title='Zen Mode [F]' >
+                            <Button variant='outlined' onClick={toggleZenMode} >
                                 <AspectRatioOutlined />
                             </Button>
                         </Tooltip>

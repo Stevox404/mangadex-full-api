@@ -42,10 +42,9 @@ function MangaListSection(props) {
         // create observer when list is loaded
         const list = listRef.current;
         if(!list) return;
-        let observer = observerRef.current;
         observerRef.current = new IntersectionObserver(requestMoreManga, { root: listRef.current, rootMargin: '0px 640px 0px 0px' })
         return _ => {
-            observer.disconnect();
+            observerRef.current?.disconnect();
         }
     }, []);
 
@@ -85,7 +84,7 @@ function MangaListSection(props) {
                     <Typography variant="h6" component="h2" >
                         {props.listName}
                     </Typography>
-                    <KeyboardArrowRight />
+                    {/* <KeyboardArrowRight /> */}
                 </Button>
                 <div className='flex-spacer' />
                 {props.mangaList &&

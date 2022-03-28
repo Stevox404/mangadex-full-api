@@ -231,6 +231,7 @@ function Chapter() {
                     onNextChapterClick={goToNextChapter}
                     onPrevChapterClick={goToPrevChapter}
                     readerSettings={readerSettings}
+                    readingPaneRef={readingPaneRef}
                     onToolbarToggle={_ => setShowToolbar(s => !s)}
                 />
 
