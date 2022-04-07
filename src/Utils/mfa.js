@@ -7,9 +7,9 @@ import { DexCache } from "./StorageManager/DexCache";
 
 export async function resolveChapter(chapter, resolutionItems) {
     const reqs = {
-        manga: true,
-        groups: true,
-        uploader: true
+        manga: false,
+        groups: false,
+        uploader: false
     };
     if (typeof chapter === 'string') {
         chapter = await Chapter.get(chapter);
@@ -40,12 +40,14 @@ export async function resolveManga(manga, resolutionItems) {
     const _manga = manga;
     const res = await resolveEntity(_manga, resolutionItems, reqs);
     if (shouldResolve('aggregate', resolutionItems, reqs)) {
-        let ct = 0;
+        let ct = 0, aCt = 0;
         for (let volName of Object.keys(res.aggregate)) {
             const vol = res.aggregate[volName];
+            aCt += vol.count;
             ct += Object.keys(vol.chapters).length;
         }
         res.chapterCount = ct;
+        res.actualChapterCount = aCt;
         res.volumeCount = Object.keys(res.aggregate).length;
     }
 

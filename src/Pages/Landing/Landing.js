@@ -127,6 +127,7 @@ function Landing() {
                         <MangaListSection
                             listName='Hot'
                             mangaList={hotManga}
+                            showUpdate={true}
                             requestMoreManga={_ => {
                                 return addToList('hot');
                             }}

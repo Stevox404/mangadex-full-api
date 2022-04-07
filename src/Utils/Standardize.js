@@ -137,6 +137,7 @@ function stdManga(obj) {
     return clean({
         id: obj.id,
         aggregate: obj.aggregate,
+        actualChapterCount: obj.actualChapterCount,
         altTitles: obj.altTitles,
         artists: obj.artists?.map(stdAuthor),
         authors: obj.authors?.map(stdAuthor),

@@ -5,7 +5,7 @@ import { SettingsOutlined } from '@material-ui/icons';
 import { useRouter } from 'flitlib';
 import { Manga as MfaManga } from 'mangadex-full-api';
 import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
@@ -24,7 +24,6 @@ function DataSection(props) {
     const [fetching, setFetching] = useState(false);
     const [chapters, setChapters] = useState([]);
     const [readership, setReadership] = useState({});
-    const [groups, setGroups] = useState({});
     const [chapterPage, setChapterPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -40,8 +39,31 @@ function DataSection(props) {
     });
 
 
+    const memoizedFetchOpts = useRef(null);
+
+    function shouldFetch() {
+        const opts = memoizedFetchOpts.current;
+
+        const changed = !opts ||
+            opts.mangaId != props.manga.id ||
+            opts.sortOrder != chapterSettings.sortOrder ||
+            opts.rowsPerPage != rowsPerPage ||
+            opts.chapterPage != chapterPage;
+
+        if (!changed) return false;
+        memoizedFetchOpts.current = {
+            mangaId: props.manga?.id,
+            sortOrder: chapterSettings?.sortOrder,
+            rowsPerPage,
+            chapterPage,
+        }
+        return true;
+    }
+
     const fetchChapters = async _ => {
         if (!props.manga) return;
+        if (!shouldFetch()) return;
+
         try {
             setFetching(true);
             /**@type {MfaManga} */
@@ -51,7 +73,8 @@ function DataSection(props) {
                 order: {
                     [sort[0]]: sort[1]
                 },
-                limit: 10,
+                offset: chapterPage * rowsPerPage,
+                limit: rowsPerPage,
                 translatedLanguage: [language]
             }
             if (chapterSettings.paginated) {
@@ -59,10 +82,14 @@ function DataSection(props) {
                 params.offset = chapterPage * rowsPerPage;
             }
 
-            const chFeed = await MfaManga.getFeed(manga.id, params, true);
-            const chapters = await Promise.all(chFeed.map(async ch => resolveChapter(ch)
+            const chFeed = await MfaManga.getFeed(manga.id, params);
+
+            const chapters = await Promise.all(chFeed.map(async ch =>
+                resolveChapter(ch, {
+                    groups: true,
+                })
             ));
-            
+
             setChapters(chapters);
         } catch (err) {
             console.error(err);
@@ -78,7 +105,7 @@ function DataSection(props) {
 
 
     useEffect(() => {
-        if(!props.manga) return;
+        if (!props.manga) return;
         setReadership(props.manga.readChapterIds);
         fetchChapters();
     }, [props.manga]);
@@ -100,8 +127,8 @@ function DataSection(props) {
     }
 
     const handleChapterClick = (e, chapter) => {
-        if(chapter.isExternal){
-            if(!chapter.externalUrl) {
+        if (chapter.isExternal) {
+            if (!chapter.externalUrl) {
                 return window.alert('Chapter is hosted externally but no link provided');
             }
             const a = document.createElement('a');
@@ -131,38 +158,23 @@ function DataSection(props) {
         setRowsPerPage(e.target.value);
     }
 
-    const setLoadedGroups = g => {
-        // TODO is there a better way to get groups besides going through all chapters??
-        // Currently loads all chapters in first render
-        // Won't work if first render is paginated
-        if (groups && Object.keys(groups).length) return;
-        setGroups(g);
-    }
 
-    const MemoizedChaptersTab = React.useMemo(_ => {
-        return (
-            <ChaptersTab
+    const getTabPanel = () => {
+        switch (tabIndex) {
+            case 0: return <InfoTab manga={props.manga} />;
+            case 1: return <ChaptersTab
                 fetching={fetching}
                 manga={props.manga}
                 chapters={chapters}
                 readership={readership}
-                totalChapterCount={100}
+                totalChapterCount={props.manga?.chapterCount}
                 page={chapterPage}
                 chapterSettings={chapterSettings}
                 onPageChange={handleChangePage}
                 rowsPerPage={rowsPerPage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
-                onLoadGroups={setLoadedGroups}
                 handleChapterClick={handleChapterClick}
             />
-        );
-    }, [fetching, chapters, chapterPage, chapterSettings, rowsPerPage]);
-
-    const getTabPanel = () => {
-        switch (tabIndex) {
-            case 0: return <InfoTab manga={props.manga} />;
-            case 1:
-                return MemoizedChaptersTab
             case 2: return <GalleryTab manga={props.manga} />;
             default: break;
         }
@@ -215,9 +227,7 @@ function DataSection(props) {
                 group={chapterSettings.group}
                 displayDate={chapterSettings.displayDate}
                 grouped={chapterSettings.grouped}
-                paginated={chapterSettings.paginated}
                 onChange={handleChapterSettingChange}
-                groups={groups}
             />
         </Container>
     )

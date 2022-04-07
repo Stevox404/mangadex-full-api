@@ -29,20 +29,6 @@ function ChapterListSettings(props) {
                 <MenuItem value='createdAt-desc' >Oldest Publish</MenuItem>
             </Select>
 
-            <Typography id='group-lbl' component='label' >Group:</Typography>
-            <Select
-                labelId="group-lbl"
-                name='group'
-                value={props.group}
-                onChange={props.onChange}
-                disabled={!Object.keys(props.groups || {}).length}
-            >
-                <MenuItem value='all' >All</MenuItem>
-                {Object.entries(props.groups || {}).map(([id, group]) => 
-                    <MenuItem key={id} value={id} >{group.name || '_undefined_'}</MenuItem>
-                )}
-            </Select>
-
             <Typography id='date-lbl' component='label' >Display Date:</Typography>
             <Select
                 labelId="date-lbl"
@@ -53,15 +39,6 @@ function ChapterListSettings(props) {
                 <MenuItem value='updatedAt' >Update Date</MenuItem>
                 <MenuItem value='publishAt' >Publish Date</MenuItem>
             </Select>
-
-            <FormControlLabel
-                value={props.paginated}
-                onChange={props.onChange}
-                name='paginated'
-                control={<Checkbox color="primary" />}
-                label="Paginate"
-                labelPlacement="start"
-            />
 
             <FormControlLabel
                 value={props.grouped}

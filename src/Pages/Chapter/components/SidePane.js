@@ -18,7 +18,7 @@ function SidePane(props) {
         window.document.addEventListener('keypress', fn);
         return _ => elem.removeEventListener('keypress', fn);
         function fn(ev) {
-            if(ev.key === 'f') toggleZenMode(ev);
+            if (ev.key === 'f') toggleZenMode(ev);
         }
     }, [props.readingPaneRef]);
 
@@ -29,12 +29,12 @@ function SidePane(props) {
         elem.addEventListener('fullscreenchange', fn);
         return _ => elem.removeEventListener('fullscreenchange', fn);
         function fn(ev) {
-            if(!window.document.fullscreenElement) {
+            if (!window.document.fullscreenElement) {
                 setInZenMode(false);
             }
         }
     }, [props.readingPaneRef]);
-    
+
 
     const getChapterNumText = () => {
         if (!props.chapter) return 'Ch';
@@ -63,7 +63,7 @@ function SidePane(props) {
 
         try {
             if (!inZenMode) {
-                if(!window.document.fullscreenElement) {
+                if (!window.document.fullscreenElement) {
                     if (elem.requestFullscreen) {
                         elem.requestFullscreen();
                     } else if (elem.webkitRequestFullscreen) { /* Safari */
@@ -74,7 +74,7 @@ function SidePane(props) {
                 }
                 setInZenMode(true);
             } else {
-                if(window.document.fullscreenElement) {
+                if (window.document.fullscreenElement) {
                     window.document.exitFullscreen();
                 }
                 setInZenMode(false);
@@ -84,7 +84,7 @@ function SidePane(props) {
         }
 
         function fn(ev) {
-            if(ev.key === 'F') toggleZenMode(ev);
+            if (ev.key === 'F') toggleZenMode(ev);
         }
     }
 
@@ -113,18 +113,32 @@ function SidePane(props) {
                     </Typography>
                 }
                 <div id='chapter' >
-                    <IconButton data-btn-side='left' onClick={changeChapter} >
-                        <KeyboardArrowLeftOutlined />
-                    </IconButton>
+                    <div className='btn' >
+                        <IconButton data-btn-side='left' onClick={changeChapter} >
+                            <KeyboardArrowLeftOutlined />
+                        </IconButton>
+                        <Typography variant='subtitle2' >
+                            {props.readerSettings.readingDir === 'left' ?
+                                'NEXT' : 'PREV'
+                            }
+                        </Typography>
+                    </div>
                     <div id="chapter-num">
                         <Typography>
                             {getChapterNumText()}
                         </Typography>
                     </div>
                     {/* <TextField size='small' readOnly value={getChapterNumText()} /> */}
-                    <IconButton data-btn-side='right' onClick={changeChapter} >
-                        <KeyboardArrowRightOutlined />
-                    </IconButton>
+                    <div className='btn' >
+                        <IconButton data-btn-side='right' onClick={changeChapter} >
+                            <KeyboardArrowRightOutlined />
+                        </IconButton>
+                        <Typography variant='subtitle2' >
+                            {props.readerSettings.readingDir === 'left' ?
+                                'PREV': 'NEXT'
+                            }
+                        </Typography>
+                    </div>
                 </div>
                 <Divider />
                 <div id='scanlator' >
@@ -195,7 +209,16 @@ const Container = styled(SideDrawer)`
         }
         #chapter {
             display: flex;
+            align-items: flex-start;
             align-items: center;
+            .btn {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                .MuiTypography-root {
+                    font-size: .64rem;
+                }
+            }
             .MuiTextField-root {
                 flex: 1;
                 pointer-events: none;

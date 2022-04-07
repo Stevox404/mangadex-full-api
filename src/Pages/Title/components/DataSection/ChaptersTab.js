@@ -16,12 +16,6 @@ import { ChapterDl } from 'Utils/StorageManager/DexDld';
 
 function ChaptersTab(props) {
     const language = useSelector(state => state.language);
-    const [groups, setGroups] = useState({});
-
-    useEffect(() => {
-        props.onLoadGroups(groups);    
-    }, [groups]);
-    
 
     const changeChapterReadStatus = (e, c) => {
         e.stopPropagation();
@@ -35,18 +29,7 @@ function ChaptersTab(props) {
     }
 
     const chapterList = React.useMemo(() => {
-        const _groups = {};
-
         const list = props.chapters.reduce((acc, c, idx) => {
-            const chapterGroups = {};
-            for (let group of (c.groups || [])) {
-                if (!_groups[group.id]) _groups[group.id] = group;
-                chapterGroups[group.id] = group;
-            }
-            if (props.chapterSettings.group !== 'all' && !chapterGroups[props.chapterSettings.group]) {
-                return acc;
-            }
-
             const getChapterText = () => {
                 let txt = c.chapter === null ? 'One-Shot' : `Chapter ${c.chapter}`;
                 if (c.title) {
@@ -95,8 +78,6 @@ function ChaptersTab(props) {
             return acc;
         }, [])
 
-        setGroups(_groups)
-
         return list;
     }, [language, props.manga, props.chapterSettings, props.chapters]);
 
@@ -107,17 +88,18 @@ function ChaptersTab(props) {
             )) :
                 <>
                     {chapterList}
-                    {props.chapterSettings.paginated &&
-                        <TablePagination
-                            component="div"
-                            count={props.totalChapterCount}
-                            page={props.chapterPage}
-                            onPageChange={props.handleChangePage}
-                            rowsPerPage={props.rowsPerPage}
-                            onRowsPerPageChange={props.handleChangeRowsPerPage}
-                        />
-                    }
                 </>
+            }
+            {props.totalChapterCount &&
+                <TablePagination
+                    component="div"
+                    count={props.totalChapterCount}
+                    page={props.page}
+                    onPageChange={props.onPageChange}
+                    rowsPerPage={props.rowsPerPage}
+                    onRowsPerPageChange={props.onRowsPerPageChange}
+                    showLastButton={true}
+                />
             }
         </Wrapper>
     );
@@ -161,7 +143,7 @@ const Wrapper = styled(List)`
 
 
 
-Wrapper.propTypes = {
+ChaptersTab.propTypes = {
     fetching: PropTypes.bool,
     chapters: PropTypes.array,
     readership: PropTypes.object,
@@ -171,7 +153,6 @@ Wrapper.propTypes = {
     chapterSettings: PropTypes.object,
     handleChangePage: PropTypes.func,
     handleChangeRowsPerPage: PropTypes.func,
-    onGroupsChange: PropTypes.func,
     handleChapterClick: PropTypes.func,
 }
 

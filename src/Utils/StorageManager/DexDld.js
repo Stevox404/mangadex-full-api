@@ -14,6 +14,7 @@ db.version(1).stores({
 
 const _downloadQueue = [];
 let _downloading = false;
+/**@type {Chapter} */
 let _current = null;
 const _eventFns = {};
 
@@ -158,6 +159,29 @@ export class ChapterDl {
         ChapterDl.beginDownload();
     }
 
+    static downloadStates = {
+        DOWNLOADED: Symbol('DOWNLOADED'),
+        NOT_DOWNLOADED: Symbol('NOT_DOWNLOADED'),
+        PENDING: Symbol('PENDING'),
+        DOWNLOADING: Symbol('DOWNLOADING'),
+    }
+
+    /**
+     * Get the download status of the chapter
+     * @param {string} chapterId 
+     */
+    static getChapterDownloadState(chapterId) {
+        if(db._dld_chapter.get(chapterId)){
+            return ChapterDl.downloadStates.DOWNLOADED;
+        } else if (_current.id == chapterId) {
+            return ChapterDl.downloadStates.DOWNLOADING;
+        } else if (_downloadQueue.some(ch => ch.id == chapterId)) {
+            return ChapterDl.downloadStates.PENDING;
+        } else {
+            return ChapterDl.downloadStates.NOT_DOWNLOADED;
+        }
+    }
+
     /**
      * Get downloaded manga details
      * @param {string?} id 
@@ -217,14 +241,15 @@ export class ChapterDl {
     static emit(event, args) {
         let fnArgs = [];
         if (event === 'start') {
-            this.#progress = 0;
-            this.#progressTotal = args.chapter.pageUrls.length;
+            ChapterDl._currentDownload = args.chapter;
+            ChapterDl.#progress = 0;
+            ChapterDl.#progressTotal = args.chapter.pageUrls.length;
             fnArgs = [args.chapter];
         } else if (event === 'end') {
             fnArgs = [args.chapter];
         } else if (event === 'progress') {
-            this.#progress += 1;
-            const pc = this.#progress / this.#progressTotal * 100;
+            ChapterDl.#progress += 1;
+            const pc = ChapterDl.#progress / ChapterDl.#progressTotal * 100;
             fnArgs = [pc, args.chapter];
         }
 

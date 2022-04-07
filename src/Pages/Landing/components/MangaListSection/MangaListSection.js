@@ -125,7 +125,7 @@ function MangaListSection(props) {
 
 
 const Container = styled.div`
-    margin-bottom: 4.8rem;
+    margin-bottom: 3.6rem;
     >header {
         display: flex;
         align-items: center;
@@ -158,6 +158,7 @@ const Container = styled.div`
         padding-block: calc(var(--gap) / 2);
         overscroll-behavior-inline: contain;
         scroll-snap-type: inline mandatory;
+        padding-top: calc(var(--gap) / 4);
 
         /* display: inline-block; */
         outline-offset: 12px;
