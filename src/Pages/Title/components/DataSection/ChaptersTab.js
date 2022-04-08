@@ -3,7 +3,7 @@ import {
     TablePagination, ListItemIcon
 } from '@material-ui/core';
 import {
-    CloudDownloadOutlined, VisibilityOutlined, OpenInNewOutlined, VisibilityOffOutlined
+    CloudDownloadOutlined, VisibilityOutlined, OpenInNewOutlined, VisibilityOffOutlined, CancelOutlined, DeleteForeverOutlined
 } from '@material-ui/icons';
 import { Skeleton } from '@material-ui/lab';
 import moment from 'moment';
@@ -28,58 +28,88 @@ function ChaptersTab(props) {
         cDl.addToQueue();
     }
 
-    const chapterList = React.useMemo(() => {
-        const list = props.chapters.reduce((acc, c, idx) => {
-            const getChapterText = () => {
-                let txt = c.chapter === null ? 'One-Shot' : `Chapter ${c.chapter}`;
-                if (c.title) {
-                    txt += `: ${c.title}`;
-                }
-
-                if (c.isExternal) {
-                    txt = <>
-                        <OpenInNewOutlined />
-                        {txt}
-                    </>
-                }
-
-                return txt;
-            }
-            acc[acc.length] = (
-                <ListItem
-                    key={c.id} data-read={props.readership?.[c.id]} button
-                    onClick={e => props.handleChapterClick(e, c)}
+    const getDownloadButton = (c) => {
+        var state = c ? ChapterDl.getChapterDownloadState(c.id) : ChapterDl.downloadStates.NOT_DOWNLOADED;
+        if (state === ChapterDl.downloadStates.NOT_DOWNLOADED) {
+            return (
+                <IconButton
+                    edge="end" aria-label="actions"
+                    onClick={e => downloadChapter(e, c)}
                 >
-                    <ListItemIcon className='read-status' onClick={e => changeChapterReadStatus(e, c)} >
-                        <IconButton edge="start" aria-label="actions">
-                            {props.readership?.[c.id] ?
-                                <VisibilityOffOutlined /> :
-                                <VisibilityOutlined />
-                            }
-                        </IconButton>
-                    </ListItemIcon>
-                    <ListItemText
-                        primary={getChapterText()} className='chapter-name'
-                        secondary={c.groups[0]?.name || c.uploader.username}
-                    />
-                    <ListItemText
-                        primary={moment(c[props.chapterSettings.displayDate]).fromNow()}
-                        primaryTypographyProps={{
-                            variant: 'subtitle1',
-                        }}
-                    />
-                    <IconButton
-                        edge="end" aria-label="actions"
-                        onClick={e => downloadChapter(e, c)}
-                    >
-                        <CloudDownloadOutlined />
-                    </IconButton>
-                </ListItem>);
-            return acc;
-        }, [])
+                    <CloudDownloadOutlined />
+                </IconButton>
+            );
+        } else if (state === ChapterDl.downloadStates.DOWNLOADING) {
+            return (
+                <IconButton
+                    edge="end" aria-label="actions"
+                >
+                    <CancelOutlined />
+                </IconButton>
+            );
+        } else if (state === ChapterDl.downloadStates.DOWNLOADED) {
+            return (
+                <IconButton
+                    edge="end" aria-label="actions"
+                >
+                    <DeleteForeverOutlined />
+                </IconButton>
+            );
+        } else if (state === ChapterDl.downloadStates.PENDING) {
+            return (
+                <IconButton
+                    edge="end" aria-label="actions"
+                >
+                    <CancelOutlined />
+                </IconButton>
+            );
+        }
+    }
 
-        return list;
-    }, [language, props.manga, props.chapterSettings, props.chapters]);
+    const chapterList = props.chapters?.reduce((acc, c, idx) => {
+        const getChapterText = () => {
+            let txt = c.chapter === null ? 'One-Shot' : `Chapter ${c.chapter}`;
+            if (c.title) {
+                txt += `: ${c.title}`;
+            }
+
+            if (c.isExternal) {
+                txt = <>
+                    <OpenInNewOutlined />
+                    {txt}
+                </>
+            }
+
+            return txt;
+        }
+        acc[acc.length] = (
+            <ListItem
+                key={c.id} data-read={props.readership?.[c.id]} button
+                onClick={e => props.handleChapterClick(e, c)}
+            >
+                <ListItemIcon className='read-status' onClick={e => changeChapterReadStatus(e, c)} >
+                    <IconButton edge="start" aria-label="actions">
+                        {props.readership?.[c.id] ?
+                            <VisibilityOffOutlined /> :
+                            <VisibilityOutlined />
+                        }
+                    </IconButton>
+                </ListItemIcon>
+                <ListItemText
+                    primary={getChapterText()} className='chapter-name'
+                    secondary={c.groups[0]?.name || c.uploader.username}
+                />
+                <ListItemText
+                    primary={moment(c[props.chapterSettings.displayDate]).fromNow()}
+                    primaryTypographyProps={{
+                        variant: 'subtitle1',
+                    }}
+                />
+                {getDownloadButton(c)}
+            </ListItem>);
+        return acc;
+    }, []);
+
 
     return (
         <Wrapper>
