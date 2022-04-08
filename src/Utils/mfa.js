@@ -23,8 +23,8 @@ export async function resolveChapter(chapter, resolutionItems) {
 
 export async function resolveManga(manga, resolutionItems) {
     const reqs = {
-        mainCover: true,
-        statistics: true,
+        mainCover: false,
+        statistics: false,
         authors: false,
         artists: false,
         aggregate: false,

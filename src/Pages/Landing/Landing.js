@@ -26,7 +26,7 @@ function Landing() {
     const dispatch = useDispatch();
 
 
-    const addToList = async (listType) => {
+    const addToList = async (listType, args = {}) => {
         const searchProps = {
             order: {
                 createdAt: 'desc'
@@ -75,7 +75,6 @@ function Landing() {
 
             let cachedList = await cache.fetch();
             if (cachedList) {
-                // return listType === 'newest' ? setNewestManga(cachedList): setRecentManga(cachedList);
                 return fn(cachedList);
             }
         }
@@ -86,14 +85,16 @@ function Landing() {
         
         try {
             let fetchedManga = await Manga.search(searchProps);
-            fetchedManga = await Promise.all(fetchedManga.map(m =>
-                resolveManga(m, { mainCover: true })
-            ));
+            fetchedManga = await Promise.all(fetchedManga.map(async m => {
+                const manga = await resolveManga(m, {
+                    mainCover: true,
+                    statistics: !args || args.popularity !== false
+                })
+                fn(mangas => [...mangas, manga]);
+            }));
             const newList = [...list, ...fetchedManga];
             cache.data = newList;
             cache.save();
-            // listType === 'newest' ? setNewestManga(newList): setRecentManga(newList);
-            fn(newList);
         } catch (err) {
             if (/TypeError/.test(err.message)) {
                 dispatch(addNotification({
@@ -129,7 +130,9 @@ function Landing() {
                             mangaList={hotManga}
                             showUpdate={true}
                             requestMoreManga={_ => {
-                                return addToList('hot');
+                                return addToList('hot', {
+                                    popularity: false
+                                });
                             }}
                         />
                         <MangaListSection
@@ -147,7 +150,9 @@ function Landing() {
                             showPopularity={false}
                             showUpdate={false}
                             requestMoreManga={_ => {
-                                return addToList('newest');
+                                return addToList('newest', {
+                                    popularity: false
+                                });
                             }}
                         />
                         {/* <MangaListSection

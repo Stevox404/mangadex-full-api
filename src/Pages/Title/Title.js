@@ -28,6 +28,8 @@ function Title() {
                 readingStatus: true,
                 authors: true,
                 artists: true,
+                mainCover: true,
+                statistics: true,
             });
             
             manga.tags.forEach(t => {
