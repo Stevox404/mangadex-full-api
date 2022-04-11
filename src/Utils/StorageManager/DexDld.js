@@ -11,8 +11,12 @@ db.version(1).stores({
     _dld_page: 'url',
 });
 
+db._dld_chapter.toArray().then(v => {
+    _downloadedList.push(...v);
+});
 
 const _downloadQueue = [];
+const _downloadedList = [];
 let _downloading = false;
 /**@type {Chapter} */
 let _current = null;
@@ -171,9 +175,9 @@ export class ChapterDl {
      * @param {string} chapterId 
      */
     static getChapterDownloadState(chapterId) {
-        if(db._dld_chapter.get(chapterId)){
+        if(_downloadedList.some(ch => ch.id == chapterId)){
             return ChapterDl.downloadStates.DOWNLOADED;
-        } else if (_current.id == chapterId) {
+        } else if (_current?.id == chapterId) {
             return ChapterDl.downloadStates.DOWNLOADING;
         } else if (_downloadQueue.some(ch => ch.id == chapterId)) {
             return ChapterDl.downloadStates.PENDING;
@@ -349,8 +353,7 @@ async function _downloadChapter(cDl) {
     _current = cDl;
     const pages = await Chapter.getReadablePages(cDl.chapter.id)
     let chapter = standardize(cDl.chapter);
-    chapter.pageUrls = pages;
-
+    
 
     ChapterDl.emit("start", {
         chapter: chapter,

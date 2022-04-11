@@ -2,12 +2,13 @@ import { SystemAppBar } from 'Components';
 import { MangaListSection, Featured } from './components';
 import { Manga } from 'mangadex-full-api';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
 import { resolveManga } from 'Utils/mfa';
 import { DexCache } from 'Utils/StorageManager';
+import { debounce } from 'Utils';
 
 function Landing() {
     const [recentManga, setRecentManga] = useState(null);
@@ -31,7 +32,7 @@ function Landing() {
             order: {
                 createdAt: 'desc'
             },
-            limit: 7,            
+            limit: 7,
         };
         let currentList, fn;
         if (listType === 'newest') {
@@ -62,8 +63,8 @@ function Landing() {
             fn = setRecentManga;
             currentList = recentManga;
         }
-        
-        const list = currentList ? [...currentList]: [];
+
+        const list = currentList ? [...currentList] : [];
 
         const cache = new DexCache();
         cache.name = listType;
@@ -82,17 +83,25 @@ function Landing() {
 
         // else load the next list starting from offset        
         searchProps.offset = list.length + 1;
-        
+
         try {
             let fetchedManga = await Manga.search(searchProps);
             fetchedManga = await Promise.all(fetchedManga.map(async m => {
                 const manga = await resolveManga(m, {
                     mainCover: true,
                     statistics: !args || args.popularity !== false
-                })
-                fn(mangas => [...mangas, manga]);
+                });
+                if (list.length) {
+                    console.debug(`Single rendered ${listType} list`);
+                    fn(mangas => [...(mangas || []), manga]);
+                }
+                return manga;
             }));
             const newList = [...list, ...fetchedManga];
+            if (!list.length) {
+                console.debug(`Batch rendered ${listType} list`);
+                fn(newList);
+            }
             cache.data = newList;
             cache.save();
         } catch (err) {
@@ -107,6 +116,11 @@ function Landing() {
             }
         }
     }
+
+    const debouncedAddToList = useCallback(() => {
+        console.debug(`Create new debounce fn`);
+        return debounce(addToList, 3000);
+    }, []);
 
 
     return (
@@ -124,13 +138,13 @@ function Landing() {
                             requestMoreManga={_ => {
                                 return addToList('recent');
                             }}
-                            />
+                        />
                         <MangaListSection
                             listName='Hot'
                             mangaList={hotManga}
                             showUpdate={true}
                             requestMoreManga={_ => {
-                                return addToList('hot', {
+                                return debouncedAddToList('hot', {
                                     popularity: false
                                 });
                             }}
@@ -141,7 +155,7 @@ function Landing() {
                             showPopularity={true}
                             showUpdate={true}
                             requestMoreManga={_ => {
-                                return addToList('top');
+                                return debouncedAddToList('top');
                             }}
                         />
                         <MangaListSection
@@ -150,7 +164,7 @@ function Landing() {
                             showPopularity={false}
                             showUpdate={false}
                             requestMoreManga={_ => {
-                                return addToList('newest', {
+                                return debouncedAddToList('newest', {
                                     popularity: false
                                 });
                             }}
