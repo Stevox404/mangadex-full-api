@@ -128,7 +128,6 @@ function ChaptersTab(props) {
                     onPageChange={props.onPageChange}
                     rowsPerPage={props.rowsPerPage}
                     onRowsPerPageChange={props.onRowsPerPageChange}
-                    showLastButton={true}
                 />
             }
         </Wrapper>

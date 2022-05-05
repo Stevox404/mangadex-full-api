@@ -8,7 +8,7 @@ import {
 } from "mangadex-full-api";
 
 export function standardize(obj) {
-    let std;
+    let std = obj;
 
     if (!obj._isStandardized) {
         if (obj instanceof Author) {
@@ -68,6 +68,7 @@ function stdChapter(obj) {
         manga: stdManga(obj.manga),
         pages: obj.pages,
         pageNames: obj.pageNames,
+        pageUrls: obj.pageUrls,
         publishAt: obj.publishAt,
         saverPageNames: obj.saverPageNames,
         title: obj.title,

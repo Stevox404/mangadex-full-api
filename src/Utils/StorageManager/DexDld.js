@@ -329,7 +329,9 @@ async function _saveChapterDetails(chapter) {
         manga = _manga;
         await db._dld_manga.put(_manga);
     }
-    const _chapter = await resolveChapter(chapter, { manga: false });
+    const _chapter = await resolveChapter(chapter, { 
+        manga: false,
+    });
     _chapter.mangaId = manga.id;
     delete chapter.manga;
     await db._dld_chapter.put(_chapter);
@@ -351,8 +353,10 @@ function _downloadNextInQueue() {
  */
 async function _downloadChapter(cDl) {
     _current = cDl;
-    const pages = await Chapter.getReadablePages(cDl.chapter.id)
-    let chapter = standardize(cDl.chapter);
+    let chapter = await resolveChapter(cDl.chapter, {
+        pageUrls: true
+    });
+    const pages = chapter.pageUrls;
     
 
     ChapterDl.emit("start", {

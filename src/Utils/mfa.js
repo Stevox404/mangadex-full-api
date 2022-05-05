@@ -9,7 +9,9 @@ export async function resolveChapter(chapter, resolutionItems) {
     const reqs = {
         manga: false,
         groups: false,
-        uploader: false
+        uploader: false,
+        pages: false,
+        pageUrls: false,
     };
     if (typeof chapter === 'string') {
         chapter = await Chapter.get(chapter);
@@ -57,7 +59,7 @@ export async function resolveManga(manga, resolutionItems) {
     }
 
     if (shouldResolve('readChapterIds', resolutionItems, reqs)) {
-        res.readChapterCount = Object.keys(res.readChapterIds).length;
+        res.readChapterCount = Object.keys(res.readChapterIds || {}).length;
     }
 
 
@@ -148,6 +150,9 @@ async function resolveEntity(entity, resolutionItems, reqs) {
             }
             case 'readingStatus':
                 return Manga.getReadingStatus(entity.id);
+
+            case 'pageUrls':
+                return Chapter.getReadablePages(entity.id);
         }
 
 
@@ -176,7 +181,8 @@ async function resolveEntity(entity, resolutionItems, reqs) {
 }
 
 function shouldResolve(key, resolutionItems, reqs) {
-    const def = reqs[key];
+    const defaultRes = reqs[key];
+    if(defaultRes === undefined) return false;
     return typeof resolutionItems === 'object' && resolutionItems[key] !== undefined ?
-        resolutionItems[key] : def;
+        resolutionItems[key] : defaultRes;
 }
