@@ -15,7 +15,7 @@ function MangaListSection(props) {
     const listRef = useRef(null);
     const lastMangaRef = useRef(null);
     const [isRequestingMoreManga, setIsRequestingMoreManga] = useState(false);
-    
+
     /**
      * @param {IntersectionObserverEntry[]} entries 
      * @param {IntersectionObserver} observer 
@@ -29,20 +29,26 @@ function MangaListSection(props) {
         }
     }, [props]);
 
+    const requestTimeoutRef = useRef(null);
     useEffect(() => {
-      if(isRequestingMoreManga) {
-          props.requestMoreManga(props.mangaList);
-      }
+        if (isRequestingMoreManga) {
+            let requestTimeout = requestTimeoutRef.current;
+            if(requestTimeout) window.clearTimeout(requestTimeout)
+            window.setTimeout(() => {
+                props.requestMoreManga(props.mangaList);
+            }, 3000);
+            setIsRequestingMoreManga(false);            
+        }
     }, [props, isRequestingMoreManga]);
-    
-    
+
+
     const observerRef = useRef(null);
 
-    useEffect(() => {        
+    useEffect(() => {
         // create observer when list is loaded
         const list = listRef.current;
-        if(!list) return;
-        observerRef.current = new IntersectionObserver(requestMoreManga, { root: listRef.current, rootMargin: '0px 640px 0px 0px' })
+        if (!list) return;
+        observerRef.current = new IntersectionObserver(requestMoreManga, { root: listRef.current, rootMargin: '0px 320px 0px 0px' })
         return _ => {
             observerRef.current?.disconnect();
         }
@@ -51,12 +57,12 @@ function MangaListSection(props) {
     useEffect(() => {
         // Observe the last manga card
         const lastManga = lastMangaRef.current;
-        if(!lastManga || lastManga.getAttribute('_isObserved')) return;
+        if (!lastManga || lastManga.getAttribute('_isObserved')) return;
         const observer = observerRef.current;
         observer.observe(lastManga);
         lastManga.setAttribute('_isObserved', true);
         setIsRequestingMoreManga(false);
-    // }, [lastMangaRef.current]);
+        // }, [lastMangaRef.current]);
     }, [props.mangaList]);
 
     const scrollList = (dir) => {

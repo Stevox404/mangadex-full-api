@@ -2,13 +2,12 @@ import { SystemAppBar } from 'Components';
 import { MangaListSection, Featured } from './components';
 import { Manga } from 'mangadex-full-api';
 import moment from 'moment';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
 import { resolveManga } from 'Utils/mfa';
 import { DexCache } from 'Utils/StorageManager';
-import { debounce } from 'Utils';
 
 function Landing() {
     const [recentManga, setRecentManga] = useState(null);
@@ -27,6 +26,7 @@ function Landing() {
     const dispatch = useDispatch();
 
 
+    const currListCount = useRef({});
     const addToList = async (listType, args = {}) => {
         const searchProps = {
             order: {
@@ -82,7 +82,10 @@ function Landing() {
 
 
         // else load the next list starting from offset        
-        searchProps.offset = list.length + 1;
+        const offset = currListCount.current[listType] ?? list.length;
+        searchProps.offset = offset + 1;
+
+        currListCount.current[listType] = offset + searchProps.limit;
 
         try {
             let fetchedManga = await Manga.search(searchProps);
@@ -117,11 +120,6 @@ function Landing() {
         }
     }
 
-    const debouncedAddToList = useCallback(() => {
-        console.debug(`Create new debounce fn`);
-        return debounce(addToList, 3000);
-    }, []);
-
 
     return (
         <>
@@ -136,7 +134,7 @@ function Landing() {
                             showPopularity={true}
                             showUpdate={true}
                             requestMoreManga={_ => {
-                                return addToList('recent');
+                                addToList('recent')
                             }}
                         />
                         <MangaListSection
@@ -144,9 +142,9 @@ function Landing() {
                             mangaList={hotManga}
                             showUpdate={true}
                             requestMoreManga={_ => {
-                                return debouncedAddToList('hot', {
+                                addToList('hot', {
                                     popularity: false
-                                });
+                                })
                             }}
                         />
                         <MangaListSection
@@ -155,7 +153,7 @@ function Landing() {
                             showPopularity={true}
                             showUpdate={true}
                             requestMoreManga={_ => {
-                                return debouncedAddToList('top');
+                                addToList('top')
                             }}
                         />
                         <MangaListSection
@@ -164,9 +162,9 @@ function Landing() {
                             showPopularity={false}
                             showUpdate={false}
                             requestMoreManga={_ => {
-                                return debouncedAddToList('newest', {
+                                addToList('newest', {
                                     popularity: false
-                                });
+                                })
                             }}
                         />
                         {/* <MangaListSection

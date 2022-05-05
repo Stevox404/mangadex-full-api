@@ -15,7 +15,11 @@ export const DexCache = db._cache.defineClass({
     validFor: Number, // Number(ms) or `moment.duration() Duration. Takes precedence over valid To
 });
 
+DexCache.disabled = false;
+
 DexCache.prototype.save = async function () {
+    if(DexCache.disabled || this.disabled) return null;
+    
     if (!this.name) throw new Error('Save Failed. Cache has no name.');
     const date = new Date().toLocaleDateString();
     this.date = date;
@@ -50,6 +54,8 @@ DexCache.prototype.save = async function () {
 }
 
 DexCache.prototype.fetch = async function () {
+    if(DexCache.disabled || this.disabled) return null;
+
     if (!this.name) throw new Error('Fetch Failed. Cache has no name.');
     const res = await db._cache.get(this.name);
 
