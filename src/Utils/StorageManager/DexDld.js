@@ -1,7 +1,6 @@
 import Dexie from "dexie";
-import { Manga, Chapter } from "Libraries/mfa/src/index";
+import { Chapter, Manga } from "Libraries/mfa/src/index";
 import { resolveChapter, resolveManga } from "Utils/mfa";
-import { standardize } from "Utils/Standardize";
 
 
 const db = new Dexie("_dld");
@@ -18,9 +17,8 @@ db._dld_chapter.toArray().then(v => {
 const _downloadQueue = [];
 const _downloadedList = [];
 let _downloading = false;
-/**@type {Chapter} */
+/**@type {ChapterDl} */
 let _current = null;
-const _eventFns = {};
 
 
 const handler = {
@@ -33,11 +31,12 @@ const handler = {
 }
 
 
-export class ChapterDl {
+export class ChapterDl extends EventTarget {
     /**
      * @param {Chapter} chapter 
      */
     constructor(chapter) {
+        super();
         this.chapter = chapter;
     }
 
@@ -145,7 +144,7 @@ export class ChapterDl {
             _downloading = true;
             _downloadNextInQueue();
         }
-        return _current?.id;
+        return _current?.chapter.id;
     }
 
     /**
@@ -175,9 +174,9 @@ export class ChapterDl {
      * @param {string} chapterId 
      */
     static getChapterDownloadState(chapterId) {
-        if(_downloadedList.some(ch => ch.id == chapterId)){
+        if (_downloadedList.some(ch => ch.id == chapterId)) {
             return ChapterDl.downloadStates.DOWNLOADED;
-        } else if (_current?.id == chapterId) {
+        } else if (_current?.chapter.id == chapterId) {
             return ChapterDl.downloadStates.DOWNLOADING;
         } else if (_downloadQueue.some(ch => ch.id == chapterId)) {
             return ChapterDl.downloadStates.PENDING;
@@ -215,57 +214,6 @@ export class ChapterDl {
         });
     }
 
-
-
-    /**
-     * @param {"progress"|"start"|"end"} event
-     * @param {Function} fn
-     */
-    static on(event, fn) {
-        var fns = _eventFns[event] || [];
-        fns.push(fn);
-    }
-
-    /**
-     * @param {"progress"|"start"|"end"} event
-     * @param {Function} fn
-     */
-    static un(event, fn) {
-        var fns = _eventFns[event] || [];
-        var idx = fns.findIndex(_fn => _fn === fn);
-        fns.splice(idx, 1);
-    }
-
-    /**
-     * @param {"progress"|"start"|"end"} event
-     * @param {{
-     *  chapter: Chapter,
-     * }} args
-     */
-    static emit(event, args) {
-        let fnArgs = [];
-        if (event === 'start') {
-            ChapterDl._currentDownload = args.chapter;
-            ChapterDl.#progress = 0;
-            ChapterDl.#progressTotal = args.chapter.pageUrls.length;
-            fnArgs = [args.chapter];
-        } else if (event === 'end') {
-            fnArgs = [args.chapter];
-        } else if (event === 'progress') {
-            ChapterDl.#progress += 1;
-            const pc = ChapterDl.#progress / ChapterDl.#progressTotal * 100;
-            fnArgs = [pc, args.chapter];
-        }
-
-        var fns = _eventFns[event] || [];
-        for (let fn in fns) {
-            fn(...fnArgs);
-        }
-    }
-
-    static #progress = 0;
-    static #progressTotal = 0;
-
 }
 
 
@@ -279,6 +227,7 @@ export class ChapterDl {
 const DexPage = db._dld_page.defineClass({
     chapter: Object,
     url: String,
+    pageNum: Number,
 });
 
 DexPage.prototype.download = function () {
@@ -290,10 +239,13 @@ DexPage.prototype.download = function () {
 
         this.date = new Date();
         this.chapterId = this.chapter.id;
+        var chapter = this.chapter;
 
         // @todo cache this check
         var ch = await db._dld_chapter.get(this.chapterId);
         if (!ch) await _saveChapterDetails(this.chapter);
+
+        const totalPages = chapter.pageUrls.length;
 
         delete this.chapter;
 
@@ -303,6 +255,15 @@ DexPage.prototype.download = function () {
         }).then(async blob => {
             this.imageBlob = blob;
             await db._dld_page.put(this);
+
+            const progressEvent = new CustomEvent('start', {
+                detail: {
+                    chapter,
+                    page: this.pageNum,
+                    total: totalPages,
+                }
+            });
+            _current.dispatchEvent(progressEvent);
             ChapterDl.emit("progress", {
                 chapter: ch
             });
@@ -311,9 +272,17 @@ DexPage.prototype.download = function () {
         }).catch(async err => {
             this.error = true;
             await db._dld_page.put(this);
-            ChapterDl.emit("progress", {
-                chapter: ch
+
+            const progressEvent = new CustomEvent('start', {
+                detail: {
+                    chapter,
+                    page: this.pageNum,
+                    total: totalPages,
+                    error: err,
+                    hasError: true,
+                }
             });
+            _current.dispatchEvent(progressEvent);
             resolve();
         });
     });
@@ -329,7 +298,7 @@ async function _saveChapterDetails(chapter) {
         manga = _manga;
         await db._dld_manga.put(_manga);
     }
-    const _chapter = await resolveChapter(chapter, { 
+    const _chapter = await resolveChapter(chapter, {
         manga: false,
     });
     _chapter.mangaId = manga.id;
@@ -357,13 +326,13 @@ async function _downloadChapter(cDl) {
         pageUrls: true
     });
     const pages = chapter.pageUrls;
-    
 
-    ChapterDl.emit("start", {
-        chapter: chapter,
-        ChapterDl: cDl,
+    const startEvent = new CustomEvent('start', {
+        detail: {
+            chapter
+        }
     });
-
+    cDl.dispatchEvent(startEvent);
 
 
     const promises = pages.map(pg => {
@@ -374,10 +343,13 @@ async function _downloadChapter(cDl) {
     });
     await Promise.allSettled(promises);
 
-    ChapterDl.emit("end", {
-        chapter: chapter,
-        ChapterDl: cDl,
+    const endEvent = new CustomEvent('end', {
+        detail: {
+            chapter
+        }
     });
+    cDl.dispatchEvent(endEvent);
+
 
     const pCDl = _downloadQueue[0];
     if (pCDl === _current) {
