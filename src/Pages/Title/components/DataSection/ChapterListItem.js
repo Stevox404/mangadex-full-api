@@ -1,5 +1,9 @@
 import { IconButton, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
-import { CancelOutlined, CloudDownloadOutlined, DeleteForeverOutlined, OpenInNewOutlined, VisibilityOffOutlined, VisibilityOutlined } from '@material-ui/icons';
+import { 
+    CancelOutlined, CloudDownloadOutlined, DeleteForeverOutlined, 
+    OpenInNewOutlined, VisibilityOffOutlined, VisibilityOutlined,
+    ScheduleOutlined
+} from '@material-ui/icons';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -12,18 +16,22 @@ export function ChapterListItem(props) {
     } = props;
 
     const [downloadState, setDownloadState] = useState(ChapterDl.downloadStates.NOT_DOWNLOADED);
+    const [cDl, setCDl] = useState(null);
 
     useEffect(() => {
         if (!chapter) return;
-        const state = ChapterDl.getChapterDownloadState(chapter.id)
+        const cDl = new ChapterDl(chapter);
+        const state = cDl.getChapterDownloadState();
+        setCDl(cDl);
         setDownloadState(state);
     }, [chapter]);
 
-    const downloadChapter = (e, c) => {
-        setDownloadState(ChapterDl.downloadStates.DOWNLOADING);
+    const downloadChapter = (e) => {
         e.stopPropagation();
-        const cDl = new ChapterDl(c);
+
         cDl.addToQueue();
+        const state = cDl.getChapterDownloadState();
+        setDownloadState(state);
 
         const onEnd = (event) => {
             const dlChapter = event.detail.chapter;
@@ -32,6 +40,18 @@ export function ChapterListItem(props) {
             cDl.removeEventListener('end', onEnd);
         }
         cDl.addEventListener('end', onEnd)
+    }
+
+    const deleteDownloadedChapter = async (e, c) => {
+        e.stopPropagation();
+        await cDl.delete();
+        setDownloadState(ChapterDl.downloadStates.NOT_DOWNLOADED);
+    }
+    
+    const cancelDownload = async (e) => {
+        e.stopPropagation();
+        await cDl.cancel();
+        setDownloadState(ChapterDl.downloadStates.NOT_DOWNLOADED);
     }
 
 
@@ -62,6 +82,7 @@ export function ChapterListItem(props) {
             return (
                 <IconButton
                     edge="end" aria-label="actions"
+                    onClick={e => cancelDownload(e)}
                 >
                     <CancelOutlined />
                 </IconButton>
@@ -70,6 +91,7 @@ export function ChapterListItem(props) {
             return (
                 <IconButton
                     edge="end" aria-label="actions"
+                    onClick={e => deleteDownloadedChapter(e)}
                 >
                     <DeleteForeverOutlined />
                 </IconButton>
@@ -78,15 +100,16 @@ export function ChapterListItem(props) {
             return (
                 <IconButton
                     edge="end" aria-label="actions"
+                    onClick={e => cancelDownload(e)}
                 >
-                    <CancelOutlined />
+                    <ScheduleOutlined />
                 </IconButton>
             );
         } else {
             return (
                 <IconButton
                     edge="end" aria-label="actions"
-                    onClick={e => downloadChapter(e, c)}
+                    onClick={e => downloadChapter(e)}
                 >
                     <CloudDownloadOutlined />
                 </IconButton>

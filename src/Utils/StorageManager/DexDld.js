@@ -1,5 +1,6 @@
 import Dexie from "dexie";
 import { Chapter, Manga } from "Libraries/mfa/src/index";
+import { Deferred } from "Utils";
 import { resolveChapter, resolveManga } from "Utils/mfa";
 
 
@@ -7,7 +8,7 @@ const db = new Dexie("_dld");
 db.version(1).stores({
     _dld_manga: 'id',
     _dld_chapter: 'id',
-    _dld_page: 'url',
+    _dld_page: 'url,chapterId',
 });
 
 db._dld_chapter.toArray().then(v => {
@@ -37,6 +38,7 @@ export class ChapterDl extends EventTarget {
      */
     constructor(chapter) {
         super();
+        this.id = chapter.id;
         this.chapter = chapter;
     }
 
@@ -125,6 +127,21 @@ export class ChapterDl extends EventTarget {
         return last;
     }
 
+    getChapterDownloadState() {
+        return ChapterDl.getChapterDownloadState(this.chapter.id);
+    }
+
+    async cancel() {
+        await ChapterDl.cancelDownload(this.chapter.id);
+    }
+
+    async delete() {
+        await ChapterDl.deleteChapter(this.chapter.id);
+    }
+
+
+
+    static requestCancelDownload = () => { };
 
     /**
      * @return {Chapter[]} A read-only array of chapter objects
@@ -214,6 +231,22 @@ export class ChapterDl extends EventTarget {
         });
     }
 
+    static async cancelDownload(id) {
+        const idx = _downloadQueue.findIndex(ch => ch.id == id);
+        if (idx > -1) {
+            _downloadQueue.splice(idx, 1);
+            return true;
+        } else {
+            await ChapterDl.requestCancelDownload();
+            return true;
+        }
+    }
+
+    static async deleteChapter(id) {
+        await db._dld_page.where('chapterId').equals(id).delete();
+        return db._dld_chapter.delete(id);
+    }
+
 }
 
 
@@ -233,58 +266,62 @@ const DexPage = db._dld_page.defineClass({
 DexPage.prototype.download = function () {
     if (!_downloading) return;
 
-    return new Promise(async (resolve) => {
-        if (!this.chapter) throw new Error('Save Failed. Record has no chapter.');
-        if (!this.url) throw new Error('Save Failed. Record has no url.');
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!this.chapter) throw new Error('Save Failed. Record has no chapter.');
+            if (!this.url) throw new Error('Save Failed. Record has no url.');
 
-        this.date = new Date();
-        this.chapterId = this.chapter.id;
-        var chapter = this.chapter;
+            this.date = new Date();
+            this.chapterId = this.chapter.id;
+            var chapter = this.chapter;
 
-        // @todo cache this check
-        var ch = await db._dld_chapter.get(this.chapterId);
-        if (!ch) await _saveChapterDetails(this.chapter);
+            // @todo cache this check
+            var ch = await db._dld_chapter.get(this.chapterId);
+            if (!ch) await _saveChapterDetails(this.chapter);
 
-        const totalPages = chapter.pageUrls.length;
+            const totalPages = chapter.pageUrls.length;
 
-        delete this.chapter;
+            delete this.chapter;
 
-        // Use fetch instead of img to get the blob, helper func
-        fetch(this.url).then(function (response) {
-            return response.blob();
-        }).then(async blob => {
-            this.imageBlob = blob;
-            await db._dld_page.put(this);
+            // Use fetch instead of img to get the blob, helper func
+            fetch(this.url).then(function (response) {
+                return response.blob();
+            }).then(async blob => {
+                this.imageBlob = blob;
+                await db._dld_page.put(this);
 
-            const progressEvent = new CustomEvent('start', {
-                detail: {
-                    chapter,
-                    page: this.pageNum,
-                    total: totalPages,
-                }
+                const progressEvent = new CustomEvent('start', {
+                    detail: {
+                        chapter,
+                        page: this.pageNum,
+                        total: totalPages,
+                    }
+                });
+                _current.dispatchEvent(progressEvent);
+                ChapterDl.emit("progress", {
+                    chapter: ch
+                });
+                resolve();
+                // myImage.src = URL.createObjectURL(blob);
+            }).catch(async err => {
+                this.error = true;
+                await db._dld_page.put(this);
+
+                const progressEvent = new CustomEvent('start', {
+                    detail: {
+                        chapter,
+                        page: this.pageNum,
+                        total: totalPages,
+                        error: err,
+                        hasError: true,
+                    }
+                });
+                _current.dispatchEvent(progressEvent);
+                resolve();
             });
-            _current.dispatchEvent(progressEvent);
-            ChapterDl.emit("progress", {
-                chapter: ch
-            });
-            resolve();
-            // myImage.src = URL.createObjectURL(blob);
-        }).catch(async err => {
-            this.error = true;
-            await db._dld_page.put(this);
-
-            const progressEvent = new CustomEvent('start', {
-                detail: {
-                    chapter,
-                    page: this.pageNum,
-                    total: totalPages,
-                    error: err,
-                    hasError: true,
-                }
-            });
-            _current.dispatchEvent(progressEvent);
-            resolve();
-        });
+        } catch (err) {
+            reject(err);
+        }
     });
 }
 
@@ -292,7 +329,10 @@ DexPage.prototype.download = function () {
 
 
 async function _saveChapterDetails(chapter) {
-    let manga = await db._dld_manga.get(chapter.manga.id);
+    const id = chapter.mangaId || chapter.manga?.id;
+    if (!id) throw new Error('Chapter has no manga');
+
+    let manga = await db._dld_manga.get(id);
     if (!manga) {
         const _manga = await resolveManga(chapter.manga);
         manga = _manga;
@@ -325,7 +365,6 @@ async function _downloadChapter(cDl) {
     let chapter = await resolveChapter(cDl.chapter, {
         pageUrls: true
     });
-    const pages = chapter.pageUrls;
 
     const startEvent = new CustomEvent('start', {
         detail: {
@@ -334,21 +373,39 @@ async function _downloadChapter(cDl) {
     });
     cDl.dispatchEvent(startEvent);
 
+    let isDownloadCancelled = false;
+    ChapterDl.requestCancelDownload = () => {
+        isDownloadCancelled = new Deferred();
+    }
 
-    const promises = pages.map(pg => {
+    const pages = chapter.pageUrls;
+    for (const pg of pages) {
+        if (isDownloadCancelled) break;
+
         const page = new DexPage();
         page.chapter = chapter;
         page.url = pg;
-        return page.download();
-    });
-    await Promise.allSettled(promises);
-
-    const endEvent = new CustomEvent('end', {
-        detail: {
-            chapter
+        try {
+            await page.download();
+        } catch (err) {
+            console.error(err);
         }
-    });
-    cDl.dispatchEvent(endEvent);
+    }
+
+    if (isDownloadCancelled) {
+        await ChapterDl.deleteChapter(chapter.id);
+        isDownloadCancelled.resolve();
+        ChapterDl.requestCancelDownload = () => { };
+    } else {
+        const endEvent = new CustomEvent('end', {
+            detail: {
+                chapter
+            }
+        });
+        cDl.dispatchEvent(endEvent);
+    }
+
+
 
 
     const pCDl = _downloadQueue[0];
