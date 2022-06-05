@@ -44,6 +44,13 @@ function ChaptersTab(props) {
 
 
 const StyledList = styled(List)`
+    display: flex;
+    flex-direction: column;
+
+    .MuiTablePagination-root {
+        margin-top: auto;
+    }
+    
     .MuiSkeleton-root {
         margin-bottom: .4rem;
     }

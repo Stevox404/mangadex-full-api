@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
-import { getLocalizedString, resolveManga } from 'Utils';
+import { getEntityImageSrc, getLocalizedString, resolveManga } from 'Utils';
 
 
 function Title() {
@@ -21,7 +21,7 @@ function Title() {
     const fetchManga = async () => {
         try {
             const id = params.id;
-            const manga = await resolveManga(await MfaManga.get(id, true), {
+            const manga = await resolveManga(id, {
                 aggregate: true,
                 covers: true,
                 readChapterIds: true,
@@ -66,11 +66,10 @@ function Title() {
         document.title = `${manga.title} - Dexumi`;
     }, [manga]);
 
-
     return (
         <>
             <SystemAppBar />
-            <Wrapper className='page fill-screen' data-main-cover={manga?.mainCover.imageSource} >
+            <Wrapper className='page fill-screen' data-main-cover={getEntityImageSrc(manga?.mainCover, 'imageSource')} >
                 <div id='hero-img' />
                 <div className='content' >
                     <MainSection

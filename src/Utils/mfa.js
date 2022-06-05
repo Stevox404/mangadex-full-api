@@ -2,7 +2,8 @@ import {
     Manga, Chapter, Author, Cover, Group, User
 } from "mangadex-full-api";
 
-import { standardize } from './index';
+import { isOnline, standardize } from './index';
+import { DexDld } from "./StorageManager";
 import { DexCache } from "./StorageManager/DexCache";
 
 export async function resolveChapter(chapter, resolutionItems) {
@@ -24,6 +25,12 @@ export async function resolveChapter(chapter, resolutionItems) {
 }
 
 export async function resolveManga(manga, resolutionItems) {
+    if(!isOnline()) {
+        const id = typeof manga === 'string' ? manga: manga.id;
+        const mg = await DexDld.getDownloadedManga(id);
+        return mg;
+    }
+    
     const reqs = {
         mainCover: false,
         statistics: false,
@@ -165,6 +172,7 @@ async function resolveEntity(entity, resolutionItems, reqs) {
         } else {
             switch (item.type) {
                 case 'artist':
+                    return Author.get(item.id);
                 case 'author':
                     return Author.get(item.id);
                 case 'cover_art':
@@ -181,6 +189,8 @@ async function resolveEntity(entity, resolutionItems, reqs) {
 }
 
 function shouldResolve(key, resolutionItems, reqs) {
+    if(resolutionItems === true) return true;
+    
     const defaultRes = reqs[key];
     if(defaultRes === undefined) return false;
     return typeof resolutionItems === 'object' && resolutionItems[key] !== undefined ?

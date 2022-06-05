@@ -8,6 +8,7 @@ import UpdateDetails from './UpdateDetails';
 import PropTypes from 'prop-types';
 import { useRouter } from 'flitlib';
 import { Link } from 'react-router-dom';
+import { getEntityImageSrc } from 'Utils';
 
 
 
@@ -24,9 +25,8 @@ function MangaCard(props, ref) {
         fetchCover();
     }, [props.manga]);
 
-    const fetchCover = async _ => {
-        /**@type {import('mangadex-full-api').Manga} */
-        let cover = props.manga.mainCover?.image256;
+    const fetchCover = async _ => {        
+        let cover = getEntityImageSrc(props.manga.mainCover);
         if (!cover) {
             cover = '404';
         }

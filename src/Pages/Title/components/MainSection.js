@@ -6,7 +6,7 @@ import { Skeleton } from '@material-ui/lab';
 import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
-import { abbreviateNumber } from 'Utils';
+import { abbreviateNumber, getEntityImageSrc } from 'Utils';
 
 /** @param {MainSection.propTypes} props */
 function MainSection(props) {
@@ -36,7 +36,7 @@ function MainSection(props) {
 
     return (
         <Container>
-            <img className='main-cover' src={props.manga?.mainCover?.image512} />
+            <img className='main-cover' src={getEntityImageSrc(props.manga?.mainCover)} />
             <div id="info">
                 <header>
                     <Typography variant='h3' component='h1' >

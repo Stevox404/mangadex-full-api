@@ -48,13 +48,31 @@ export const debounce = (callback, wait) => {
 
 export function Deferred() {
     var self = this;
-    this.promise = new Promise(function(resolve, reject) {
-      self.reject = reject
-      self.resolve = resolve
+    this.promise = new Promise(function (resolve, reject) {
+        self.reject = reject
+        self.resolve = resolve
     })
-  }
-  
-  
+}
+
+export function isOnline() {
+    return navigator.onLine;
+}
+
+export function fetchBlobUrl(url) {
+    const link = `https://api.allorigins.win/raw?url=${url}`;
+    return fetch(link)
+        .then(res => res.blob())
+        .then(blob => URL.createObjectURL(blob));
+}
+
+export function getEntityImageSrc(entity, defaultKey = 'image512') {
+    let src;
+    if(!isOnline()) {
+        src = entity?.imageBlobUrl;
+    }
+    src = src || entity?.[defaultKey];
+    return src;
+}
 
 export * from './theme';
 export * from './mfa';

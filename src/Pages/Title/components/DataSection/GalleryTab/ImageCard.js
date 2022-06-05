@@ -6,6 +6,7 @@ import loadingGif from 'Assets/images/loading.gif';
 import {
     Card as MuiCard, CardActionArea, CardMedia
 } from '@material-ui/core';
+import { getEntityImageSrc } from 'Utils';
 
 
 function ImageCard(props) {
@@ -18,7 +19,7 @@ function ImageCard(props) {
     const fetchCover = async _ => {
         /**@type {import('mangadex-full-api').Cover} */
         const cover = props.cover;
-        let coverUrl = cover.image256;
+        let coverUrl = getEntityImageSrc(cover);
         const img = new Image();
         img.src = coverUrl;
         img.onload = e => {

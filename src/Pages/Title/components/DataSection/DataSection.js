@@ -16,6 +16,7 @@ import GalleryTab from './GalleryTab/index';
 import { DexCache } from 'Utils/StorageManager/DexCache';
 import { resolveChapter } from 'Utils/mfa';
 import { standardize } from 'Utils/Standardize';
+import { DexDld, isOnline } from 'Utils';
 
 /** @param {DataSection.propTypes} props */
 function DataSection(props) {
@@ -68,6 +69,7 @@ function DataSection(props) {
             setFetching(true);
             /**@type {MfaManga} */
             const manga = props.manga;
+            let chapters;
             const sort = chapterSettings.sortOrder.split('-');
             const params = {
                 order: {
@@ -81,14 +83,17 @@ function DataSection(props) {
                 params.limit = rowsPerPage;
                 params.offset = chapterPage * rowsPerPage;
             }
-
-            const chFeed = await MfaManga.getFeed(manga.id, params);
-
-            const chapters = await Promise.all(chFeed.map(async ch =>
-                resolveChapter(ch, {
-                    groups: true,
-                })
-            ));
+            
+            if(isOnline()) {
+                const chFeed = await MfaManga.getFeed(manga.id, params);
+                chapters = await Promise.all(chFeed.map(async ch =>
+                    resolveChapter(ch, {
+                        groups: true,
+                    })
+                ));
+            } else {
+                chapters = await DexDld.getDownloadedChapters(manga.id, params);
+            }
 
             setChapters(chapters);
         } catch (err) {
@@ -258,6 +263,10 @@ const Container = styled(Paper)`
         /* max-height: 100vh;
         overflow-y: auto; */
         margin-bottom: 4.8rem;
+        display: flex;
+        &>* {
+            flex: 1;
+        }
     }
     #actions {
         position: absolute;

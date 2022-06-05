@@ -2,7 +2,8 @@ import { IconButton, ListItem, ListItemIcon, ListItemText } from '@material-ui/c
 import { 
     CancelOutlined, CloudDownloadOutlined, DeleteForeverOutlined, 
     OpenInNewOutlined, VisibilityOffOutlined, VisibilityOutlined,
-    ScheduleOutlined
+    ScheduleOutlined,
+    ErrorOutline
 } from '@material-ui/icons';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
@@ -36,6 +37,10 @@ export function ChapterListItem(props) {
         const onEnd = (event) => {
             const dlChapter = event.detail.chapter;
             if (dlChapter.id !== chapter.id) return;
+            const hasError = event.detail.hasError;
+            if(hasError) {
+                return setDownloadState(ChapterDl.downloadStates.DOWNLOAD_ERR);
+            }
             setDownloadState(ChapterDl.downloadStates.DOWNLOADED);
             cDl.removeEventListener('end', onEnd);
         }
@@ -85,6 +90,15 @@ export function ChapterListItem(props) {
                     onClick={e => cancelDownload(e)}
                 >
                     <CancelOutlined />
+                </IconButton>
+            );
+        } else if (downloadState === ChapterDl.downloadStates.DOWNLOAD_ERR) {
+            return (
+                <IconButton
+                    edge="end" aria-label="actions"
+                    onClick={e => downloadChapter(e)}
+                >
+                    <ErrorOutline />
                 </IconButton>
             );
         } else if (downloadState === ChapterDl.downloadStates.DOWNLOADED) {

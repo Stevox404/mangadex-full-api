@@ -1,15 +1,17 @@
 import Dexie from "dexie";
 import { Chapter, Manga } from "Libraries/mfa/src/index";
-import { Deferred } from "Utils";
+import { Deferred, fetchBlobUrl } from "Utils";
 import { resolveChapter, resolveManga } from "Utils/mfa";
 
 
 const db = new Dexie("_dld");
 db.version(1).stores({
     _dld_manga: 'id',
-    _dld_chapter: 'id',
+    _dld_chapter: 'id,mangaId,chapter,publishAt,updatedAt',
     _dld_page: 'url,chapterId',
 });
+
+// TODO on delete put in trash, delete trash on refresh (or cfg time)
 
 db._dld_chapter.toArray().then(v => {
     _downloadedList.push(...v);
@@ -31,6 +33,43 @@ const handler = {
     }
 }
 
+
+export class DexDld {
+    static async getDownloadedManga(id) {
+        if (id) {
+            return db._dld_manga.get(id);
+        }
+        return db._dld_manga.toArray();
+    }
+
+    static async getDownloadedChapters(mangaId, params = {}) {
+        const {offset, limit, order} = params;
+        
+        let qry = db._dld_chapter
+            .where('mangaId').equals(mangaId);
+        
+        if(offset) {
+            qry = qry.offset(offset);
+        }
+
+        if(limit) {
+            qry = qry.limit(limit);
+        }
+
+        if(order) {
+            const col = Object.keys(order)[0];
+            const dir = Object.values(order)[0];
+            if(dir == 'desc') {
+                qry = qry.reverse()
+            }
+            qry = qry.sortBy(col);
+        } else {
+            qry = qry.toArray();
+        }
+
+        return qry;
+    }
+}
 
 export class ChapterDl extends EventTarget {
     /**
@@ -181,6 +220,7 @@ export class ChapterDl extends EventTarget {
 
     static downloadStates = {
         DOWNLOADED: Symbol('DOWNLOADED'),
+        DOWNLOAD_ERR: Symbol('DOWNLOAD_ERR'),
         NOT_DOWNLOADED: Symbol('NOT_DOWNLOADED'),
         PENDING: Symbol('PENDING'),
         DOWNLOADING: Symbol('DOWNLOADING'),
@@ -263,66 +303,53 @@ const DexPage = db._dld_page.defineClass({
     pageNum: Number,
 });
 
-DexPage.prototype.download = function () {
+DexPage.prototype.download = async function () {
     if (!_downloading) return;
 
-    return new Promise(async (resolve, reject) => {
-        try {
-            if (!this.chapter) throw new Error('Save Failed. Record has no chapter.');
-            if (!this.url) throw new Error('Save Failed. Record has no url.');
+    if (!this.chapter) throw new Error('Save Failed. Record has no chapter.');
+    if (!this.url) throw new Error('Save Failed. Record has no url.');
 
-            this.date = new Date();
-            this.chapterId = this.chapter.id;
-            var chapter = this.chapter;
+    this.date = new Date();
+    this.chapterId = this.chapter.id;
+    var chapter = this.chapter;
 
-            // @todo cache this check
-            var ch = await db._dld_chapter.get(this.chapterId);
-            if (!ch) await _saveChapterDetails(this.chapter);
+    // @todo cache this check
+    var ch = await db._dld_chapter.get(this.chapterId);
+    if (!ch) await _saveChapterDetails(this.chapter);
 
-            const totalPages = chapter.pageUrls.length;
+    const totalPages = chapter.pageUrls.length;
 
-            delete this.chapter;
+    delete this.chapter;
 
-            // Use fetch instead of img to get the blob, helper func
-            fetch(this.url).then(function (response) {
-                return response.blob();
-            }).then(async blob => {
-                this.imageBlob = blob;
-                await db._dld_page.put(this);
+    // Use fetch instead of img to get the blob, helper func
+    try {
+        const blob = await fetchBlobUrl(this.url);
+        this.imageBlobUrl = blob;
+        await db._dld_page.put(this);
 
-                const progressEvent = new CustomEvent('start', {
-                    detail: {
-                        chapter,
-                        page: this.pageNum,
-                        total: totalPages,
-                    }
-                });
-                _current.dispatchEvent(progressEvent);
-                ChapterDl.emit("progress", {
-                    chapter: ch
-                });
-                resolve();
-                // myImage.src = URL.createObjectURL(blob);
-            }).catch(async err => {
-                this.error = true;
-                await db._dld_page.put(this);
+        const progressEvent = new CustomEvent('progress', {
+            detail: {
+                chapter,
+                page: this.pageNum,
+                total: totalPages,
+            }
+        });
+        _current.dispatchEvent(progressEvent);
+    } catch (err) {
+        this.error = true;
+        await db._dld_page.put(this);
 
-                const progressEvent = new CustomEvent('start', {
-                    detail: {
-                        chapter,
-                        page: this.pageNum,
-                        total: totalPages,
-                        error: err,
-                        hasError: true,
-                    }
-                });
-                _current.dispatchEvent(progressEvent);
-                resolve();
-            });
-        } catch (err) {
-            reject(err);
-        }
-    });
+        const progressEvent = new CustomEvent('progress', {
+            detail: {
+                chapter,
+                page: this.pageNum,
+                total: totalPages,
+                error: err,
+                hasError: true,
+            }
+        });
+        _current.dispatchEvent(progressEvent);
+    }
 }
 
 
@@ -334,8 +361,19 @@ async function _saveChapterDetails(chapter) {
 
     let manga = await db._dld_manga.get(id);
     if (!manga) {
-        const _manga = await resolveManga(chapter.manga);
+        const _manga = await resolveManga(chapter.manga.id, true);
         manga = _manga;
+
+        // Get the main cover blob
+        const blob = await fetchBlobUrl(_manga.mainCover.image512);
+        _manga.mainCover.imageBlobUrl = blob;
+        
+        // Get the cover blobs
+        for (const cover of _manga.covers) {
+            const blob = await fetchBlobUrl(cover.image512);
+            cover.imageBlobUrl = blob;
+        }
+        
         await db._dld_manga.put(_manga);
     }
     const _chapter = await resolveChapter(chapter, {
@@ -365,56 +403,63 @@ async function _downloadChapter(cDl) {
     let chapter = await resolveChapter(cDl.chapter, {
         pageUrls: true
     });
-
-    const startEvent = new CustomEvent('start', {
-        detail: {
-            chapter
-        }
-    });
-    cDl.dispatchEvent(startEvent);
-
-    let isDownloadCancelled = false;
-    ChapterDl.requestCancelDownload = () => {
-        isDownloadCancelled = new Deferred();
-    }
-
-    const pages = chapter.pageUrls;
-    for (const pg of pages) {
-        if (isDownloadCancelled) break;
-
-        const page = new DexPage();
-        page.chapter = chapter;
-        page.url = pg;
-        try {
-            await page.download();
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    if (isDownloadCancelled) {
-        await ChapterDl.deleteChapter(chapter.id);
-        isDownloadCancelled.resolve();
-        ChapterDl.requestCancelDownload = () => { };
-    } else {
-        const endEvent = new CustomEvent('end', {
+    try {
+        const startEvent = new CustomEvent('start', {
             detail: {
                 chapter
             }
         });
+        cDl.dispatchEvent(startEvent);
+    
+        let isDownloadCancelled = false;
+        ChapterDl.requestCancelDownload = () => {
+            isDownloadCancelled = new Deferred();
+        }
+    
+        const pages = chapter.pageUrls;
+        for (const pg of pages) {
+            if (isDownloadCancelled) break;
+    
+            const page = new DexPage();
+            page.chapter = chapter;
+            page.url = pg;
+            await page.download();
+        }
+    
+        if (isDownloadCancelled) {
+            await ChapterDl.deleteChapter(chapter.id);
+            isDownloadCancelled.resolve();
+            ChapterDl.requestCancelDownload = () => { };
+        } else {
+            const endEvent = new CustomEvent('end', {
+                detail: {
+                    chapter
+                }
+            });
+            cDl.dispatchEvent(endEvent);
+        }
+    
+    
+    
+    
+        const pCDl = _downloadQueue[0];
+        if (pCDl === _current) {
+            _downloadQueue.shift();
+        } else {
+            const idx = _downloadQueue.indexOf(cDl);
+            _downloadQueue.splice(idx, 1);
+        }
+    
+        _downloadNextInQueue();
+    } catch (err) {
+        const endEvent = new CustomEvent('end', {
+            detail: {
+                chapter,
+                error: err,
+                hasError: true,
+            }
+        });
         cDl.dispatchEvent(endEvent);
+        _downloadNextInQueue();
     }
-
-
-
-
-    const pCDl = _downloadQueue[0];
-    if (pCDl === _current) {
-        _downloadQueue.shift();
-    } else {
-        const idx = _downloadQueue.indexOf(cDl);
-        _downloadQueue.splice(idx, 1);
-    }
-
-    _downloadNextInQueue();
 }

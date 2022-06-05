@@ -1,8 +1,11 @@
 import { login as mfaLogin, User } from 'mangadex-full-api';
+import { isOnline } from 'Utils';
 
 
 export const login = (auth) => {
     return async dispatch => {
+        if(!isOnline()) return;
+        
         let key;
         try {
             dispatch(beginPending('login'));

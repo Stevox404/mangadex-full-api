@@ -23,10 +23,10 @@ function ChapterListSettings(props) {
             >
                 <MenuItem value='chapter-desc' >Chapter DESC</MenuItem>
                 <MenuItem value='chapter-asc' >Chapter ASC</MenuItem>
-                <MenuItem value='updatedAt-asc' >Newest Update</MenuItem>
-                <MenuItem value='updatedAt-desc' >Oldest Update</MenuItem>
-                <MenuItem value='createdAt-asc' >Latest Publish</MenuItem>
-                <MenuItem value='createdAt-desc' >Oldest Publish</MenuItem>
+                <MenuItem value='updatedAt-desc' >Newest Update</MenuItem>
+                <MenuItem value='updatedAt-asc' >Oldest Update</MenuItem>
+                <MenuItem value='createdAt-desc' >Latest Publish</MenuItem>
+                <MenuItem value='createdAt-asc' >Oldest Publish</MenuItem>
             </Select>
 
             <Typography id='date-lbl' component='label' >Display Date:</Typography>
