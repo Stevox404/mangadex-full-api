@@ -1,7 +1,9 @@
 import { Skeleton } from '@material-ui/lab';
+import Img from 'Components/shared/Img';
 import PropTypes from 'prop-types';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
+import { debounce } from 'Utils';
 
 /**@param {ReadingPane.propTypes} props */
 function ReadingPane(props) {
@@ -118,10 +120,14 @@ function ReadingPane(props) {
         }, 0);
     }
 
+    const smoothScroll = useCallback(debounce(handlePageScroll, 50),[])
+    
     /**@param {KeyboardEvent} e */
     const handleKeyPress = e => {
         handlePageNav(e);
-        handlePageScroll(e);
+        if (e.code === 'ArrowUp' || e.code === 'ArrowDown') {
+            smoothScroll(e)
+        }
     }
 
     const preload = () => {
@@ -144,7 +150,7 @@ function ReadingPane(props) {
         }
         if (props.readerSettings.displayMode === 'single') {
             preload();
-            return <img
+            return <Img
                 id={`page-${props.currentPage}`} data-page={props.currentPage}
                 src={props.chapter.pages[props.currentPage]}
                 alt={`page ${props.currentPage}`}
@@ -168,18 +174,18 @@ function ReadingPane(props) {
             }
             
             return <>
-                <img
+                <Img
                     id={`page-${pg1}`} data-page={pg1} alt={`page ${pg1}`}
                     src={props.chapter.pages[pg1]}
                 />
-                <img
+                <Img
                     id={`page-${pg2}`} data-page={pg2} alt={`page ${pg2}`}
                     src={props.chapter.pages[pg2]}
                 />
             </>
         }
         return props.chapter.pages.map((p, idx) =>
-            <img
+            <Img
                 key={p} id={`page-${idx}`} src={p} alt={`page ${idx}`}
                 data-page={idx} ref={el => el && observer.observe(el)}
             />

@@ -3,10 +3,11 @@ import {
 } from '@material-ui/core';
 import { StarOutlined, Bookmark } from '@material-ui/icons';
 import { Skeleton } from '@material-ui/lab';
+import Img from 'Components/shared/Img';
 import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
-import { abbreviateNumber, getEntityImageSrc } from 'Utils';
+import { abbreviateNumber, getEntityImageSrc, getStars } from 'Utils';
 
 /** @param {MainSection.propTypes} props */
 function MainSection(props) {
@@ -36,7 +37,7 @@ function MainSection(props) {
 
     return (
         <Container>
-            <img className='main-cover' src={getEntityImageSrc(props.manga?.mainCover)} />
+            <Img className='main-cover' src={getEntityImageSrc(props.manga?.mainCover)} />
             <div id="info">
                 <header>
                     <Typography variant='h3' component='h1' >
@@ -48,10 +49,10 @@ function MainSection(props) {
                         {props.manga?.chapterCount} Chapters | {props.manga?.authors?.[0]?.name}
                     </Typography>
                     <Typography component='div' id='popularity' color='textSecondary' >
-                        <div>
-                            <StarOutlined id='star' /> {Math.round(props.manga?.rating) || '--'}
+                        <div className='stars' >
+                            {props.manga?.rating ? getStars(props.manga.rating): '--'}
                         </div>
-                        <div>
+                        <div className='bookmarks' >
                             <Bookmark /> {
                                 abbreviateNumber(props.manga?.follows || 0)
                             }
@@ -103,7 +104,10 @@ const Container = styled.main`
                 align-items: center;
                 grid-template-columns: auto auto;
                 gap: 2.4rem;
-                >* {
+                >.stars {
+                    display: flex;
+                }
+                >.bookmarks {
                     display: grid;
                     align-items: center;
                     grid-template-columns: auto auto;

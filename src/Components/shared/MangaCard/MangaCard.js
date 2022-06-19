@@ -1,14 +1,14 @@
 import { Card as MuiCard, CardActionArea, CardContent, CardMedia, Typography } from '@material-ui/core';
-import manga404 from 'Assets/images/manga-404.jpg';
 import loadingGif from 'Assets/images/loading.gif';
-import React, { useState, useEffect, useRef } from 'react';
+import manga404 from 'Assets/images/manga-404.jpg';
+import Img from 'Components/shared/Img';
+import PropTypes from 'prop-types';
+import React, { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { getEntityImageSrc } from 'Utils';
 import PopularityDetails from './PopularityDetails';
 import UpdateDetails from './UpdateDetails';
-import PropTypes from 'prop-types';
-import { useRouter } from 'flitlib';
-import { Link } from 'react-router-dom';
-import { getEntityImageSrc } from 'Utils';
 
 
 
@@ -47,23 +47,16 @@ function MangaCard(props, ref) {
         }
     }
 
-    const onCoverError = (e) => {
-        /**@type {HTMLImageElement} */
-        const el = coverImgRef.current;
-        el.src = '';
-    }
 
     return (
         <Card ref={ref} component={Link} to={`/title/${props.manga.id}`} >
             <CardActionArea tabIndex='-1' >
                 <CardMedia
-                    image={manga404}
                     title={props.manga.title}
                 >
-                    <img
+                    <Img
                         src={loadingGif} loading="lazy" ref={coverImgRef}
                         alt={props.manga.title + ' cover'}
-                        onError={onCoverError}
                     />
                 </CardMedia>
                 <CardContent>
