@@ -5,32 +5,12 @@ import {
 } from '@material-ui/icons';
 import React from 'react';
 import styled from 'styled-components';
-import { abbreviateNumber } from 'Utils';
+import { abbreviateNumber, getStars } from 'Utils';
 import PropTypes from 'prop-types';
 
 
 /** @param {PopularityDetails.propTypes} props */
 function PopularityDetails(props) {
-    const getStars = (rating) => {
-        const stars = [];
-        const ct = Math.round(rating)/2;
-        if(Number.isNaN(ct)) return stars;
-
-        const full = Math.min(5, Number.parseInt(ct));
-        const hasHalf = ct % 1 !== 0;
-        const empty = Math.max(0,
-            5 - (Number.parseInt(ct) + Number(hasHalf))
-        );
-        for (let i = 0; i < full; i++) {
-            stars.push(<StarOutlined key={`f${i}`} />);
-        }
-        if (hasHalf) stars.push(<StarHalfOutlined key={`h`} />);
-        for (let i = 0; i < empty; i++) {
-            stars.push(<StarBorderOutlined key={`e${i}`} />);
-        }
-        return stars;
-    }
-
     return (
         <Container >
             <div className='follows' >

@@ -1,3 +1,4 @@
+import { StarBorderOutlined, StarHalfOutlined, StarOutlined } from '@material-ui/icons';
 import { Chapter } from 'mangadex-full-api';
 import { DexCache } from './StorageManager/DexCache';
 
@@ -72,6 +73,28 @@ export function getEntityImageSrc(entity, defaultKey = 'image512') {
     }
     src = src || entity?.[defaultKey];
     return src;
+}
+
+export const getStars = (rating, total = 10) => {
+    const STAR_NUM = 5;
+    
+    const stars = [];
+    const ct = Math.round(rating)/(total/STAR_NUM);
+    if(Number.isNaN(ct)) return stars;
+
+    const full = Math.min(STAR_NUM, Number.parseInt(ct));
+    const hasHalf = ct % 1 !== 0;
+    const empty = Math.max(0,
+        STAR_NUM - (Number.parseInt(ct) + Number(hasHalf))
+    );
+    for (let i = 0; i < full; i++) {
+        stars.push(<StarOutlined key={`f${i}`} />);
+    }
+    if (hasHalf) stars.push(<StarHalfOutlined key={`h`} />);
+    for (let i = 0; i < empty; i++) {
+        stars.push(<StarBorderOutlined key={`e${i}`} />);
+    }
+    return stars;
 }
 
 export * from './theme';
