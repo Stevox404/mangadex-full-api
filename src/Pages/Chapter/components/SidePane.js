@@ -15,25 +15,23 @@ function SidePane(props) {
         /**@type {HTMLElement} */
         const elem = props.readingPaneRef.current;
         if (!elem) return;
-        window.document.addEventListener('keypress', fn);
-        return _ => elem.removeEventListener('keypress', fn);
+        window.document.addEventListener('keyup', fn);
+        return _ => window.document.removeEventListener('keyup', fn);
         function fn(ev) {
             if (ev.key === 'f') toggleZenMode(ev);
         }
-    }, [props.readingPaneRef]);
+    }, [props.readingPaneRef, inZenMode]);
 
     useEffect(() => {
         /**@type {HTMLElement} */
-        const elem = props.readingPaneRef.current;
-        if (!elem) return;
-        elem.addEventListener('fullscreenchange', fn);
-        return _ => elem.removeEventListener('fullscreenchange', fn);
+        window.document.addEventListener('fullscreenchange', fn);
+        return _ => window.document.removeEventListener('fullscreenchange', fn);
         function fn(ev) {
             if (!window.document.fullscreenElement) {
                 setInZenMode(false);
             }
         }
-    }, [props.readingPaneRef]);
+    }, [props.readingPaneRef, inZenMode]);
 
 
     const getChapterNumText = () => {
@@ -82,10 +80,6 @@ function SidePane(props) {
         } catch (err) {
             console.error(err);
         }
-
-        function fn(ev) {
-            if (ev.key === 'F') toggleZenMode(ev);
-        }
     }
 
     return (
@@ -95,16 +89,14 @@ function SidePane(props) {
         >
             <div id="drawer">
                 <div id="title">
+                    <Link to={`/title/${props.chapter?.manga.id}`} >
+                        <Typography
+                            id='title' color='secondary' variant='h6'
+                        >
+                            {props.chapter?.manga.title}
+                        </Typography>
+                    </Link>
                     <Flag code={props.chapter?.manga.originalLanguage} height={16} />
-                    <Tooltip title={props.chapter?.manga.title} >
-                        <Link to={`/title/${props.chapter?.manga.id}`} >
-                            <Typography
-                                id='title' color='secondary' variant='h6'
-                            >
-                                {props.chapter?.manga.title}
-                            </Typography>
-                        </Link>
-                    </Tooltip>
                 </div>
                 <Divider />
                 {props.chapter?.title &&
@@ -190,15 +182,13 @@ const Container = styled(SideDrawer)`
         #title {
             display: grid;
             width: 100%;
-            grid-template-columns: auto auto;
+            grid-template-columns: auto;
             justify-content: center;
             align-items: center;
             column-gap: .4rem;
             .MuiTypography-root {
                 display: block;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
+                text-align: center;
             }
         }
         #chapter-title {
