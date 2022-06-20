@@ -101,6 +101,18 @@ const Wrapper = styled.div`
             padding: 1rem 0;
         }
     }
+
+    ${({ theme }) => theme.breakpoints.down('md')}{
+        .content {
+            padding-top: 0;
+            height: 100vh;
+            scroll-snap-type: y proximity;
+            overflow-y: auto;
+        }
+        #hero-img {
+            display: none;
+        }
+    }
 `;
 
 export default Title;

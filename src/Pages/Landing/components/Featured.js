@@ -3,6 +3,7 @@ import {
     useMediaQuery
 } from '@material-ui/core';
 import { KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined } from '@material-ui/icons';
+import Img from 'Components/shared/Img';
 import { useRouter } from 'flitlib';
 import { Manga, Cover } from 'mangadex-full-api';
 import React, { useEffect, useState } from 'react';
@@ -42,7 +43,7 @@ function Featured(props) {
         try {
             const ft = JSON.parse(window.localStorage.getItem('featured'));
             const ftIds = ft.ids;
-            if(!ftIds.length) throw new Error('No featured manga in storage');
+            if (!ftIds.length) throw new Error('No featured manga in storage');
             const ftDate = ft.date;
             if (!ftIds || new Date(ftDate).toDateString() !== new Date().toDateString()) throw new Error();
             const promises = ftIds.map(async id => {
@@ -78,27 +79,23 @@ function Featured(props) {
         const ftCount = ftManga.length;
         // Handle wrap-around
         let idx = selectedIndex + dir;
-        if(idx >= ftCount) idx = 0;
-        else if(idx < 0) idx = ftCount - 1;
+        if (idx >= ftCount) idx = 0;
+        else if (idx < 0) idx = ftCount - 1;
         setSelectedIndex(idx);
     }
 
     const isUnderMdSize = useMediaQuery(theme => theme.breakpoints.down('md'));
 
-    const readManga = e => {
-        changePage(`/title/${ftManga[selectedIndex].id}`)
-    }
-
     return (
         <Container selectedIndex={selectedIndex} >
             <div id='img-box' className={loadingImg ? 'loading' : ''} >
-                <img
+                <Img
                     src={ftManga[selectedIndex]?.mainCover.imageSource} alt="Cover" className='bg'
                     onLoad={_ => {
                         setLoadingImg(false);
                     }}
                 />
-                <img
+                <Img
                     src={ftManga[selectedIndex]?.mainCover.imageSource} alt="Cover" className='main'
                     onLoad={_ => {
                         setLoadingImg(false);
@@ -257,6 +254,11 @@ const Container = styled.div`
     ${({ theme }) => theme.breakpoints.down('md')}{
         grid-template-columns: auto auto;
         justify-content: space-between;
+        >div#img-box{
+           >img.main{
+                height: 100%;
+            }
+        }
         #card-box {
             position: absolute;
             bottom: 0;

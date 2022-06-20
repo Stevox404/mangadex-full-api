@@ -99,6 +99,7 @@ export const getStars = (rating, total = 10) => {
 
 export * from './theme';
 export * from './mfa';
+export * from './hooks';
 export * from './Standardize';
 export * from './socket';
 export * from './StorageManager';

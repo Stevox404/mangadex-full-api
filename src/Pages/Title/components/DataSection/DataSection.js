@@ -260,8 +260,6 @@ const ChapterTab = styled(List)`
 const Container = styled(Paper)`
     .tab-panel {
         min-height: 50vh;
-        /* max-height: 100vh;
-        overflow-y: auto; */
         margin-bottom: 4.8rem;
         display: flex;
         &>* {
@@ -272,6 +270,10 @@ const Container = styled(Paper)`
         position: absolute;
         top: 0;
         right: 0;
+    }
+
+    ${({ theme }) => theme.breakpoints.down('md')}{
+        scroll-snap-align: start;
     }
 `;
 

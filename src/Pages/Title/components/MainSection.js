@@ -5,9 +5,9 @@ import { StarOutlined, Bookmark } from '@material-ui/icons';
 import { Skeleton } from '@material-ui/lab';
 import Img from 'Components/shared/Img';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { abbreviateNumber, getEntityImageSrc, getStars } from 'Utils';
+import { abbreviateNumber, getEntityImageSrc, getStars, useScrollPosition } from 'Utils';
 
 /** @param {MainSection.propTypes} props */
 function MainSection(props) {
@@ -36,9 +36,9 @@ function MainSection(props) {
     }
 
     return (
-        <Container>
+        <Container >
             <Img className='main-cover' src={getEntityImageSrc(props.manga?.mainCover)} />
-            <div id="info">
+            <div id="info" >
                 <header>
                     <Typography variant='h3' component='h1' >
                         {props.manga?.title}
@@ -50,7 +50,7 @@ function MainSection(props) {
                     </Typography>
                     <Typography component='div' id='popularity' color='textSecondary' >
                         <div className='stars' >
-                            {props.manga?.rating ? getStars(props.manga.rating): '--'}
+                            {props.manga?.rating ? getStars(props.manga.rating) : '--'}
                         </div>
                         <div className='bookmarks' >
                             <Bookmark /> {
@@ -87,7 +87,7 @@ const Container = styled.main`
         width: 280px;
         margin-top: -128px;
         border-radius: 5px;
-        background-color: ${({theme}) => theme.palette.background.default};
+        background-color: ${({ theme }) => theme.palette.background.default};
         object-fit: cover;
         > .MuiSkeleton-root {
             height: 100%;
@@ -131,6 +131,63 @@ const Container = styled.main`
             .MuiSkeleton-root {
                 width: 100%;
                 height: 2.8rem;
+            }
+        }
+    }
+
+    ${({ theme }) => theme.breakpoints.down('md')}{
+        grid-template-columns: 1fr;
+        padding: 0;
+        scroll-snap-align: start;
+        >img.main-cover {
+            margin-top: 0;
+            margin-bottom: 0;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            height: auto;
+            border-radius: 0;
+            max-height: 75vh;
+        }
+        #info {
+            scroll-snap-align: start;
+            padding: 1rem 1.8rem 2rem;
+            margin-top: -12rem;
+            scroll-margin-top: -1rem;
+            background: ${({ theme }) => theme.palette.background.default};
+            background: linear-gradient(0deg,
+                rgba(0,0,0,1) 79%,
+                rgba(0,0,0,.7) 100%
+            );
+            border-radius: 12px 12px 0 0;
+
+            z-index: 1;
+            header {
+                .MuiTypography-h3 {
+                    font-size: 2.1rem;
+                }
+            }
+            #details {
+                display: grid;
+                justify-content: stretch;
+                .MuiTypography-p {
+                    font-size: 1rem;
+                }
+                .MuiSvgIcon-root {
+                    font-size: 1.2rem;
+                }
+                #popularity{
+                    width: 100%;
+                    grid-template-columns: auto auto;
+                    gap: unset;
+                    justify-content: space-between;
+                    >.bookmarks {
+                        display: grid;
+                        align-items: center;
+                        grid-template-columns: auto auto;
+                        gap: .24rem;
+                    }
+                }
             }
         }
     }

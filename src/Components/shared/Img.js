@@ -104,7 +104,6 @@ function Img(props, fwRef) {
         <img
             {...props}
             ref={setRefs}
-            // ref={(el)=> {imgRef.current = el; fwRef.current = el;}}
         />
     )
 }
