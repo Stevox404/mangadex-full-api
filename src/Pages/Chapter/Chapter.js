@@ -101,7 +101,7 @@ function Chapter() {
 
     const handlePageChange = (_, pg, noRender) => {
         pg = Number(pg);
-        if (pg < 0) return;
+        pg = Math.max(0, pg);
         if (pg >= chapter?.pages.length) return;
         setCurrentPage(pg);
         changePage(`../${pg + 1}`);

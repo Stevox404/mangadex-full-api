@@ -75,14 +75,14 @@ function ReadingPane(props, readingPaneRef) {
         if (props.readerSettings.displayMode === 'double') {
             const pg = props.currentPage;
             if(shouldSkipPg(pg)) {
-                dir *= 2;
+                skipNum = 2;
             }
 
             function shouldSkipPg(pg) {
                 const prevPg = pg - 1;
                 const nextPg = pg + 1;
-                if(isLandscapePage(pg)) return false;
                 if (dir < 0 && isLandscapePage(prevPg)) return false;
+                if (dir > 0 && isLandscapePage(pg)) return false;
                 if (dir > 0 && isLandscapePage(nextPg)) return false;
                 return true;
             }
@@ -194,7 +194,7 @@ function ReadingPane(props, readingPaneRef) {
             
             if (props.readerSettings.readingDir == 'left') {
                 [pages[0], pages[1]] = [pages[1], pages[0]];
-            }
+            }   
 
             return <>{pages}</>;
 
