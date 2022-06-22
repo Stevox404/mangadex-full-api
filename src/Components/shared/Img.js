@@ -43,7 +43,12 @@ function Img(props, fwRef) {
             el.removeEventListener('touchstart', setTimeout);
             el.removeEventListener('touchend', clearTimeout);
         }
+        /**
+         * 
+         * @param {MouseEvent} ev 
+         */
         function setTimeout(ev) {
+            if (ev.button !== 0) return;
             timer = window.setTimeout(() => {
                 ev.preventDefault();
                 ev.stopPropagation();

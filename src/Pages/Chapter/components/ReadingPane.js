@@ -6,7 +6,7 @@ import styled, { css } from 'styled-components';
 import { debounce } from 'Utils';
 
 /**@param {ReadingPane.propTypes} props */
-function ReadingPane(props) {
+function ReadingPane(props, readingPaneRef) {
     const imgBoxRef = useRef(null);
     const prePg = useRef([]);
     const [observedEl, setObservedEl] = useState();
@@ -73,7 +73,19 @@ function ReadingPane(props) {
         }
 
         if (props.readerSettings.displayMode === 'double') {
-            dir *= 2;
+            const pg = props.currentPage;
+            if(shouldSkipPg(pg)) {
+                dir *= 2;
+            }
+
+            function shouldSkipPg(pg) {
+                const prevPg = pg - 1;
+                const nextPg = pg + 1;
+                if(isLandscapePage(pg)) return false;
+                if (dir < 0 && isLandscapePage(prevPg)) return false;
+                if (dir > 0 && isLandscapePage(nextPg)) return false;
+                return true;
+            }
         }
 
         /**@type {HTMLDivElement} */
@@ -134,12 +146,19 @@ function ReadingPane(props) {
         if (props.fetcing || !props.chapter) {
             return;
         }
-        // If at end of chapter, preload next chapter
-        let l = props.readerSettings.preloadPages;
-        if(l === -1) l = props.chapter.pages.length;
-        for (let i = 0; i < l; i++) {
+        // @todo If at end of chapter, preload next chapter
+        const num = (props.readerSettings.preloadPages === -1) ? 
+            props.chapter.pages.length : props.readerSettings.preloadPages;
+
+        const l = Math.min(props.currentPage + num, props.chapter.pages.length);
+
+        for (let i = props.currentPage; i < l; i++) {
+            const src = props.chapter.pages[i];
+            if(prePg.current[i]?.src === src) {
+                continue;
+            }
             const img = new Image();
-            img.src = props.chapter.pages[i + props.currentPage];
+            img.src = src;
             prePg.current[i] = img;
         }
     }
@@ -158,31 +177,42 @@ function ReadingPane(props) {
         }
         if (props.readerSettings.displayMode === 'double') {
             preload();
-            let pg1, pg2;
-            if (!props.currentPage % 2) {
-                pg1 = props.currentPage;
-                pg2 = props.currentPage + 1;
-            } else {
-                pg1 = props.currentPage - 1;
-                pg2 = props.currentPage;
+
+            let pg1 = props.currentPage;
+            let pg2 = props.currentPage + 1;
+            
+            if(isLandscapePage(pg1)) {
+                return getPageImage(pg1, {double: true});
             }
 
-            if (props.readerSettings.readingDir == 'left') {
-                const tmp = pg1;
-                pg1 = pg2;
-                pg2 = tmp;
+            const pages = [getPageImage(pg1)];
+            if (isLandscapePage(pg2)) {
+                pages.push(getBlankPageImage(pg1));
+            } else {
+                pages.push(getPageImage(pg2));
             }
             
-            return <>
-                <Img
-                    id={`page-${pg1}`} data-page={pg1} alt={`page ${pg1}`}
-                    src={props.chapter.pages[pg1]}
+            if (props.readerSettings.readingDir == 'left') {
+                [pages[0], pages[1]] = [pages[1], pages[0]];
+            }
+
+            return <>{pages}</>;
+
+            function getPageImage(pg, {double = false} = {}) {
+                let className = [];
+                if(double) className.push('double')
+                className = className.join(' ');
+                
+                return <Img
+                    id={`page-${pg}`} className={className} data-page={pg}
+                    alt={`page ${pg}`} src={props.chapter.pages[pg]}
                 />
-                <Img
-                    id={`page-${pg2}`} data-page={pg2} alt={`page ${pg2}`}
-                    src={props.chapter.pages[pg2]}
+            }
+            function getBlankPageImage(pg) {
+                return <Img
+                    id={`blank-${pg}`} alt={`blank page`}
                 />
-            </>
+            }
         }
         return props.chapter.pages.map((p, idx) =>
             <Img
@@ -192,9 +222,21 @@ function ReadingPane(props) {
         )
     }
 
+    function isLandscapePage(pg) {
+        const img = prePg.current[pg];
+        if (img && img.complete && img.naturalHeight > 0) {
+            if(img.naturalWidth > img.naturalHeight) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     const setPaneRefs = ref => {
         imgBoxRef.current = ref;
-        props.readingPaneRef.current = ref;
+        if (readingPaneRef) {
+            readingPaneRef.current = ref;
+        }
     }
 
     return (
@@ -225,8 +267,19 @@ const Wrapper = styled.div`
     ${p => {
         switch (p['data-display-mode']) {
             case 'double': return css`
-                grid-template-columns: auto auto;
+                grid-template-columns: 1fr 1fr;
                 align-items: center;
+                img:first-child {
+                    justify-self: end;
+                }
+                img:last-child {
+                    justify-self: start;
+                }
+                
+                img.double {
+                    justify-self: center;
+                    grid-column: span 2;
+                }
             `;
             case 'webcomic': return css`
                 gap: 0;
@@ -277,8 +330,7 @@ ReadingPane.propTypes = {
         arrowScrollSize: PropTypes.number,
         preloadPages: PropTypes.number,
     }),
-    readingPaneRef: PropTypes.object,
 }
 
-export default ReadingPane;
+export default React.forwardRef(ReadingPane);
 

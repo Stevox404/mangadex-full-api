@@ -17,7 +17,7 @@ function GenericDialog(props) {
         title, children, wrapForm, onSave, hideCancelButton, cancelButtonLabel,
         actionProps, contentProps, titleProps, hideDialogActions,
         hideDialogTitle, hideSaveButton, breakpoint, saveButtonLabel,
-        showCloseButton, onClose,
+        showCloseButton, onClose, disableBackdropClick,
         saveButtonLabel: sbl, ...otherProps
     } = props;
 
@@ -32,7 +32,7 @@ function GenericDialog(props) {
     const setTitleProps = Object.assign({}, { disableTypography: typeof title !== 'string' }, props.titleProps)
 
     function handleClose(ev, reason) {
-        if(props.disableBackdropClick && reason === 'backdropClick') {
+        if(disableBackdropClick && reason === 'backdropClick') {
             return;
         }
         props.onClose?.(ev, reason);

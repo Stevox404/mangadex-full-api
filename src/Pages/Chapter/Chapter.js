@@ -99,10 +99,10 @@ function Chapter() {
         setReaderSettings(s => ({ ...s, [key]: val }))
     }
 
-    const handlePageChange = (e, pg, noRender) => {
+    const handlePageChange = (_, pg, noRender) => {
         pg = Number(pg);
         if (pg < 0) return;
-        if (pg > chapter?.pages.length) return;
+        if (pg >= chapter?.pages.length) return;
         setCurrentPage(pg);
         changePage(`../${pg + 1}`);
     }
@@ -221,7 +221,7 @@ function Chapter() {
                         currentPage={currentPage}
                         onChangePage={handlePageChange}
                         readerSettings={readerSettings}
-                        readingPaneRef={readingPaneRef}
+                        ref={readingPaneRef}
                     />
                 </div>
                 <SidePane
