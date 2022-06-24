@@ -1,45 +1,81 @@
 import {
-    AppBar as MuiAppBar, Toolbar, Typography, useScrollTrigger
+    alpha,
+    AppBar as MuiAppBar, Button, Collapse, Icon, InputAdornment, TextField, Toolbar, Typography, useScrollTrigger
 } from '@material-ui/core';
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import AppBarContent from './AppBarContent';
 import logo from 'Assets/images/placeholder.jpg';
 import { useRouter } from 'flitlib';
 import PropTypes from 'prop-types';
+import { TuneOutlined } from '@material-ui/icons';
 
 /**@param {SystemAppBar.propTypes} props */
-function SystemAppBar(props) {
-    // TODO find when scroll
-    // const scrolled = useScrollTrigger({
-    //     threshold: 10,
-    //     target: document.getElementsByClassName('page')[0],
-    //     disableHysteresis: true
-    // });
-    
+function SystemAppBar(props) {    
+    const [initSearchValue] = useState(new URLSearchParams(window.location.search).get('query'));
+    const [showSearch, setShowSearch] = useState(false);
     const {changePage} = useRouter();
     const goHome = () => {
         changePage('/');
     }
     
+    /**
+     * @param {Event} e 
+     */
+     const handleSearch = (e) => {
+        console.debug(e);
+        if (e.key && e.key !== 'Enter') return;
+        if (!e.target.value) return;
+        changePage(`/search?query=${e.target.value}`);
+    }
+    
     const getContent = () => {
         if(props.content === 'none') return null;
-        return <AppBarContent />;
+        return <AppBarContent
+            handleSearch={handleSearch}
+            showSearch={showSearch}
+            setShowSearch={setShowSearch}
+            initSearchValue={initSearchValue}
+        />;
     }
     
     
     return (
-        <AppBar position='sticky' elevation={0} color={'default'} {...props.appBarProps} >
-            <Toolbar>
-                <div id="logo" onClick={goHome} >
-                    <img src={logo} />
-                    <Typography className='logo' component='span' >
-                        Dexumi
-                    </Typography>
-                </div>
-                {getContent()}
-            </Toolbar>
-        </AppBar>
+        <>
+            <AppBar position='sticky' elevation={0} color={'default'} {...props.appBarProps} >
+                <Toolbar>
+                    <div id="logo" onClick={goHome} >
+                        <img src={logo} />
+                        <Typography className='logo' component='span' >
+                            Dexumi
+                        </Typography>
+                    </div>
+                    {getContent()}
+                </Toolbar>
+            </AppBar>
+            <StyledCollapse in={showSearch} >
+                <AppBar position='sticky' id='search-bar' >
+                    <TextField
+                        size='small' 
+                        fullWidth 
+                        onKeyUp={handleSearch}
+                        defaultValue={initSearchValue}
+                        inputProps={{
+                            type: 'search',
+                            autoComplete: 'search',
+                        }}
+                        InputProps={{
+                            endAdornment: (<InputAdornment position='end' >
+                                <Button
+                                    size='large' variant='outlined'
+                                    endIcon={<Icon><TuneOutlined /></Icon>}
+                                />
+                            </InputAdornment>)
+                        }}
+                    />
+                </AppBar>   
+            </StyledCollapse>
+        </>
     )
 }
 
@@ -76,6 +112,36 @@ const AppBar = styled(MuiAppBar)`
     && {
         transition: background-color 600ms;
     }
+`;
+
+const StyledCollapse = styled(Collapse)`
+    #search-bar {
+        padding: .1rem .4rem;
+        background-color: ${({ theme }) => theme.palette.background.paper};
+        >.MuiTextField-root {
+            justify-self: center;
+            max-width: 600px;
+            .MuiInputBase-root{
+                background-color: ${({ theme }) => alpha(theme.palette.background.paper, .3)};
+                padding-right: 0;
+                height: 2.8rem;
+                .MuiInputAdornment-root {
+                    height: 100%;
+                    max-height: unset;
+                    .MuiButton-root {
+                        height: 100%;
+                        line-height: unset;
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
+                    }
+                    .MuiButton-endIcon {
+                        margin: 0;
+                    }
+                }
+            }
+        }
+    }
+
 `;
 
 SystemAppBar.propTypes = {

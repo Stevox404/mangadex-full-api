@@ -82,7 +82,7 @@ function MangaCard(props, ref) {
 
 const Card = styled(MuiCard)`
     display: inline-block;
-    width: var(--card-width, 13rem);
+    max-width: var(--card-width, 13rem);
     flex: none;
     position: relative;
     height: var(--card-height, 16rem);

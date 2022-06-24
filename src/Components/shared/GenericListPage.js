@@ -49,7 +49,7 @@ const Wrapper = styled.div`
     }
     
     ${({ theme }) => theme.breakpoints.down('sm')} {
-        grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
     }
 `;
 

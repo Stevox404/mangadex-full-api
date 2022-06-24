@@ -2,17 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
     TextField, useMediaQuery, InputAdornment, IconButton, Button,
-    Menu as MuiMenu, MenuItem, alpha, Avatar
+    Menu as MuiMenu, MenuItem, alpha, Avatar, Icon
 } from '@material-ui/core';
-import { Search, Menu as MenuIcon } from '@material-ui/icons';
+import { Search, Menu as MenuIcon, TuneOutlined } from '@material-ui/icons';
 import styled from 'styled-components';
 import { useRouter } from 'flitlib';
 import { useSelector } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom';
 import { Manga } from 'mangadex-full-api';
+import { ToggleButton } from '@material-ui/lab';
 
 function AppBarContent(props) {
-    const [initVal] = useState(new URLSearchParams(window.location.search).get('query'));
     const [anchorEl, setAnchorEl] = useState(null);
     const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
 
@@ -20,33 +20,27 @@ function AppBarContent(props) {
     const isXs = useMediaQuery(theme => theme.breakpoints.down('xs'));
     const user = useSelector(state => state.user);
 
-    const searchRef = useRef(null);
-    // const {location} = useHistory();
-    // useEffect(() => {
-    //     const sp = new URLSearchParams(window.location.search);
-    //     const q = sp.get('query');
-    //     if (q) searchRef.current.value = q;
-    // }, []);
-
-    /**
-     * @param {KeyboardEvent} e 
-     */
-    const handleSearch = (e) => {
-        if (e.key === 'Enter') {
-            changePage(`/search?query=${e.target.value}`);
-        }
-    }
 
     return (
         <>
             {isXs ?
                 <XsContainer>
+                    <ToggleButton
+                        selected={props.showSearch}
+                        onClick={_ => props.setShowSearch(state => !state)}
+                    >
+                        <Search color='action' />
+                    </ToggleButton>
                     <IconButton color='inherit' onClick={e => setAnchorEl(e.target)} >
                         <MenuIcon />
                     </IconButton>
                     <Menu
                         open={!!anchorEl} onClose={() => setAnchorEl(null)}
                         anchorEl={anchorEl}
+                        anchorOrigin={{
+                            vertical: 'bottom', horizontal: 'right'
+                        }}
+                        getContentAnchorEl={null}
                         onClick={e => {
                             if (!e.target.disabled) {
                                 setAnchorEl(null);
@@ -60,8 +54,10 @@ function AppBarContent(props) {
                 </XsContainer> :
                 <Container >
                     <TextField
-                        size='small' ref={searchRef} fullWidth onKeyUp={handleSearch}
-                        defaultValue={initVal}
+                        size='small' fullWidth
+                        onKeyUp={props.handleSearch}
+                        onSearch
+                        defaultValue={props.initSearchValue}
                         inputProps={{
                             type: 'search',
                             autoComplete: 'search',
@@ -69,6 +65,13 @@ function AppBarContent(props) {
                         InputProps={{
                             startAdornment: (<InputAdornment position='start' >
                                 <Search />
+                            </InputAdornment>),
+                            endAdornment: (<InputAdornment position='end' >
+                                <Button size='large' variant='outlined' endIcon={<TuneOutlined />} >
+                                    <span id='text' >
+                                        Filter
+                                    </span>
+                                </Button>
                             </InputAdornment>)
                         }}
                     />
@@ -129,6 +132,10 @@ const XsContainer = styled.div`
     flex: 1;
     display: grid;
     justify-items: flex-end;
+    grid-template-columns: 1fr auto auto;
+    >.MuiToggleButton-root {
+        border: none;
+    }
 `;
 
 const Container = styled.div`
@@ -142,6 +149,16 @@ const Container = styled.div`
         max-width: 600px;
         .MuiInputBase-root{
             background-color: ${({ theme }) => alpha(theme.palette.background.paper, .3)};
+            padding-right: 0;
+            .MuiInputAdornment-root {
+                height: 100%;
+                max-height: unset;
+                .MuiButton-root {
+                    height: 100%;
+                    border-top-left-radius: 0;
+                    border-bottom-left-radius: 0;
+                }
+            }
         }
     }
     >div.action {
