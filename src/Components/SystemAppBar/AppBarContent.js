@@ -56,7 +56,6 @@ function AppBarContent(props) {
                     <TextField
                         size='small' fullWidth
                         onKeyUp={props.handleSearch}
-                        onSearch
                         defaultValue={props.initSearchValue}
                         inputProps={{
                             type: 'search',

@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import MangaCard from 'Components/shared/MangaCard';
 import { Skeleton } from '@material-ui/lab';
+import { debounce } from 'Utils';
 
 
 
@@ -20,35 +21,46 @@ function MangaListSection(props) {
      * @param {IntersectionObserverEntry[]} entries 
      * @param {IntersectionObserver} observer 
      */
+    // const requestMoreManga = debounce((entries, observer) => {
+    //     console.debug(props);
+    //     setIsRequestingMoreManga(true);
+    //     for (let entry of entries) {
+    //         if (entry.isIntersecting) {
+    //             props.requestMoreManga(props.mangaList);
+    //             observer.unobserve(entry.target);
+    //         }
+    //     }
+    // }, 3000);
     const requestMoreManga = React.useCallback((entries, observer) => {
         for (let entry of entries) {
             if (entry.isIntersecting) {
                 setIsRequestingMoreManga(true);
                 observer.unobserve(entry.target);
+                break;
             }
         }
     }, [props]);
 
-    const requestTimeoutRef = useRef(null);
+
+
     useEffect(() => {
-        if (isRequestingMoreManga) {
-            let requestTimeout = requestTimeoutRef.current;
-            if(requestTimeout) window.clearTimeout(requestTimeout)
-            window.setTimeout(() => {
-                props.requestMoreManga(props.mangaList);
-            }, 3000);
-            setIsRequestingMoreManga(false);            
+        if(isRequestingMoreManga) {
+            props.requestMoreManga(props.mangaList);
+            // setTimeout(() => {
+            //     setIsRequestingMoreManga(false);
+            // }, 3000);
         }
-    }, [props, isRequestingMoreManga]);
-
-
+         
+    }, [isRequestingMoreManga]);
+    
+    
     const observerRef = useRef(null);
 
     useEffect(() => {
         // create observer when list is loaded
         const list = listRef.current;
         if (!list) return;
-        observerRef.current = new IntersectionObserver(requestMoreManga, { root: listRef.current, rootMargin: '0px 320px 0px 0px' })
+        observerRef.current = new IntersectionObserver(requestMoreManga, { root: listRef.current, rootMargin: '0px 60px 0px 0px' })
         return _ => {
             observerRef.current?.disconnect();
         }
@@ -62,7 +74,6 @@ function MangaListSection(props) {
         observer.observe(lastManga);
         lastManga.setAttribute('_isObserved', true);
         setIsRequestingMoreManga(false);
-        // }, [lastMangaRef.current]);
     }, [props.mangaList]);
 
     const scrollList = (dir) => {
@@ -75,13 +86,6 @@ function MangaListSection(props) {
     const isSm = useMediaQuery(theme => theme.breakpoints.down('sm'))
     const CARD_WIDTH = isSm ? '10.4rem' : '13rem';
     const CARD_HEIGHT = isSm ? '14.4rem' : '18rem';
-
-    const getSkeletonNum = () => {
-        /** @type {Element} */
-        const el = listRef.current;
-        if (!el) return;
-        return Number.parseInt(el.clientWidth / (parseFloat(CARD_WIDTH) * 16)) - 1;
-    }
 
     return (
         <Container data-card-width={CARD_WIDTH} data-card-height={CARD_HEIGHT} >

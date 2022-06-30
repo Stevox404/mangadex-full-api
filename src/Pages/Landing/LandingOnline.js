@@ -1,14 +1,14 @@
 import { SystemAppBar } from 'Components';
-import { MangaListSection, Featured } from './components';
 import { Manga } from 'mangadex-full-api';
 import moment from 'moment';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
+import { debounce } from 'Utils';
 import { resolveManga } from 'Utils/mfa';
 import { DexCache } from 'Utils/StorageManager';
-import { isOnline } from 'Utils';
+import { Featured, MangaListSection } from './components';
 
 function LandingOnline() {
     const [recentManga, setRecentManga] = useState(null);
@@ -24,9 +24,10 @@ function LandingOnline() {
         addToList('hot');
     }, []);
 
+    
+    
     const dispatch = useDispatch();
-
-
+    
     const currListCount = useRef({});
     const addToList = async (listType, args = {}) => {
         const searchProps = {
@@ -82,6 +83,8 @@ function LandingOnline() {
         }
 
 
+        if(currListCount.current[listType] > list.length) return;
+        
         // else load the next list starting from offset        
         const offset = currListCount.current[listType] ?? list.length;
         searchProps.offset = offset + 1;
@@ -119,7 +122,8 @@ function LandingOnline() {
                 console.error(err);
             }
         }
-    }
+    };
+    
 
 
     return (
