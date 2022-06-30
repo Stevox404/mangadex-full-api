@@ -21,21 +21,10 @@ function MangaListSection(props) {
      * @param {IntersectionObserverEntry[]} entries 
      * @param {IntersectionObserver} observer 
      */
-    // const requestMoreManga = debounce((entries, observer) => {
-    //     console.debug(props);
-    //     setIsRequestingMoreManga(true);
-    //     for (let entry of entries) {
-    //         if (entry.isIntersecting) {
-    //             props.requestMoreManga(props.mangaList);
-    //             observer.unobserve(entry.target);
-    //         }
-    //     }
-    // }, 3000);
     const requestMoreManga = React.useCallback((entries, observer) => {
         for (let entry of entries) {
             if (entry.isIntersecting) {
                 setIsRequestingMoreManga(true);
-                observer.unobserve(entry.target);
                 break;
             }
         }
@@ -46,9 +35,6 @@ function MangaListSection(props) {
     useEffect(() => {
         if(isRequestingMoreManga) {
             props.requestMoreManga(props.mangaList);
-            // setTimeout(() => {
-            //     setIsRequestingMoreManga(false);
-            // }, 3000);
         }
          
     }, [isRequestingMoreManga]);
@@ -70,7 +56,9 @@ function MangaListSection(props) {
         // Observe the last manga card
         const lastManga = lastMangaRef.current;
         if (!lastManga || lastManga.getAttribute('_isObserved')) return;
+        /**@type {IntersectionObserver} */
         const observer = observerRef.current;
+        observer.takeRecords().forEach(entry => observer.unobserve(entry.target));
         observer.observe(lastManga);
         lastManga.setAttribute('_isObserved', true);
         setIsRequestingMoreManga(false);
