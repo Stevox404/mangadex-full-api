@@ -1,23 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
 import {
-    TextField, useMediaQuery, InputAdornment, IconButton, Button,
-    Menu as MuiMenu, MenuItem, alpha, Avatar, Icon
+    alpha, Avatar, Button, Collapse, IconButton, InputAdornment,
+    Menu as MuiMenu, MenuItem, TextField, useMediaQuery
 } from '@material-ui/core';
-import { Search, Menu as MenuIcon, TuneOutlined } from '@material-ui/icons';
-import styled from 'styled-components';
-import { useRouter } from 'flitlib';
-import { useSelector } from 'react-redux';
-import { Link, useHistory } from 'react-router-dom';
-import { Manga } from 'mangadex-full-api';
+import { Menu as MenuIcon, Search, SearchOutlined, TuneOutlined } from '@material-ui/icons';
 import { ToggleButton } from '@material-ui/lab';
+import { useRouter } from 'flitlib';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 
 function AppBarContent(props) {
     const [anchorEl, setAnchorEl] = useState(null);
     const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
 
     const { changePage } = useRouter();
-    const isXs = useMediaQuery(theme => theme.breakpoints.down('xs'));
+    const isXs = useMediaQuery(theme => theme.breakpoints.down('md'));
     const user = useSelector(state => state.user);
 
 
@@ -55,14 +54,17 @@ function AppBarContent(props) {
                 <Container >
                     <TextField
                         size='small' fullWidth
+                        onChange={e => props.setSearchValue(e.target.value)}
                         onKeyUp={props.handleSearch}
-                        defaultValue={props.initSearchValue}
+                        value={props.searchValue}
+                        onFocus={e => setIsSearchFocused(true)}
+                        onBlur={e => setIsSearchFocused(false)}
                         inputProps={{
                             type: 'search',
                             autoComplete: 'search',
                         }}
                         InputProps={{
-                            startAdornment: (<InputAdornment position='start' >
+                            startAdornment: (!isSearchFocused && <InputAdornment position='start' >
                                 <Search />
                             </InputAdornment>),
                             endAdornment: (<InputAdornment position='end' >
@@ -71,6 +73,15 @@ function AppBarContent(props) {
                                         Filter
                                     </span>
                                 </Button>
+                                {<Collapse in={isSearchFocused} unmountOnExit mountOnEnter >
+                                    <Button
+                                        size='large' variant='outlined'
+                                        onClick={props.handleSearch}
+                                    >
+                                        <SearchOutlined />
+                                    </Button>
+                                </Collapse>
+                                }
                             </InputAdornment>)
                         }}
                     />

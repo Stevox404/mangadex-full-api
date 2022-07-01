@@ -50,6 +50,8 @@ const Wrapper = styled.div`
     
     ${({ theme }) => theme.breakpoints.down('sm')} {
         grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+        --card-width: 10.4rem;
+        --card-height: 14.4rem;
     }
 `;
 

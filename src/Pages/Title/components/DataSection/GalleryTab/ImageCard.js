@@ -7,6 +7,7 @@ import {
     Card as MuiCard, CardActionArea, CardMedia
 } from '@material-ui/core';
 import { getEntityImageSrc } from 'Utils';
+import Img from 'Components/shared/Img';
 
 
 function ImageCard(props) {
@@ -48,14 +49,12 @@ function ImageCard(props) {
                 image={manga404}
                 title={props.cover.description}
             >
-                <img
+                <Img
                     src={loadingGif} loading="lazy" ref={coverImgRef}
                     alt={props.cover.description + ' cover'}
                     onError={onCoverError}
                 />
             </CardMedia>
-            {/* <CardActionArea >
-            </CardActionArea> */}
         </Card>
     )
 }

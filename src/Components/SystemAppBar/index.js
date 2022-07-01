@@ -8,11 +8,11 @@ import AppBarContent from './AppBarContent';
 import logo from 'Assets/images/placeholder.jpg';
 import { useRouter } from 'flitlib';
 import PropTypes from 'prop-types';
-import { TuneOutlined } from '@material-ui/icons';
+import { SearchOutlined, TuneOutlined } from '@material-ui/icons';
 
 /**@param {SystemAppBar.propTypes} props */
 function SystemAppBar(props) {    
-    const [initSearchValue] = useState(new URLSearchParams(window.location.search).get('query'));
+    const [searchValue, setSearchValue] = useState(new URLSearchParams(window.location.search).get('query'));
     const [showSearch, setShowSearch] = useState(false);
     const {changePage} = useRouter();
     const goHome = () => {
@@ -23,10 +23,8 @@ function SystemAppBar(props) {
      * @param {Event} e 
      */
      const handleSearch = (e) => {
-        console.debug(e);
         if (e.key && e.key !== 'Enter') return;
-        if (!e.target.value) return;
-        changePage(`/search?query=${e.target.value}`);
+        changePage(`/search?query=${searchValue}`);
     }
     
     const getContent = () => {
@@ -35,7 +33,8 @@ function SystemAppBar(props) {
             handleSearch={handleSearch}
             showSearch={showSearch}
             setShowSearch={setShowSearch}
-            initSearchValue={initSearchValue}
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
         />;
     }
     
@@ -59,7 +58,8 @@ function SystemAppBar(props) {
                         size='small' 
                         fullWidth 
                         onKeyUp={handleSearch}
-                        defaultValue={initSearchValue}
+                        value={searchValue}
+                        onChange={e => setSearchValue(e.target.value)}
                         inputProps={{
                             type: 'search',
                             autoComplete: 'search',
@@ -69,6 +69,10 @@ function SystemAppBar(props) {
                                 <Button
                                     size='large' variant='outlined'
                                     endIcon={<Icon><TuneOutlined /></Icon>}
+                                />
+                                <Button
+                                    size='large' variant='outlined'
+                                    endIcon={<Icon><SearchOutlined /></Icon>}
                                 />
                             </InputAdornment>)
                         }}
@@ -118,9 +122,10 @@ const StyledCollapse = styled(Collapse)`
     #search-bar {
         padding: .1rem .4rem;
         background-color: ${({ theme }) => theme.palette.background.paper};
+        display: grid;
         >.MuiTextField-root {
             justify-self: center;
-            max-width: 600px;
+            min-width: 90%;
             .MuiInputBase-root{
                 background-color: ${({ theme }) => alpha(theme.palette.background.paper, .3)};
                 padding-right: 0;

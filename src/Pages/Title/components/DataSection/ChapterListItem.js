@@ -131,7 +131,7 @@ export function ChapterListItem(props) {
         }
     }
 
-    return <StyledLiatItem
+    return <StyledListItem
         key={chapter.id} data-read={otherProps.readership?.[chapter.id]} button
         onClick={e => otherProps.handleChapterClick(e, chapter)}
     >
@@ -142,20 +142,26 @@ export function ChapterListItem(props) {
                     <VisibilityOutlined />}
             </IconButton>
         </ListItemIcon>
-        <ListItemText
-            primary={getChapterText(chapter)} className='chapter-name'
-            secondary={chapter.groups[0]?.name || chapter.uploader.username} />
-        <ListItemText
-            primary={moment(chapter[otherProps.chapterSettings.displayDate]).fromNow()}
-            primaryTypographyProps={{
-                variant: 'subtitle1'
-            }} />
+        <span id='item-text' >
+            <ListItemText
+                primary={getChapterText(chapter)} className='chapter-name'
+                secondary={chapter.groups[0]?.name || chapter.uploader.username} />
+            <ListItemText
+                primary={moment(chapter[otherProps.chapterSettings.displayDate]).fromNow()}
+                primaryTypographyProps={{
+                    variant: 'subtitle1'
+                }} />
+        </span>
         {getDownloadButton(chapter)}
-    </StyledLiatItem>;
+    </StyledListItem>;
 }
 
 
-const StyledLiatItem = styled(ListItem)`
+const StyledListItem = styled(ListItem)`
+    #item-text {
+        width: 100%;
+        display: flex;
+    }
     .chapter-name {
         flex: 3;
         .MuiTypography-root {
@@ -178,5 +184,18 @@ const StyledLiatItem = styled(ListItem)`
         svg {
             fill: ${p => p.theme.palette.text.disabled};
         } 
+    }
+
+    ${({ theme }) => theme.breakpoints.down('sm')}{
+        #item-text {
+            display: grid;
+            &>* {
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+        }
+        && {
+            border-bottom: 1px solid ${({theme}) => theme.palette.divider};
+        }
     }
 `;

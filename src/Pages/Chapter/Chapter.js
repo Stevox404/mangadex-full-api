@@ -26,6 +26,7 @@ function Chapter() {
         readingDir: 'left',
         arrowScrollSize: 460,
         preloadPages: 5,
+        reverseNavBtns: true,
     });
     const readingPaneRef = useRef(null);
     const language = useSelector(state => state.language);

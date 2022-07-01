@@ -147,7 +147,7 @@ const Container = styled.main`
             width: 100%;
             height: auto;
             border-radius: 0;
-            max-height: 75vh;
+            min-height: 75vh;
         }
         #info {
             scroll-snap-align: start;

@@ -112,6 +112,7 @@ const Card = styled(MuiCard)`
     flex: none;
     position: relative;
     height: var(--card-height, 16rem);
+    
     .MuiCardActionArea-root {
         height: 100%;
         .MuiCardMedia-root {
@@ -164,6 +165,11 @@ const Card = styled(MuiCard)`
                 display: none;
             }
         }
+    }
+
+    ${({ theme }) => theme.breakpoints.down('sm')} {
+        width: var(--card-width, 10.4rem);
+        height: var(--card-height, 14.4rem);
     }
 `;
 
