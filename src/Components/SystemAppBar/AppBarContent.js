@@ -1,10 +1,10 @@
 import {
-    alpha, Avatar, Button, Collapse, IconButton, InputAdornment,
+    alpha, Avatar, Button, Icon, IconButton, InputAdornment,
     Menu as MuiMenu, MenuItem, TextField, useMediaQuery
 } from '@material-ui/core';
-import { Menu as MenuIcon, Search, SearchOutlined, TuneOutlined } from '@material-ui/icons';
-import { ToggleButton } from '@material-ui/lab';
+import { Close, Menu as MenuIcon, Search, SearchOutlined, TuneOutlined } from '@material-ui/icons';
 import { useRouter } from 'flitlib';
+import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -24,12 +24,14 @@ function AppBarContent(props) {
         <>
             {isXs ?
                 <XsContainer>
-                    <ToggleButton
-                        selected={props.showSearch}
+                    <IconButton
                         onClick={_ => props.setShowSearch(state => !state)}
                     >
-                        <Search color='action' />
-                    </ToggleButton>
+                        {props.showSearch ?
+                            <Close color='action' /> :
+                            <Search color='action' />
+                        }
+                    </IconButton>
                     <IconButton color='inherit' onClick={e => setAnchorEl(e.target)} >
                         <MenuIcon />
                     </IconButton>
@@ -64,24 +66,20 @@ function AppBarContent(props) {
                             autoComplete: 'search',
                         }}
                         InputProps={{
-                            startAdornment: (!isSearchFocused && <InputAdornment position='start' >
-                                <Search />
+                            startAdornment: (<InputAdornment position='start' >
+                                <Button
+                                    size='large' variant='outlined'
+                                    onClick={props.requestOpenFilter}
+                                    endIcon={<Icon><TuneOutlined /></Icon>}
+                                />
                             </InputAdornment>),
                             endAdornment: (<InputAdornment position='end' >
-                                <Button size='large' variant='outlined' endIcon={<TuneOutlined />} >
-                                    <span id='text' >
-                                        Filter
-                                    </span>
-                                </Button>
-                                {<Collapse in={isSearchFocused} unmountOnExit mountOnEnter >
-                                    <Button
-                                        size='large' variant='outlined'
-                                        onClick={props.handleSearch}
-                                    >
-                                        <SearchOutlined />
-                                    </Button>
-                                </Collapse>
-                                }
+                                <IconButton
+                                    size='large' variant='outlined'
+                                    onClick={props.handleSearch}
+                                >
+                                    <SearchOutlined />
+                                </IconButton>
                             </InputAdornment>)
                         }}
                     />
@@ -159,14 +157,19 @@ const Container = styled.div`
         max-width: 600px;
         .MuiInputBase-root{
             background-color: ${({ theme }) => alpha(theme.palette.background.paper, .3)};
+            padding-left: 0;
             padding-right: 0;
             .MuiInputAdornment-root {
                 height: 100%;
                 max-height: unset;
                 .MuiButton-root {
                     height: 100%;
+                    line-height: unset;
                     border-top-left-radius: 0;
                     border-bottom-left-radius: 0;
+                    .MuiButton-endIcon {
+                        margin: 0;
+                    }
                 }
             }
         }
@@ -192,7 +195,12 @@ const Menu = styled(MuiMenu)`
 `;
 
 AppBarContent.propTypes = {
-
+    requestOpenFilter: PropTypes.func.isRequired,
+    handleSearch: PropTypes.func.isRequired,
+    showSearch: PropTypes.bool,
+    setShowSearch: PropTypes.func.isRequired,
+    searchValue: PropTypes.bool,
+    setSearchValue: PropTypes.func.isRequired,
 }
 
 export default AppBarContent

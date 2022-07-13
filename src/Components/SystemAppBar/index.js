@@ -9,36 +9,39 @@ import logo from 'Assets/images/placeholder.jpg';
 import { useRouter } from 'flitlib';
 import PropTypes from 'prop-types';
 import { SearchOutlined, TuneOutlined } from '@material-ui/icons';
+import SearchFilter from './SearchFilter';
 
 /**@param {SystemAppBar.propTypes} props */
-function SystemAppBar(props) {    
+function SystemAppBar(props) {
     const [searchValue, setSearchValue] = useState(new URLSearchParams(window.location.search).get('query'));
     const [showSearch, setShowSearch] = useState(false);
-    const {changePage} = useRouter();
+    const [filterOpen, setFilterOpen] = useState(false);
+    const { changePage } = useRouter();
     const goHome = () => {
         changePage('/');
     }
-    
+
     /**
      * @param {Event} e 
      */
-     const handleSearch = (e) => {
+    const handleSearch = (e) => {
         if (e.key && e.key !== 'Enter') return;
         changePage(`/search?query=${searchValue}`);
     }
-    
+
     const getContent = () => {
-        if(props.content === 'none') return null;
+        if (props.content === 'none') return null;
         return <AppBarContent
             handleSearch={handleSearch}
             showSearch={showSearch}
             setShowSearch={setShowSearch}
             searchValue={searchValue}
             setSearchValue={setSearchValue}
+            requestOpenFilter={_ => setFilterOpen(true)}
         />;
     }
-    
-    
+
+
     return (
         <>
             <AppBar position='sticky' elevation={0} color={'default'} {...props.appBarProps} >
@@ -55,8 +58,8 @@ function SystemAppBar(props) {
             <StyledCollapse in={showSearch} >
                 <AppBar position='sticky' id='search-bar' >
                     <TextField
-                        size='small' 
-                        fullWidth 
+                        size='small'
+                        fullWidth
                         onKeyUp={handleSearch}
                         value={searchValue}
                         onChange={e => setSearchValue(e.target.value)}
@@ -65,11 +68,15 @@ function SystemAppBar(props) {
                             autoComplete: 'search',
                         }}
                         InputProps={{
-                            endAdornment: (<InputAdornment position='end' >
+                            startAdornment: (<InputAdornment position='start' >
                                 <Button
                                     size='large' variant='outlined'
                                     endIcon={<Icon><TuneOutlined /></Icon>}
+                                    onClick={_ => setFilterOpen(true)}
                                 />
+                            </InputAdornment>),
+                            endAdornment: (<InputAdornment position='end' >
+
                                 <Button
                                     size='large' variant='outlined'
                                     endIcon={<Icon><SearchOutlined /></Icon>}
@@ -77,8 +84,11 @@ function SystemAppBar(props) {
                             </InputAdornment>)
                         }}
                     />
-                </AppBar>   
+                </AppBar>
             </StyledCollapse>
+            <SearchFilter
+                open={filterOpen} onClose={_ => setFilterOpen(false)}
+            />
         </>
     )
 }
@@ -129,6 +139,7 @@ const StyledCollapse = styled(Collapse)`
             .MuiInputBase-root{
                 background-color: ${({ theme }) => alpha(theme.palette.background.paper, .3)};
                 padding-right: 0;
+                padding-left: 0;
                 height: 2.8rem;
                 .MuiInputAdornment-root {
                     height: 100%;
@@ -152,7 +163,7 @@ const StyledCollapse = styled(Collapse)`
 SystemAppBar.propTypes = {
     content: PropTypes.string,
     /**@type {import('@material-ui/core').AppBarProps} */
-    appBarProps:PropTypes.object,
+    appBarProps: PropTypes.object,
 }
 
 export default SystemAppBar;

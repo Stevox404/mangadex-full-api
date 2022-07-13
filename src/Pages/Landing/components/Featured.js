@@ -241,7 +241,6 @@ const Container = styled.div`
                         right: 0;
                         width: 70%;
                         height: 1.2em;
-                        /* background: linear-gradient(to right, rgba(255, 255, 255, 0), var(--card-color) 40%); */
                     }
                 }
                 .MuiButton-root {
@@ -254,6 +253,7 @@ const Container = styled.div`
     ${({ theme }) => theme.breakpoints.down('md')}{
         grid-template-columns: auto auto;
         justify-content: space-between;
+        height: 60vh;
         >div#img-box{
            >img.main{
                 height: 100%;
