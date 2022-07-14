@@ -260,8 +260,11 @@ const ChapterTab = styled(List)`
 const Container = styled(Paper)`
     .tab-panel {
         min-height: 50vh;
-        margin-bottom: 4.8rem;
+        padding-bottom: 4.8rem;
         display: flex;
+        background-color: ${({ theme }) => theme.palette.background.paper};
+        z-index: 1;
+        position: relative;
         &>* {
             flex: 1;
         }

@@ -70,12 +70,17 @@ function AppBarContent(props) {
                                 <Button
                                     size='large' variant='outlined'
                                     onClick={props.requestOpenFilter}
-                                    endIcon={<Icon><TuneOutlined /></Icon>}
+                                    endIcon={<Icon>
+                                        <TuneOutlined color={
+                                            props.selectedFilters?.length ?
+                                                'primary' : 'action'
+                                        } />
+                                    </Icon>}
                                 />
                             </InputAdornment>),
                             endAdornment: (<InputAdornment position='end' >
                                 <IconButton
-                                    size='large' variant='outlined'
+                                    variant='outlined'
                                     onClick={props.handleSearch}
                                 >
                                     <SearchOutlined />
@@ -199,8 +204,9 @@ AppBarContent.propTypes = {
     handleSearch: PropTypes.func.isRequired,
     showSearch: PropTypes.bool,
     setShowSearch: PropTypes.func.isRequired,
-    searchValue: PropTypes.bool,
+    searchValue: PropTypes.string,
     setSearchValue: PropTypes.func.isRequired,
+    selectedFilters: PropTypes.array,
 }
 
 export default AppBarContent

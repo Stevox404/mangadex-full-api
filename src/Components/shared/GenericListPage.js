@@ -39,6 +39,7 @@ const Wrapper = styled.div`
     gap: 1rem;
     padding: 1rem;
     justify-content: space-around;
+    justify-items: center;
     >*:last-child {
         margin-bottom: 4.8rem;
     }
@@ -50,8 +51,10 @@ const Wrapper = styled.div`
     
     ${({ theme }) => theme.breakpoints.down('sm')} {
         grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-        --card-width: 10.4rem;
-        --card-height: 14.4rem;
+        /* --card-height: 14.4rem;
+        --card-width: 10.4rem; */
+        --card-height: 15rem;
+        --card-width: 12rem;
     }
 `;
 

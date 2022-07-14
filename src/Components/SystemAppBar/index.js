@@ -2,7 +2,7 @@ import {
     alpha,
     AppBar as MuiAppBar, Button, Collapse, Icon, InputAdornment, TextField, Toolbar, Typography, useScrollTrigger
 } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AppBarContent from './AppBarContent';
 import logo from 'Assets/images/placeholder.jpg';
@@ -13,7 +13,8 @@ import SearchFilter from './SearchFilter';
 
 /**@param {SystemAppBar.propTypes} props */
 function SystemAppBar(props) {
-    const [searchValue, setSearchValue] = useState(new URLSearchParams(window.location.search).get('query'));
+    const [selectedFilters, setSelectedFilters] = useState([]);
+    const [searchValue, setSearchValue] = useState();
     const [showSearch, setShowSearch] = useState(false);
     const [filterOpen, setFilterOpen] = useState(false);
     const { changePage } = useRouter();
@@ -21,12 +22,41 @@ function SystemAppBar(props) {
         changePage('/');
     }
 
+    useEffect(() => {
+        const q = new URLSearchParams(window.location.search).get('query');
+        if (q) {
+            const params = JSON.parse(q);
+            setSearchValue(params.title);
+        }
+    }, []);
+    
+    
     /**
      * @param {Event} e 
      */
     const handleSearch = (e) => {
         if (e.key && e.key !== 'Enter') return;
-        changePage(`/search?query=${searchValue}`);
+        const params = {
+            title: searchValue,
+            includedTags: [],
+            excludedTags: [],
+        };
+        selectedFilters.forEach(filter => {
+            if(filter.type === 'tag') {
+                if(filter.include?.length) {
+                    params.includedTags.push(...filter.include);
+                }
+                if(filter.exclude?.length) {
+                    params.excludedTags.push(...filter.exclude);
+                }
+            } else {
+                if(filter.include?.length) {
+                    params[filter.name] = filter.include;
+                }
+            }
+        });
+
+        changePage(`/search?query=${JSON.stringify(params)}`);
     }
 
     const getContent = () => {
@@ -38,6 +68,7 @@ function SystemAppBar(props) {
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             requestOpenFilter={_ => setFilterOpen(true)}
+            selectedFilters={selectedFilters}
         />;
     }
 
@@ -71,7 +102,12 @@ function SystemAppBar(props) {
                             startAdornment: (<InputAdornment position='start' >
                                 <Button
                                     size='large' variant='outlined'
-                                    endIcon={<Icon><TuneOutlined /></Icon>}
+                                    endIcon={<Icon>
+                                        <TuneOutlined color={
+                                            selectedFilters?.length ?
+                                                'primary' : 'action'
+                                        } />
+                                    </Icon>}
                                     onClick={_ => setFilterOpen(true)}
                                 />
                             </InputAdornment>),
@@ -80,6 +116,7 @@ function SystemAppBar(props) {
                                 <Button
                                     size='large' variant='outlined'
                                     endIcon={<Icon><SearchOutlined /></Icon>}
+                                    onClick={handleSearch}
                                 />
                             </InputAdornment>)
                         }}
@@ -87,7 +124,9 @@ function SystemAppBar(props) {
                 </AppBar>
             </StyledCollapse>
             <SearchFilter
-                open={filterOpen} onClose={_ => setFilterOpen(false)}
+                open={filterOpen}
+                onClose={_ => setFilterOpen(false)}
+                onChange={filters => setSelectedFilters(filters)}
             />
         </>
     )

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import {
     Button as MuiButton, lighten, ListItemIcon, Menu as MuiMenu, MenuItem, Typography
 } from '@material-ui/core';
-import { BlockOutlined, CheckCircleOutlineOutlined } from '@material-ui/icons';
+import { BlockOutlined, CheckBoxOutlined, CheckCircleOutlineOutlined, PlaylistAddOutlined, ReorderOutlined } from '@material-ui/icons';
 
 /**
  * 
@@ -12,15 +12,25 @@ import { BlockOutlined, CheckCircleOutlineOutlined } from '@material-ui/icons';
  * @returns 
  */
 function FiltersButton(props) {
+    const [isOptSelected, setIsOptSelected] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [anchorWidth, setAnchorWidth] = useState(0);
+
+    useEffect(() => {
+        const isSel = props.options.some(opt => opt.status);
+        setIsOptSelected(isSel);
+    }, [props.options]);
+    
 
     const updateOptStatus = (e, idx) => {
         const opts = props.options.map((opt, i) => {
             if(idx !== i) return opt;
             const newOpt = {...opt};
             switch (opt.status) {
-                case 'include': newOpt.status = 'exclude'; break;
+                case 'include': {
+                    newOpt.status = props.allowExclude ? 'exclude': null;
+                    break;
+                }
                 case 'exclude': newOpt.status = null; break;
                 default: newOpt.status = 'include'; break;
             }
@@ -32,7 +42,9 @@ function FiltersButton(props) {
     function getMenuItemIcon(opt) {
         switch (opt.status) {
             case 'include': return (
-                <CheckCircleOutlineOutlined color='primary' />
+                props.allowExclude ?
+                <CheckCircleOutlineOutlined color='primary' />:
+                <CheckBoxOutlined color='primary' />
             );
             case 'exclude': return (
                 <BlockOutlined color='error' />
@@ -43,7 +55,10 @@ function FiltersButton(props) {
     
     return (
         <>
-            <Button variant='outlined' onClick={e => {
+            <Button 
+                startIcon={isOptSelected ? <PlaylistAddOutlined />: <ReorderOutlined />}
+                color={isOptSelected ? 'primary': 'default'}
+                variant='outlined' onClick={e => {
                 const target = e.currentTarget;
                 setAnchorWidth(target.getBoundingClientRect().width);
                 setAnchorEl(target);
@@ -54,8 +69,7 @@ function FiltersButton(props) {
                 open={!!anchorEl} onClose={() => setAnchorEl(null)}
                 anchorEl={anchorEl} style={{ width: anchorWidth }}
                 transformOrigin={{
-                    // horizontal: 'center', 
-                    vertical: 'top'
+                    vertical: 'top', horizontal: 'left'
                 }}
                 anchorOrigin={{
                     vertical: 'bottom', horizontal: 'left'
@@ -98,6 +112,7 @@ const Menu = styled(MuiMenu)`
 
 FiltersButton.defaultProps = {
     options: [],
+    allowExclude: true,
     onChange: () => {},
 }
 
@@ -109,6 +124,7 @@ FiltersButton.propTypes = {
         status: PropTypes.oneOf(['include', 'exclude', null])
     })),
     onChange: PropTypes.func,
+    allowExclude: PropTypes.bool,
 }
 
 export default FiltersButton;

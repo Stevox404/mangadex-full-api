@@ -142,7 +142,7 @@ const Container = styled.main`
         >img.main-cover {
             margin-top: 0;
             margin-bottom: 0;
-            position: sticky;
+            position: fixed;
             top: 0;
             width: 100%;
             height: auto;
@@ -151,8 +151,9 @@ const Container = styled.main`
         }
         #info {
             scroll-snap-align: start;
+            max-width: calc(100% - calc(2 * 1rem));
             padding: 1rem 1.8rem 2rem;
-            margin-top: -12rem;
+            margin-top: 75vh;
             scroll-margin-top: -1rem;
             background: ${({ theme }) => theme.palette.background.default};
             background: linear-gradient(0deg,
