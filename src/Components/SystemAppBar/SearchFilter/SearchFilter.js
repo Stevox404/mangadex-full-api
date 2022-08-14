@@ -15,9 +15,15 @@ function SearchFilter(props) {
 
     useEffect(() => {
         setTagFilters();
-    }, []);
+    }, [props.filters]);
+
 
     async function setTagFilters() {
+        if (props.filters) {
+            setFilters(props.filters);
+            return;
+        }
+        
         if (filters.length > FILTERS.length) return;
         const cache = new DexCache();
         cache.name = 'tag-filters';
@@ -273,6 +279,7 @@ SearchFilter.propTypes = {
     onClose: PropTypes.func.isRequired,
     /**@type {OnChangeFn} */
     onChange: PropTypes.func,
+    filters: PropTypes.object,
     readerSettings: PropTypes.shape({
         displayMode: PropTypes.string,
         imageSize: PropTypes.string,

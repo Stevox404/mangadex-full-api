@@ -1,5 +1,6 @@
 import { login as mfaLogin, User } from 'mangadex-full-api';
-import { isOnline } from 'Utils';
+import moment from 'moment';
+import { DexCache, hashCode, isOnline } from 'Utils';
 
 
 export const login = (auth) => {
@@ -9,16 +10,30 @@ export const login = (auth) => {
         let key;
         try {
             dispatch(beginPending('login'));
+            const cache = new DexCache('user_logins', {
+                validFor: moment.duration(2, 'weeks')
+            });
+            const user_logins = (await cache.fetch()) || {};
+
             if (auth) {
                 key = dispatch(addNotification({
                     message: 'Logging in...',
                     persist: true,
                     showDismiss: false
                 }));
+
                 await mfaLogin(auth.username, auth.password, 'dexumi_tokens');
+
+                const authCode = hashCode(auth.username + auth.password);
+                user_logins[auth.username] = {
+                    username: auth.username,
+                    code: authCode,
+                }
             } else {
-                const users = JSON.parse(window.localStorage.getItem('dexumi_tokens'));
-                await mfaLogin(Object.keys(users)[0], undefined, 'dexumi_tokens');
+                const username = user_logins._lastLogin;
+                if(username) {
+                    await mfaLogin(username, undefined, 'dexumi_tokens');
+                }
             }
 
             dispatch(dismissNotification(key));
@@ -26,6 +41,14 @@ export const login = (auth) => {
 
             const user = await User.getLoggedInUser();
             if(!user) return;
+
+            user_logins[user.username] = {
+                ...user,
+                ...user_logins[user.username]
+            }
+            user_logins._lastLogin = auth.username;
+            cache.data = user_logins;
+            await cache.save();
             
             dispatch({
                 type: `user/setUser`,
