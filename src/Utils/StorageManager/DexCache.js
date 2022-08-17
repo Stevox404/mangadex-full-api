@@ -18,39 +18,39 @@ export class DexCache {
         this.signed = args.signed ?? false;
     }
 
-    #sig = '';
+    #sig;
     data; meta;
 
-    getMeta = function (key) {
+    getMeta(key) {
         if (typeof this.meta !== 'object') return null;
         return this.meta[key];
     }
 
-    setMeta = function (key, val) {
+    setMeta(key, val) {
         if (typeof this.meta !== 'object') this.meta = {};
         this.meta[key] = val;
         return true;
     }
 
-    fetch = async function () {
+    async fetch() {
         if (DexCache.disabled || this.disabled) return null;
 
         if (!this.name) throw new Error('Fetch Failed. Cache has no name.');
-        if(this.signed && !this.#sig) this.#sig = this.#getSig();
+        const sig = this.#getSig();
 
-        const res = await db._cache.get({ name: this.name, sig: this.#sig });
+        const res = await db._cache.get({ name: this.name, sig });
 
-        if(this.#shouldDestroy()) {
+        if (this.#shouldDestroy()) {
             await this.clear();
             return null;
         }
 
-        if(res) Object.assign(this, res);
+        if (res) Object.assign(this, res);
 
         return this.data;
     }
 
-    save = async function () {
+    async save() {
         if (DexCache.disabled || this.disabled) return null;
 
         if (!this.name) throw new Error('Save Failed. Cache has no name.');
@@ -72,23 +72,18 @@ export class DexCache {
             }
         }
 
-        if(this.signed && !this.#sig) this.#sig = this.#getSig();
-        if(this.signed) {
-            this.#sig = this.#sig || this.#getSig();
-            if(!this.#sig) console.warn('Cache requires signature but none is set');
-        }
-
         this.createdAt = new Date();
 
         return db.transaction('rw', db._cache, async () => {
             await DexCache.clear(this.name);
             await db._cache.put({
-                ...this.#toJSON(), sig: this.#sig
+                ...this.#toJSON(),
+                sig: this.#getSig(),
             });
         });
     }
 
-    clear = function () {
+    clear() {
         if (!this.name) throw new Error('Clear Failed. Cache has no name.');
         return db._cache.delete(this.name);
     }
@@ -97,12 +92,12 @@ export class DexCache {
 
     // Statics
 
-    static clear = async function (name) {
+    static async clear(name) {
         if (!name) throw new Error('Invalid argument.');
         return db._cache.delete(name);
     }
 
-    static delete = async function () {
+    static async delete() {
         db.close();
         await db.delete();
         db.version(1).stores({
@@ -112,7 +107,7 @@ export class DexCache {
 
     // Private fn
 
-    #toJSON = function () {
+    #toJSON() {
         return ({
             name: this.name,
             validFor: this.validFor,
@@ -124,7 +119,7 @@ export class DexCache {
         })
     }
 
-    #shouldDestroy = function () {
+    #shouldDestroy() {
         let eol;
         if (this.validFor) {
             eol = moment(this.createdAt).add(this.validFor);
@@ -135,11 +130,15 @@ export class DexCache {
         return false;
     }
 
-    #getSig = function (cache) {
+    #getSig() {
+        if(!this.signed) return '';
         if (this.#sig) return this.#sig;
 
         const { user } = store.getState();
-        if (!user) return '';
+        if (!user) {
+            if (this.signed) console.warn('Cache expected user to be logged in');
+            return '';
+        }
         const code = hashCode(user.username);
         this.#sig = code;
         return code;

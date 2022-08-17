@@ -16,7 +16,7 @@ import GalleryTab from './GalleryTab/index';
 import { DexCache } from 'Utils/StorageManager/DexCache';
 import { resolveChapter } from 'Utils/mfa';
 import { standardize } from 'Utils/Standardize';
-import { DexDld, isOnline } from 'Utils';
+import { DexDM, isOnline } from 'Utils';
 
 /** @param {DataSection.propTypes} props */
 function DataSection(props) {
@@ -92,7 +92,7 @@ function DataSection(props) {
                     })
                 ));
             } else {
-                chapters = await DexDld.getDownloadedChapters(manga.id, params);
+                chapters = await DexDM.getDownloadedChapters(manga.id, params);
             }
 
             setChapters(chapters);

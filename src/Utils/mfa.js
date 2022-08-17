@@ -3,7 +3,7 @@ import {
 } from "mangadex-full-api";
 
 import { isOnline, standardize } from './index';
-import { DexDld } from "./StorageManager";
+import { DexDM } from "./StorageManager";
 import { DexCache } from "./StorageManager/DexCache";
 
 export async function resolveChapter(chapter, resolutionItems) {
@@ -27,7 +27,7 @@ export async function resolveChapter(chapter, resolutionItems) {
 export async function resolveManga(manga, resolutionItems) {
     if(!isOnline()) {
         const id = typeof manga === 'string' ? manga: manga.id;
-        const mg = await DexDld.getDownloadedManga(id);
+        const mg = await DexDM.getDownloadedManga(id);
         return mg;
     }
     

@@ -151,9 +151,7 @@ const Container = styled.main`
         }
         #info {
             scroll-snap-align: start;
-            /* max-width: calc(100% - calc(2 * 1rem)); */
             padding: 1rem 1.8rem 2rem;
-            /* margin-top: 75vh; */
             margin-top: 64vh;
             scroll-margin-top: -1rem;
             background: ${({ theme }) => theme.palette.background.default};
