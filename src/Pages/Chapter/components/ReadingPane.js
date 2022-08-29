@@ -68,9 +68,17 @@ function ReadingPane(props, readingPaneRef) {
             return;
         }
 
+        if (
+            props.readerSettings.displayMode === 'all' ||
+            props.readerSettings.displayMode === 'webcomic' 
+        ) {
+            return;
+        }
+
         if (props.readerSettings.readingDir == 'left') {
             dir *= -1;
         }
+
 
         if (props.readerSettings.displayMode === 'double') {
             const pg = props.currentPage;

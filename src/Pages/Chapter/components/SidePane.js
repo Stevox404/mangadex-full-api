@@ -1,4 +1,4 @@
-import { Button, Divider, IconButton, MenuItem, TextField, Toolbar, Tooltip, Typography } from '@material-ui/core';
+import { Button, Divider, IconButton, MenuItem, TextField, Toolbar, Tooltip, Typography, useMediaQuery } from '@material-ui/core';
 import { AspectRatio, AspectRatioOutlined, CommentOutlined, KeyboardArrowLeftOutlined, KeyboardArrowRightOutlined, Settings, SettingsOverscanOutlined, WebAssetOutlined } from '@material-ui/icons';
 import Close from '@material-ui/icons/Close';
 import SideDrawer from 'Components/shared/mui-x/SideDrawer';
@@ -11,6 +11,8 @@ import { Link } from 'react-router-dom';
 /**@param {SidePane.propTypes} props */
 function SidePane(props) {
     const [inZenMode, setInZenMode] = useState(false);
+    var isUnderSm = useMediaQuery(theme => theme.breakpoints.down('sm'));
+    
     useEffect(() => {
         /**@type {HTMLElement} */
         const elem = props.readingPaneRef.current;
@@ -47,7 +49,10 @@ function SidePane(props) {
     const changeChapter = e => {
         if (!props.chapter) return;
         let dir = e.currentTarget.getAttribute('data-btn-side') === 'left' ? -1 : 1;
-        if (props.readerSettings.readingDir === 'left') dir *= -1;
+        if (
+            props.readerSettings.readingDir === 'left' &&
+            !props.readerSettings.reverseNavBtns
+        ) dir *= -1;
 
         if (dir > 0) {
             props.onNextChapterClick();
@@ -85,7 +90,7 @@ function SidePane(props) {
     return (
         <Container
             open={props.open} anchor='right' onClose={props.onClose}
-            variant='permanent' maxWidth={'300px'}
+            variant={isUnderSm ? 'temporary': 'permanent'} maxWidth={'300px'}
         >
             <div id="drawer">
                 <div id="title">
@@ -110,9 +115,10 @@ function SidePane(props) {
                             <KeyboardArrowLeftOutlined />
                         </IconButton>
                         <Typography variant='subtitle2' >
-                            {props.readerSettings.readingDir === 'left' ?
-                                'NEXT' : 'PREV'
-                            }
+                            {(
+                                props.readerSettings.readingDir === 'left' &&
+                                !props.readerSettings.reverseNavBtns
+                            ) ? 'NEXT' : 'PREV'}
                         </Typography>
                     </div>
                     <div id="chapter-num">
@@ -126,9 +132,10 @@ function SidePane(props) {
                             <KeyboardArrowRightOutlined />
                         </IconButton>
                         <Typography variant='subtitle2' >
-                            {props.readerSettings.readingDir === 'left' ?
-                                'PREV': 'NEXT'
-                            }
+                            {(
+                                props.readerSettings.readingDir === 'left' &&
+                                !props.readerSettings.reverseNavBtns
+                            ) ? 'PREV': 'NEXT'}
                         </Typography>
                     </div>
                 </div>

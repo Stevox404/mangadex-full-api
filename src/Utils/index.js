@@ -97,6 +97,24 @@ export const getStars = (rating, total = 10) => {
     return stars;
 }
 
+/**
+* Returns a hash code from a string
+* @param  {String} str The string to hash.
+* @param  {Number} seed Optional (unsigned integer, 32-bit max) for alternate streams of the same input.
+* @return {String} A simple but high quality 53-bit hash
+*/
+export function hashCode(str, seed = 0) {
+    let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for (let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
+    return 4294967296 * (2097151 & h2) + (h1>>>0);
+}
+
 export * from './theme';
 export * from './mfa';
 export * from './hooks';

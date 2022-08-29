@@ -1,5 +1,5 @@
 import { Button, DialogActions, DialogContent, DialogTitle, useMediaQuery, Fade, Slide, useTheme, IconButton } from '@material-ui/core';
-import Dialog from '@material-ui/core/Dialog';
+import MuiDialog from '@material-ui/core/Dialog';
 import PropTypes from 'prop-types';
 import React from 'react';
 import CloseIcon from '@material-ui/icons/Close';
@@ -111,6 +111,12 @@ function GenericDialog(props) {
         </Dialog>
     )
 }
+
+const Dialog = styled(MuiDialog)`
+    .MuiDialogContent-root {
+        overflow-y: auto;
+    }
+`;
 
 const CloseButton = styled(IconButton)`
     &.MuiIconButton-root {

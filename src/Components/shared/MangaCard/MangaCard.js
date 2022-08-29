@@ -47,9 +47,35 @@ function MangaCard(props, ref) {
         }
     }
 
+    const timerRef = useRef(null);
+    const cancellationRef = useRef(null);
+    /**
+     * @param {Event} ev 
+     */
+    const handlePress = ev => {
+        /**@type {HTMLElement} */
+        timerRef.current = window.setTimeout(() => {
+            cancellationRef.current = true;
+        }, 1000);
+    }
+    const handleRelease = _ => {
+        window.clearTimeout(timerRef.current);
+    }
+    
+    const handleClick = e => {
+        if(cancellationRef.current) {
+            e.preventDefault();
+        }
+        cancellationRef.current = false;
+      };
 
     return (
-        <Card ref={ref} component={Link} to={`/title/${props.manga.id}`} >
+        <Card
+            ref={ref} component={Link} to={`/title/${props.manga.id}`}
+            // onMouseDown={handlePress} onMouseUp={handleRelease}
+            // onTouchStart={handlePress} onTouchEnd={handleRelease}
+            // onClick={handleClick}
+        >
             <CardActionArea tabIndex='-1' >
                 <CardMedia
                     title={props.manga.title}
@@ -86,6 +112,7 @@ const Card = styled(MuiCard)`
     flex: none;
     position: relative;
     height: var(--card-height, 16rem);
+    
     .MuiCardActionArea-root {
         height: 100%;
         .MuiCardMedia-root {
@@ -105,7 +132,9 @@ const Card = styled(MuiCard)`
             /* background-color: ${({ theme }) => theme.palette.background.paper}aa; */
             background: linear-gradient(rgba(255, 255, 255, 0), var(--card-color) 30%);
             width: 100%;
+            pointer-events: none;
             .MuiTypography-body1 {
+                pointer-events: none;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
@@ -136,6 +165,11 @@ const Card = styled(MuiCard)`
                 display: none;
             }
         }
+    }
+
+    ${({ theme }) => theme.breakpoints.down('sm')} {
+        width: var(--card-width, 10.4rem);
+        height: var(--card-height, 14.4rem);
     }
 `;
 

@@ -1,116 +1,146 @@
 import Dexie from "dexie";
 import moment from "moment";
+import store from "Redux/store";
+import { hashCode } from "Utils";
 
 const db = new Dexie("_cache");
 db.version(1).stores({
-    _cache: 'name'
+    _cache: 'name,sig'
 });
 
-export const DexCache = db._cache.defineClass({
-    date: String,
-    name: String,
-    data: Object,
-    meta: Object,
-    validTo: Date, // Date or moment() object
-    validFor: Number, // Number(ms) or `moment.duration() Duration. Takes precedence over valid To
-});
+export class DexCache {
+    constructor(name, args = {}) {
+        this.name = name;
 
-DexCache.disabled = false;
+        this.validFor = args.validFor ?? moment.duration(3, 'h');
+        this.validTo = args.validTo ?? null;
+        this.disabled = args.disabled ?? false;
+        this.signed = args.signed ?? false;
+    }
 
-DexCache.prototype.save = async function () {
-    if(DexCache.disabled || this.disabled) return null;
-    
-    if (!this.name) throw new Error('Save Failed. Cache has no name.');
-    const date = new Date().toLocaleDateString();
-    this.date = date;
-    if(this.validFor) {
-        if (this.validFor.toDate) {
-            this.validFor = this.validFor.toDate();
-        } else {
-            this.validFor = Number(this.validFor);
+    #sig;
+    data; meta;
+
+    getMeta(key) {
+        if (typeof this.meta !== 'object') return null;
+        return this.meta[key];
+    }
+
+    setMeta(key, val) {
+        if (typeof this.meta !== 'object') this.meta = {};
+        this.meta[key] = val;
+        return true;
+    }
+
+    async fetch() {
+        if (DexCache.disabled || this.disabled) return null;
+
+        if (!this.name) throw new Error('Fetch Failed. Cache has no name.');
+        const sig = this.#getSig();
+
+        const res = await db._cache.get({ name: this.name, sig });
+
+        if (this.#shouldDestroy()) {
+            await this.clear();
+            return null;
         }
+
+        if (res) Object.assign(this, res);
+
+        return this.data;
     }
 
-    if(this.validTo) {
-        if (this.validTo.toDate) {
-            this.validTo = this.validTo.toDate();
-        } else {
-            this.validTo = Date(this.validTo);
+    async save() {
+        if (DexCache.disabled || this.disabled) return null;
+
+        if (!this.name) throw new Error('Save Failed. Cache has no name.');
+        const date = new Date().toLocaleDateString();
+        this.date = date;
+        if (this.validFor) {
+            if (this.validFor.toDate) {
+                this.validFor = this.validFor.toDate();
+            } else {
+                this.validFor = Number(this.validFor);
+            }
         }
+
+        if (this.validTo) {
+            if (this.validTo.toDate) {
+                this.validTo = this.validTo.toDate();
+            } else {
+                this.validTo = Date(this.validTo);
+            }
+        }
+
+        this.createdAt = new Date();
+
+        return db.transaction('rw', db._cache, async () => {
+            await DexCache.clear(this.name);
+            await db._cache.put({
+                ...this.#toJSON(),
+                sig: this.#getSig(),
+            });
+        });
     }
-    
-    this.createdAt = new Date();
-    this.destroyAt = getEol(this);
-    
-    if(!this.destroyAt) {
-        this.destroyAt = moment('24:00', 'hh:mm').toDate();    
+
+    clear() {
+        if (!this.name) throw new Error('Clear Failed. Cache has no name.');
+        return db._cache.delete(this.name);
     }
 
-    const cache = this;
-    return db.transaction('rw', db._cache, async function () {
-        await cache.clear();
-        await db._cache.put(cache);
-    });
-}
 
-DexCache.prototype.fetch = async function () {
-    if(DexCache.disabled || this.disabled) return null;
 
-    if (!this.name) throw new Error('Fetch Failed. Cache has no name.');
-    const res = await db._cache.get(this.name);
+    // Statics
 
-    const shouldDestroy = res?.destroyAt && moment(res.destroyAt) < moment();
-    const validForValid = res?.validFor ? moment(moment.duration(res.validFor)).isSame(moment.duration(this.validFor)): true;
-    const validToValid = res?.validTo ? moment(res.validTo).isSame(moment(this.validTo)): true;
-        
-    if(shouldDestroy || !validForValid || !validToValid) {
-        await this.clear();
-        return null;
+    static async clear(name) {
+        if (!name) throw new Error('Invalid argument.');
+        return db._cache.delete(name);
     }
-    let data = null;
-    if(res) {
-        data = res.data;
-        this.data = data;
-        this.meta = res.meta;
+
+    static async delete() {
+        db.close();
+        await db.delete();
+        db.version(1).stores({
+            _cache: 'name'
+        });
     }
-    return data;
-}
 
-DexCache.prototype.getMeta = function (key) {
-    if(typeof this.meta !== 'object') return null;
-    return this.meta[key];
-}
-DexCache.prototype.setMeta = function (key, val) {
-    if(typeof this.meta !== 'object') this.meta = {};
-    this.meta[key] = val;
-    return true;
-}
+    // Private fn
 
-DexCache.prototype.clear = function () {
-    if (!this.name) throw new Error('Clear Failed. Cache has no name.');
-    return db._cache.delete(this.name);
-}
-
-DexCache.clear = async function (name) {
-    if (!name) throw new Error('Invalid argument.');
-    return db._cache.delete(name);
-}
-
-DexCache.delete = async function () {
-    db.close();
-    await db.delete();
-    db.version(1).stores({
-        _cache: 'name'
-    });
-}
-
-function getEol(cache) {
-    let eol;
-    if(cache.validFor) {
-        eol = moment().add(cache.validFor);
-    } else if (cache.validTo) {
-        eol = moment(cache.validTo);
+    #toJSON() {
+        return ({
+            name: this.name,
+            validFor: this.validFor,
+            validTo: this.validTo,
+            disabled: this.disabled,
+            signed: this.signed,
+            data: this.data,
+            meta: this.meta,
+        })
     }
-    if(eol && eol.isValid()) return eol.toDate();
-    return null;
+
+    #shouldDestroy() {
+        let eol;
+        if (this.validFor) {
+            eol = moment(this.createdAt).add(this.validFor);
+        } else if (this.validTo) {
+            eol = moment(this.validTo);
+        }
+        if (eol && eol.isValid()) return eol < moment();
+        return false;
+    }
+
+    #getSig() {
+        if(!this.signed) return '';
+        if (this.#sig) return this.#sig;
+
+        const { user } = store.getState();
+        if (!user) {
+            if (this.signed) console.warn('Cache expected user to be logged in');
+            return '';
+        }
+        const code = hashCode(user.username);
+        this.#sig = code;
+        return code;
+    }
 }

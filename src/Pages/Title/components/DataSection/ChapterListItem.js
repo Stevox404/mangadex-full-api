@@ -8,7 +8,7 @@ import {
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ChapterDl } from 'Utils';
+import { ChapterDM } from 'Utils';
 import { markChapterAsRead } from 'Utils/index';
 
 export function ChapterListItem(props) {
@@ -16,12 +16,12 @@ export function ChapterListItem(props) {
         chapter, ...otherProps
     } = props;
 
-    const [downloadState, setDownloadState] = useState(ChapterDl.downloadStates.NOT_DOWNLOADED);
+    const [downloadState, setDownloadState] = useState(ChapterDM.downloadStates.NOT_DOWNLOADED);
     const [cDl, setCDl] = useState(null);
 
     useEffect(() => {
         if (!chapter) return;
-        const cDl = new ChapterDl(chapter);
+        const cDl = new ChapterDM(chapter);
         const state = cDl.getChapterDownloadState();
         setCDl(cDl);
         setDownloadState(state);
@@ -39,9 +39,9 @@ export function ChapterListItem(props) {
             if (dlChapter.id !== chapter.id) return;
             const hasError = event.detail.hasError;
             if(hasError) {
-                return setDownloadState(ChapterDl.downloadStates.DOWNLOAD_ERR);
+                return setDownloadState(ChapterDM.downloadStates.DOWNLOAD_ERR);
             }
-            setDownloadState(ChapterDl.downloadStates.DOWNLOADED);
+            setDownloadState(ChapterDM.downloadStates.DOWNLOADED);
             cDl.removeEventListener('end', onEnd);
         }
         cDl.addEventListener('end', onEnd)
@@ -50,13 +50,13 @@ export function ChapterListItem(props) {
     const deleteDownloadedChapter = async (e, c) => {
         e.stopPropagation();
         await cDl.delete();
-        setDownloadState(ChapterDl.downloadStates.NOT_DOWNLOADED);
+        setDownloadState(ChapterDM.downloadStates.NOT_DOWNLOADED);
     }
     
     const cancelDownload = async (e) => {
         e.stopPropagation();
         await cDl.cancel();
-        setDownloadState(ChapterDl.downloadStates.NOT_DOWNLOADED);
+        setDownloadState(ChapterDM.downloadStates.NOT_DOWNLOADED);
     }
 
 
@@ -83,7 +83,7 @@ export function ChapterListItem(props) {
     }
 
     const getDownloadButton = (c) => {
-        if (downloadState === ChapterDl.downloadStates.DOWNLOADING) {
+        if (downloadState === ChapterDM.downloadStates.DOWNLOADING) {
             return (
                 <IconButton
                     edge="end" aria-label="actions"
@@ -92,7 +92,7 @@ export function ChapterListItem(props) {
                     <CancelOutlined />
                 </IconButton>
             );
-        } else if (downloadState === ChapterDl.downloadStates.DOWNLOAD_ERR) {
+        } else if (downloadState === ChapterDM.downloadStates.DOWNLOAD_ERR) {
             return (
                 <IconButton
                     edge="end" aria-label="actions"
@@ -101,7 +101,7 @@ export function ChapterListItem(props) {
                     <ErrorOutline />
                 </IconButton>
             );
-        } else if (downloadState === ChapterDl.downloadStates.DOWNLOADED) {
+        } else if (downloadState === ChapterDM.downloadStates.DOWNLOADED) {
             return (
                 <IconButton
                     edge="end" aria-label="actions"
@@ -110,7 +110,7 @@ export function ChapterListItem(props) {
                     <DeleteForeverOutlined />
                 </IconButton>
             );
-        } else if (downloadState === ChapterDl.downloadStates.PENDING) {
+        } else if (downloadState === ChapterDM.downloadStates.PENDING) {
             return (
                 <IconButton
                     edge="end" aria-label="actions"
@@ -131,7 +131,7 @@ export function ChapterListItem(props) {
         }
     }
 
-    return <StyledLiatItem
+    return <StyledListItem
         key={chapter.id} data-read={otherProps.readership?.[chapter.id]} button
         onClick={e => otherProps.handleChapterClick(e, chapter)}
     >
@@ -142,20 +142,26 @@ export function ChapterListItem(props) {
                     <VisibilityOutlined />}
             </IconButton>
         </ListItemIcon>
-        <ListItemText
-            primary={getChapterText(chapter)} className='chapter-name'
-            secondary={chapter.groups[0]?.name || chapter.uploader.username} />
-        <ListItemText
-            primary={moment(chapter[otherProps.chapterSettings.displayDate]).fromNow()}
-            primaryTypographyProps={{
-                variant: 'subtitle1'
-            }} />
+        <span id='item-text' >
+            <ListItemText
+                primary={getChapterText(chapter)} className='chapter-name'
+                secondary={chapter.groups[0]?.name || chapter.uploader.username} />
+            <ListItemText
+                primary={moment(chapter[otherProps.chapterSettings.displayDate]).fromNow()}
+                primaryTypographyProps={{
+                    variant: 'subtitle1'
+                }} />
+        </span>
         {getDownloadButton(chapter)}
-    </StyledLiatItem>;
+    </StyledListItem>;
 }
 
 
-const StyledLiatItem = styled(ListItem)`
+const StyledListItem = styled(ListItem)`
+    #item-text {
+        width: 100%;
+        display: flex;
+    }
     .chapter-name {
         flex: 3;
         .MuiTypography-root {
@@ -178,5 +184,18 @@ const StyledLiatItem = styled(ListItem)`
         svg {
             fill: ${p => p.theme.palette.text.disabled};
         } 
+    }
+
+    ${({ theme }) => theme.breakpoints.down('sm')}{
+        #item-text {
+            display: grid;
+            &>* {
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+        }
+        && {
+            border-bottom: 1px solid ${({theme}) => theme.palette.divider};
+        }
     }
 `;

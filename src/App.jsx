@@ -90,7 +90,7 @@ const Wrapper = styled.div`
         text-decoration: none;
     }
     ${({ theme }) => theme.palette.type === 'dark' && css`
-        a {
+        a:not(.MuiButton-root) {
             color: ${({ theme }) => theme.palette.info.light};
         }
         img {

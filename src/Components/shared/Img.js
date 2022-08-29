@@ -11,6 +11,7 @@ function Img(props, fwRef) {
     }, [])
 
 
+    const cancellationRef = useRef(null);
     useEffect(() => {
         /**@type {HTMLImageElement} */
         const el = imgRef.current;
@@ -32,6 +33,7 @@ function Img(props, fwRef) {
         if (!el || !el.src) return;
 
         let timer = null;
+        el.addEventListener('click', handleClick);
         el.addEventListener('mousedown', setTimeout);
         el.addEventListener('mouseup', clearTimeout);
         el.addEventListener('touchstart', setTimeout);
@@ -50,18 +52,20 @@ function Img(props, fwRef) {
         function setTimeout(ev) {
             if (ev.button !== 0) return;
             timer = window.setTimeout(() => {
-                ev.preventDefault();
-                ev.stopPropagation();
+                cancellationRef.current = true;
                 reloadImage();
             }, 1000);
         }
         function clearTimeout(ev) {
-            if (ev) {
-                ev.preventDefault();
-                ev.stopPropagation();
-            }
             window.clearTimeout(timer);
         }
+        function handleClick(e) {
+            if(cancellationRef.current) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            cancellationRef.current = false;
+          };
         function reloadImage() {
             const src = (el['data-src'] || el.src).replace(/#.*$/, '') + `#${Date.now()}`;
             el['data-src'] = src;

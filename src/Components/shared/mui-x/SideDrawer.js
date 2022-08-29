@@ -63,7 +63,6 @@ function SideDrawer(props) {
 const Wrapper = styled.div`
     width: 100%;
     /* max-width: ${p => p['data-max-width']}; */
-    position: absolute;
     height: 100%;
     overflow: hidden;
     z-index: ${({ theme }) => theme.zIndex.drawer};
@@ -75,6 +74,10 @@ const Wrapper = styled.div`
             position: absolute;
         }
     `};
+    && {
+        position: absolute;
+    }
+    
     ${({ open }) => !open && css`
         width: 0px;
     `};
@@ -93,7 +96,6 @@ const SideDrawerContainer = styled(Paper)`
     display: flex;
     flex-direction: column;
     z-index: ${({ theme }) => theme.zIndex.drawer};
-    position: relative;
 `;
 
 SideDrawer.defaultProps = {

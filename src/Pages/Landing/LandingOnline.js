@@ -1,14 +1,13 @@
 import { SystemAppBar } from 'Components';
-import { MangaListSection, Featured } from './components';
 import { Manga } from 'mangadex-full-api';
 import moment from 'moment';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addNotification } from 'Redux/actions';
 import styled from 'styled-components';
 import { resolveManga } from 'Utils/mfa';
 import { DexCache } from 'Utils/StorageManager';
-import { isOnline } from 'Utils';
+import { Featured, MangaListSection } from './components';
 
 function LandingOnline() {
     const [recentManga, setRecentManga] = useState(null);
@@ -24,9 +23,18 @@ function LandingOnline() {
         addToList('hot');
     }, []);
 
+    
+    
     const dispatch = useDispatch();
-
-
+    const listsRef = useRef({});
+    useEffect(() => {
+        listsRef.current = {
+            recentManga, newestManga, topManga, hotManga
+        };
+    }, [recentManga, newestManga, topManga, hotManga])
+    
+    
+    
     const currListCount = useRef({});
     const addToList = async (listType, args = {}) => {
         const searchProps = {
@@ -42,27 +50,27 @@ function LandingOnline() {
                 createdAt: 'desc'
             };
             fn = setNewestManga;
-            currentList = newestManga;
+            currentList = listsRef.current.newestManga;
         } else if (listType === 'hot') {
             searchProps['updatedAtSince'] = moment().subtract(1, 'day').format('YYYY-MM-DDThh:mm:ss');
             searchProps['order'] = {
                 followedCount: 'desc',
             };
             fn = setHotManga;
-            currentList = hotManga;
+            currentList = listsRef.current.hotManga;
         } else if (listType === 'top') {
             searchProps['order'] = {
                 followedCount: 'desc'
             };
             fn = setTopManga;
-            currentList = topManga;
+            currentList = listsRef.current.topManga;
         } else {
             searchProps['updatedAtSince'] = moment().subtract(1, 'month').format('YYYY-MM-DDThh:mm:ss');
             searchProps['order'] = {
                 updatedAt: 'desc'
             };
             fn = setRecentManga;
-            currentList = recentManga;
+            currentList = listsRef.current.recentManga;
         }
 
         const list = currentList ? [...currentList] : [];
@@ -82,6 +90,8 @@ function LandingOnline() {
         }
 
 
+        if(currListCount.current[listType] > list.length) return;
+        
         // else load the next list starting from offset        
         const offset = currListCount.current[listType] ?? list.length;
         searchProps.offset = offset + 1;
@@ -119,7 +129,8 @@ function LandingOnline() {
                 console.error(err);
             }
         }
-    }
+    };
+    
 
 
     return (

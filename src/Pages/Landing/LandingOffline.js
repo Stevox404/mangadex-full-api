@@ -3,7 +3,7 @@ import GenericListPage from "Components/shared/GenericListPage";
 import Dexie from "dexie";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { DexDld } from "Utils";
+import { DexDM } from "Utils";
 
 function LandingOffline() {
     const [isFetching, setIsFetching] = useState(false);
@@ -16,7 +16,7 @@ function LandingOffline() {
     
     const fetchManga = async () => {
         setIsFetching(true);
-        const manga = await DexDld.getDownloadedManga()
+        const manga = await DexDM.getDownloadedManga()
         setManga(manga);
         setIsFetching(false);
     }

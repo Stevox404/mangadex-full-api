@@ -1,14 +1,15 @@
 import Dexie from "dexie";
 import { Chapter, Manga } from "Libraries/mfa/src/index";
-import { Deferred, fetchBlobUrl } from "Utils";
+import store from "Redux/store";
+import { Deferred, fetchBlobUrl, hashCode } from "Utils";
 import { resolveChapter, resolveManga } from "Utils/mfa";
 
 
 const db = new Dexie("_dld");
 db.version(1).stores({
-    _dld_manga: 'id',
-    _dld_chapter: 'id,mangaId,chapter,publishAt,updatedAt',
-    _dld_page: 'url,chapterId',
+    _dld_manga: 'id,sig',
+    _dld_chapter: 'id,mangaId,chapter,publishAt,updatedAt,sig',
+    _dld_page: 'url,chapterId,sig',
 });
 
 // TODO on delete put in trash, delete trash on refresh (or cfg time)
@@ -19,9 +20,37 @@ db._dld_chapter.toArray().then(v => {
 
 const _downloadQueue = [];
 const _downloadedList = [];
+function getDowloadedList() {
+    if(!_downloadedList._sigFiltered) {
+        const sig = getSig();
+        if(sig) {
+            _downloadedList = _downloadedList.filter(v => v.sig == sig);
+            _downloadedList._sigFiltered = true;
+            return _downloadedList;
+        } else {
+            return [];
+        }
+    }
+    return _downloadedList;
+}
+
 let _downloading = false;
-/**@type {ChapterDl} */
+/**@type {ChapterDM} */
 let _current = null;
+
+let _sig = null;
+function getSig() {
+    if (_sig) return _sig;
+
+    const { user } = store.getState();
+    if (!user) {
+        console.warn('Download Manager expected user to be logged in');
+        return '';
+    }
+    const code = hashCode(user.username);
+    _sig = code;
+    return code;
+}
 
 
 const handler = {
@@ -34,8 +63,10 @@ const handler = {
 }
 
 
-export class DexDld {
+export class DexDM {
     static async getDownloadedManga(id) {
+        const sig = getSig();
+        if(!sig) return [];
         if (id) {
             return db._dld_manga.get(id);
         }
@@ -44,9 +75,12 @@ export class DexDld {
 
     static async getDownloadedChapters(mangaId, params = {}) {
         const {offset, limit, order} = params;
+        const sig = getSig();
+        if(!sig) return [];
         
         let qry = db._dld_chapter
-            .where('mangaId').equals(mangaId);
+            .where('mangaId').equals(mangaId)
+            .and('sig').equals(sig);
         
         if(offset) {
             qry = qry.offset(offset);
@@ -71,7 +105,7 @@ export class DexDld {
     }
 }
 
-export class ChapterDl extends EventTarget {
+export class ChapterDM extends EventTarget {
     /**
      * @param {Chapter} chapter 
      */
@@ -93,7 +127,7 @@ export class ChapterDl extends EventTarget {
     addToQueue() {
         const idx = _downloadQueue.push(this);
         this.#index = idx;
-        ChapterDl.beginDownload();
+        ChapterDM.beginDownload();
         return this.#index;
     }
 
@@ -167,15 +201,15 @@ export class ChapterDl extends EventTarget {
     }
 
     getChapterDownloadState() {
-        return ChapterDl.getChapterDownloadState(this.chapter.id);
+        return ChapterDM.getChapterDownloadState(this.chapter.id);
     }
 
     async cancel() {
-        await ChapterDl.cancelDownload(this.chapter.id);
+        await ChapterDM.cancelDownload(this.chapter.id);
     }
 
     async delete() {
-        await ChapterDl.deleteChapter(this.chapter.id);
+        await ChapterDM.deleteChapter(this.chapter.id);
     }
 
 
@@ -215,7 +249,7 @@ export class ChapterDl extends EventTarget {
      * Not `beginDownload()`
      */
     static resume() {
-        ChapterDl.beginDownload();
+        ChapterDM.beginDownload();
     }
 
     static downloadStates = {
@@ -231,14 +265,14 @@ export class ChapterDl extends EventTarget {
      * @param {string} chapterId 
      */
     static getChapterDownloadState(chapterId) {
-        if (_downloadedList.some(ch => ch.id == chapterId)) {
-            return ChapterDl.downloadStates.DOWNLOADED;
+        if (getDowloadedList().some(ch => ch.id == chapterId)) {
+            return ChapterDM.downloadStates.DOWNLOADED;
         } else if (_current?.chapter.id == chapterId) {
-            return ChapterDl.downloadStates.DOWNLOADING;
+            return ChapterDM.downloadStates.DOWNLOADING;
         } else if (_downloadQueue.some(ch => ch.id == chapterId)) {
-            return ChapterDl.downloadStates.PENDING;
+            return ChapterDM.downloadStates.PENDING;
         } else {
-            return ChapterDl.downloadStates.NOT_DOWNLOADED;
+            return ChapterDM.downloadStates.NOT_DOWNLOADED;
         }
     }
 
@@ -248,8 +282,9 @@ export class ChapterDl extends EventTarget {
      * @returns {Promise<Manga|Manga[]>}
      */
     static getManga(id) {
+        const sig = getSig();
         if (id) {
-            return db._dld_manga.get(id);
+            return db._dld_manga.get({id, sig});
         } else {
             return db._dld_manga.toArray();
         }
@@ -261,9 +296,14 @@ export class ChapterDl extends EventTarget {
      * @returns {Promise<Chapter>}
      */
     static async getChapter(id) {
-        const chapter = await db._dld_chapter.get(id);
-        const manga = await db._dld_manga.get(chapter.mangaId);
-        const pages = await db._dld_page;
+        const sig = getSig();
+        const chapter = await db._dld_chapter.get({id, sig});
+        const manga = await db._dld_manga.get({
+            id: chapter.mangaId, sig
+        });
+        const pages = await db._dld_page.get({
+            chapterId: chapter.id
+        });
         return ({
             ...chapter,
             manga,
@@ -277,7 +317,7 @@ export class ChapterDl extends EventTarget {
             _downloadQueue.splice(idx, 1);
             return true;
         } else {
-            await ChapterDl.requestCancelDownload();
+            await ChapterDM.requestCancelDownload();
             return true;
         }
     }
@@ -373,6 +413,7 @@ async function _saveChapterDetails(chapter) {
             const blob = await fetchBlobUrl(cover.image512);
             cover.imageBlobUrl = blob;
         }
+        _manga.sig = getSig();
         
         await db._dld_manga.put(_manga);
     }
@@ -380,6 +421,7 @@ async function _saveChapterDetails(chapter) {
         manga: false,
     });
     _chapter.mangaId = manga.id;
+    _chapter.sig = getSig();
     delete chapter.manga;
     await db._dld_chapter.put(_chapter);
 }
@@ -396,7 +438,7 @@ function _downloadNextInQueue() {
 }
 
 /**
- * @param {ChapterDl} cDl 
+ * @param {ChapterDM} cDl 
  */
 async function _downloadChapter(cDl) {
     _current = cDl;
@@ -412,7 +454,7 @@ async function _downloadChapter(cDl) {
         cDl.dispatchEvent(startEvent);
     
         let isDownloadCancelled = false;
-        ChapterDl.requestCancelDownload = () => {
+        ChapterDM.requestCancelDownload = () => {
             isDownloadCancelled = new Deferred();
         }
     
@@ -423,13 +465,14 @@ async function _downloadChapter(cDl) {
             const page = new DexPage();
             page.chapter = chapter;
             page.url = pg;
+            page.sig = getSig();
             await page.download();
         }
     
         if (isDownloadCancelled) {
-            await ChapterDl.deleteChapter(chapter.id);
+            await ChapterDM.deleteChapter(chapter.id);
             isDownloadCancelled.resolve();
-            ChapterDl.requestCancelDownload = () => { };
+            ChapterDM.requestCancelDownload = () => { };
         } else {
             const endEvent = new CustomEvent('end', {
                 detail: {

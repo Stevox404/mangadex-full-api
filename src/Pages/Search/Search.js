@@ -18,14 +18,19 @@ function Search() {
     const fetchManga = async () => {
         setIsFetching(true);
         const sp = new URLSearchParams(location.search);
-        const q = sp.get('query');
-        let manga = await Manga.search(q);
-        manga = await Promise.all(manga.map(async m => {
-            const md = await resolveManga(m, { mainCover: true });
-            return standardize(md);
-        }));
-        setManga(manga);
-        setIsFetching(false);
+        try {
+            const params = JSON.parse(sp.get('query'));
+            params.limit = 20;
+            let manga = await Manga.search(params);
+            manga = await Promise.all(manga.map(async m => {
+                const md = await resolveManga(m, { mainCover: true });
+                return standardize(md);
+            }));
+            setManga(manga);
+            setIsFetching(false);
+        } catch (err) {
+            console.error('Malformed query');
+        }
     }
 
     return (

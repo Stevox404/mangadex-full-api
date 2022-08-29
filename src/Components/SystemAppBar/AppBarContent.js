@@ -1,52 +1,47 @@
-import React, { useState, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
 import {
-    TextField, useMediaQuery, InputAdornment, IconButton, Button,
-    Menu as MuiMenu, MenuItem, alpha, Avatar
+    alpha, Avatar, Button, Icon, IconButton, InputAdornment,
+    Menu as MuiMenu, MenuItem, TextField, useMediaQuery
 } from '@material-ui/core';
-import { Search, Menu as MenuIcon } from '@material-ui/icons';
-import styled from 'styled-components';
+import { Close, Menu as MenuIcon, Search, SearchOutlined, TuneOutlined } from '@material-ui/icons';
 import { useRouter } from 'flitlib';
+import PropTypes from 'prop-types';
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link, useHistory } from 'react-router-dom';
-import { Manga } from 'mangadex-full-api';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 
 function AppBarContent(props) {
-    const [initVal] = useState(new URLSearchParams(window.location.search).get('query'));
     const [anchorEl, setAnchorEl] = useState(null);
     const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
 
     const { changePage } = useRouter();
-    const isXs = useMediaQuery(theme => theme.breakpoints.down('xs'));
+    const isXs = useMediaQuery(theme => theme.breakpoints.down('md'));
     const user = useSelector(state => state.user);
 
-    const searchRef = useRef(null);
-    // const {location} = useHistory();
-    // useEffect(() => {
-    //     const sp = new URLSearchParams(window.location.search);
-    //     const q = sp.get('query');
-    //     if (q) searchRef.current.value = q;
-    // }, []);
-
-    /**
-     * @param {KeyboardEvent} e 
-     */
-    const handleSearch = (e) => {
-        if (e.key === 'Enter') {
-            changePage(`/search?query=${e.target.value}`);
-        }
-    }
 
     return (
         <>
             {isXs ?
                 <XsContainer>
+                    <IconButton
+                        onClick={_ => props.setShowSearch(state => !state)}
+                    >
+                        {props.showSearch ?
+                            <Close color='action' /> :
+                            <Search color='action' />
+                        }
+                    </IconButton>
                     <IconButton color='inherit' onClick={e => setAnchorEl(e.target)} >
                         <MenuIcon />
                     </IconButton>
                     <Menu
                         open={!!anchorEl} onClose={() => setAnchorEl(null)}
                         anchorEl={anchorEl}
+                        anchorOrigin={{
+                            vertical: 'bottom', horizontal: 'right'
+                        }}
+                        getContentAnchorEl={null}
                         onClick={e => {
                             if (!e.target.disabled) {
                                 setAnchorEl(null);
@@ -60,15 +55,36 @@ function AppBarContent(props) {
                 </XsContainer> :
                 <Container >
                     <TextField
-                        size='small' ref={searchRef} fullWidth onKeyUp={handleSearch}
-                        defaultValue={initVal}
+                        size='small' fullWidth
+                        onChange={e => props.setSearchValue(e.target.value)}
+                        onKeyUp={props.handleSearch}
+                        value={props.searchValue}
+                        onFocus={e => setIsSearchFocused(true)}
+                        onBlur={e => setIsSearchFocused(false)}
                         inputProps={{
                             type: 'search',
                             autoComplete: 'search',
                         }}
                         InputProps={{
                             startAdornment: (<InputAdornment position='start' >
-                                <Search />
+                                <Button
+                                    size='large' variant='outlined'
+                                    onClick={props.requestOpenFilter}
+                                    endIcon={<Icon>
+                                        <TuneOutlined color={
+                                            props.selectedFilters?.length ?
+                                                'primary' : 'action'
+                                        } />
+                                    </Icon>}
+                                />
+                            </InputAdornment>),
+                            endAdornment: (<InputAdornment position='end' >
+                                <IconButton
+                                    variant='outlined'
+                                    onClick={props.handleSearch}
+                                >
+                                    <SearchOutlined />
+                                </IconButton>
                             </InputAdornment>)
                         }}
                     />
@@ -129,6 +145,10 @@ const XsContainer = styled.div`
     flex: 1;
     display: grid;
     justify-items: flex-end;
+    grid-template-columns: 1fr auto auto;
+    >.MuiToggleButton-root {
+        border: none;
+    }
 `;
 
 const Container = styled.div`
@@ -142,6 +162,21 @@ const Container = styled.div`
         max-width: 600px;
         .MuiInputBase-root{
             background-color: ${({ theme }) => alpha(theme.palette.background.paper, .3)};
+            padding-left: 0;
+            padding-right: 0;
+            .MuiInputAdornment-root {
+                height: 100%;
+                max-height: unset;
+                .MuiButton-root {
+                    height: 100%;
+                    line-height: unset;
+                    border-top-left-radius: 0;
+                    border-bottom-left-radius: 0;
+                    .MuiButton-endIcon {
+                        margin: 0;
+                    }
+                }
+            }
         }
     }
     >div.action {
@@ -165,7 +200,13 @@ const Menu = styled(MuiMenu)`
 `;
 
 AppBarContent.propTypes = {
-
+    requestOpenFilter: PropTypes.func.isRequired,
+    handleSearch: PropTypes.func.isRequired,
+    showSearch: PropTypes.bool,
+    setShowSearch: PropTypes.func.isRequired,
+    searchValue: PropTypes.string,
+    setSearchValue: PropTypes.func.isRequired,
+    selectedFilters: PropTypes.array,
 }
 
 export default AppBarContent
