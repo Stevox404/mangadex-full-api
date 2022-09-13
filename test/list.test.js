@@ -1,8 +1,8 @@
 'use strict';
 
-const MFA = require('../src/index');
-const assert = require('assert');
-const APIRequestError = require('../src/internal/requesterror');
+import MFA from '../src/index';
+import assert from 'assert';
+import APIRequestError from '../src/internal/requesterror';
 
 var targetId = '583748b5-f99e-4f38-a560-5aea4dfb9248'; // Public test list
 

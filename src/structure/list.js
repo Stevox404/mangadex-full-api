@@ -1,9 +1,9 @@
 'use strict';
 
-const Relationship = require('../internal/relationship.js');
-const Util = require('../util.js');
-const AuthUtil = require('../auth.js');
-const Chapter = require('./chapter');
+import Relationship from '../internal/relationship.js';
+import * as Util from '../util.js';
+import AuthUtil from '../auth.js';
+import Chapter from './chapter';
 
 /**
  * Represents a custom, user-created list of manga
@@ -279,4 +279,5 @@ class List {
     }
 }
 
-exports = module.exports = List;
+export {List};
+export default List;

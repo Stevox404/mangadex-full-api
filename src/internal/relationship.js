@@ -98,4 +98,5 @@ class Relationship {
     }
 }
 
-exports = module.exports = Relationship;
+export {Relationship};
+export default Relationship;

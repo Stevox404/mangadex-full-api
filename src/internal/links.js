@@ -99,4 +99,5 @@ class Links {
     }
 }
 
-exports = module.exports = Links;
+export {Links};
+export default Links;

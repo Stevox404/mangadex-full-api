@@ -1,8 +1,8 @@
 'use strict';
 
-const Util = require('../util.js');
-const AuthUtil = require('../auth.js');
-const Relationship = require('../internal/relationship.js');
+import * as Util from '../util.js';
+import AuthUtil from '../auth.js';
+import Relationship from '../internal/relationship.js';
 
 /**
  * Represents a scanlation group
@@ -234,4 +234,5 @@ class Group {
     }
 }
 
-exports = module.exports = Group;
+export {Group};
+export default Group;

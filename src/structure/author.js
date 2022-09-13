@@ -1,7 +1,7 @@
 'use strict';
 
-const Util = require('../util.js');
-const Relationship = require('../internal/relationship.js');
+import * as Util from '../util.js';
+import Relationship from '../internal/relationship.js';
 
 /**
  * Represents an author or artist
@@ -122,4 +122,5 @@ class Author {
     }
 }
 
-exports = module.exports = Author;
+export {Author};
+export default Author;

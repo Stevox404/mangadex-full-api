@@ -1,8 +1,8 @@
 'use strict';
 
-const Util = require('../util.js');
-const AuthUtil = require('../auth.js');
-const Relationship = require('../internal/relationship.js');
+import * as Util from '../util.js';
+import AuthUtil from '../auth.js';
+import Relationship from '../internal/relationship.js';
 
 /**
  * Represents an user
@@ -131,4 +131,5 @@ class User {
     }
 }
 
-exports = module.exports = User;
+export {User};
+export default User;

@@ -1,8 +1,8 @@
 'use strict';
 
-const LocalizedString = require('../internal/localizedstring.js');
-const Util = require('../util.js');
-const APIRequestError = require('./requesterror.js');
+import LocalizedString from '../internal/localizedstring.js';
+import * as Util from '../util.js';
+import APIRequestError from './requesterror.js';
 
 /**
  * Represents a manga tag
@@ -89,4 +89,5 @@ class Tag {
     }
 }
 
-exports = module.exports = Tag;
+export {Tag};
+export default Tag;

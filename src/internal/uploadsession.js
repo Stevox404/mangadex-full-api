@@ -1,10 +1,10 @@
 'use strict';
 
-const Util = require('../util.js');
-const AuthUtil = require('../auth.js');
-const APIRequestError = require('./requesterror.js');
-const Relationship = require('./relationship.js');
-const Chapter = require('../structure/chapter.js');
+import * as Util from '../util.js';
+import AuthUtil from '../auth.js';
+import APIRequestError from './requesterror.js';
+import Relationship from './relationship.js';
+import Chapter from '../structure/chapter.js';
 
 /**
  * Represents a chapter upload session
@@ -191,4 +191,5 @@ class UploadSession {
     }
 }
 
-exports = module.exports = UploadSession;
+export {UploadSession};
+export default UploadSession;

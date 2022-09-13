@@ -1,7 +1,7 @@
 'use strict';
 
-const MFA = require('../src/index');
-const assert = require('assert');
+import MFA from '../src/index';
+import assert from 'assert';
 const { validateResultsArray } = require('./index.test');
 
 var targetId = 'caf0d1da-a790-49d0-833c-ce74d651c8a1'; // Default, to be overwritten by successful tests

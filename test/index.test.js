@@ -1,6 +1,6 @@
 'use strict';
 
-const assert = require('assert');
+import assert from 'assert';
 
 function validateResultsArray(results) {
     if (results.length > 0) {
@@ -8,4 +8,4 @@ function validateResultsArray(results) {
         results.forEach(elem => assert.strictEqual(typeof elem.id, 'string'));
     } else assert.fail('Returned 0 results.');
 }
-exports.validateResultsArray = validateResultsArray;
+export {validateResultsArray};

@@ -1,9 +1,9 @@
 'use strict';
 
-const Util = require('../util.js');
-const AuthUtil = require('../auth.js');
-const Relationship = require('../internal/relationship.js');
-const APIRequestError = require('../internal/requesterror');
+import * as Util from '../util.js';
+import AuthUtil from '../auth.js';
+import Relationship from '../internal/relationship.js';
+import APIRequestError from '../internal/requesterror';
 
 /**
  * Represents a chapter with readable pages
@@ -246,4 +246,5 @@ class Chapter {
     }
 }
 
-exports = module.exports = Chapter;
+export {Chapter};
+export default Chapter;

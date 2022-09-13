@@ -1,7 +1,7 @@
 'use strict';
 
-const MFA = require('../src/index');
-const assert = require('assert');
+import MFA from '../src/index';
+import assert from 'assert';
 
 var targetId = '18bc704d-26c8-452c-9591-fa9afc7e4d10';
 

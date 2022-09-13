@@ -42,4 +42,5 @@ class LocalizedString {
     }
 }
 
-exports = module.exports = LocalizedString;
+export {LocalizedString};
+export default LocalizedString;

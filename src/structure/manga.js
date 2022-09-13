@@ -1,16 +1,16 @@
 'use strict';
 
-const Util = require('../util.js');
-const AuthUtil = require('../auth.js');
-const Links = require('../internal/links.js');
-const LocalizedString = require('../internal/localizedstring.js');
-const Relationship = require('../internal/relationship.js');
-const Tag = require('../internal/tag.js');
-const Chapter = require('./chapter.js');
-const Cover = require('./cover.js');
-const List = require('./list.js');
-const APIRequestError = require('../internal/requesterror.js');
-const UploadSession = require('../internal/uploadsession.js');
+import * as Util from '../util.js';
+import AuthUtil from '../auth.js';
+import Links from '../internal/links.js';
+import LocalizedString from '../internal/localizedstring.js';
+import Relationship from '../internal/relationship.js';
+import Tag from '../internal/tag.js';
+import Chapter from './chapter.js';
+import Cover from './cover.js';
+import List from './list.js';
+import APIRequestError from '../internal/requesterror.js';
+import UploadSession from '../internal/uploadsession.js';
 
 /**
  * Represents a manga object
@@ -618,4 +618,5 @@ class Manga {
     }
 }
 
-exports = module.exports = Manga;
+export {Manga};
+export default Manga;

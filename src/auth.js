@@ -1,12 +1,13 @@
 'use strict';
 
-const Util = require('./util.js');
+import * as Util from './util.js';
+import APIRequestError from './internal/requesterror.js';
+
 var fs, Path;
 if (!Util.isBrowser()) {
     fs = require('fs');
     Path = require('path');
 }
-const APIRequestError = require('./internal/requesterror.js');
 
 /**
  * Any function that requires authentication should call 'validateTokens().'
@@ -199,4 +200,5 @@ class BrowserCache extends Cache {
     }
 }
 
-exports = module.exports = AuthUtil;
+export {AuthUtil};
+export default AuthUtil;

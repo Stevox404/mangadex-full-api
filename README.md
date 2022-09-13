@@ -14,7 +14,7 @@ npm install mangadex-full-api
 ## Examples
 
 ```javascript
-const MFA = require('mangadex-full-api');
+import MFA from 'mangadex-full-api';
 
 MFA.login('username', 'password123', './bin/.md_cache').then(() => {
     MFA.Manga.search({
@@ -29,7 +29,7 @@ MFA.login('username', 'password123', './bin/.md_cache').then(() => {
 ```
 
 ```javascript
-const MFA = require('mangadex-full-api');
+import MFA from 'mangadex-full-api';
 
 MFA.login('username', 'password123', './bin/.md_cache').then(async () => {
     // Get a manga:
@@ -63,9 +63,9 @@ MFA.login('username', 'password123', './bin/.md_cache').then(async () => {
 /*
     Upload a chapter with node modules:
 */
-const MFA = require('mangadex-full-api');
-const fs = require('fs');
-const path = require('path');
+import MFA from 'mangadex-full-api';
+import fs from 'fs';
+import path from 'path';
 
 MFA.login('username', 'password123', './bin/.md_cache').then(async () => {
     let currentSession = await MFA.Manga.getCurrentUploadSession();

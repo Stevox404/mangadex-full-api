@@ -1,7 +1,7 @@
 'use strict';
 
-const HTTPS = require('https');
-const APIRequestError = require('./internal/requesterror.js');
+import HTTPS from 'https';
+import APIRequestError from './internal/requesterror.js';
 
 const MAX_REQUESTS_PER_SECOND = 5; // The global minimum limit for normal endpoints is 5 requests per second
 const MAX_POSSIBLE_LIMIT = 10000; // MD has a hard max of 10000 items for every endpoint
@@ -20,7 +20,7 @@ function isBrowser() {
         return false;
     }
 }
-exports.isBrowser = isBrowser;
+export {isBrowser};
 
 /**
  * Sets a specific header value to be used by every api request
@@ -30,7 +30,7 @@ exports.isBrowser = isBrowser;
 function registerHeader(name, value) {
     requestHeaders[name] = value;
 }
-exports.registerHeader = registerHeader;
+export {registerHeader};
 
 if (!isBrowser()) {
     const packageJSON = require('../package.json');
@@ -118,7 +118,7 @@ function apiRequest(endpoint, method = 'GET', requestPayload = {}) {
         req.end();
     });
 };
-exports.apiRequest = apiRequest;
+export {apiRequest};
 
 /**
  * Performs a custom request that converts an object of parameters to an endpoint URL with parameters.
@@ -138,7 +138,7 @@ async function apiParameterRequest(baseEndpoint, parameterObject) {
     let paramsString = params.toString();
     return await apiRequest(baseEndpoint + (paramsString.length > 0 ? '?' + paramsString : paramsString));
 }
-exports.apiParameterRequest = apiParameterRequest;
+export {apiParameterRequest};
 
 /**
  * Same as apiParameterRequest, but optimized for search requests. 
@@ -181,7 +181,7 @@ async function apiSearchRequest(baseEndpoint, parameterObject, maxLimit = 100, d
     }
     return finalArray.map(elem => { return { data: elem }; }); // Emulate an array of standard manga objects from the /manga/<id> endpoint
 }
-exports.apiSearchRequest = apiSearchRequest;
+export {apiSearchRequest};
 
 /**
  * @param {String} endpoint
@@ -195,7 +195,7 @@ async function apiCastedRequest(endpoint, classObject, parameterObject = {}, max
     let res = await apiSearchRequest(endpoint, parameterObject, maxLimit, defaultLimit);
     return res.map(elem => new classObject(elem));
 }
-exports.apiCastedRequest = apiCastedRequest;
+export {apiCastedRequest};
 
 /**
  * Retrieves an unlimted amount of an object via a search function and id array
@@ -217,7 +217,7 @@ async function getMultipleIds(searchFunction, ids, limit = 100, searchProperty =
     while (newIds.length > 0) promises.push(searchFunction({ limit: limit, [searchProperty]: newIds.splice(0, 100) }));
     return (await Promise.all(promises)).flat();
 }
-exports.getMultipleIds = getMultipleIds;
+export {getMultipleIds};
 
 /**
  * Returns a buffer to be sent with a multipart POST request
@@ -239,4 +239,4 @@ function createMultipartPayload(files) {
         return Buffer.from(elem);
     }));
 }
-exports.createMultipartPayload = createMultipartPayload;
+export {createMultipartPayload};

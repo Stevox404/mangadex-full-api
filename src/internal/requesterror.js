@@ -45,4 +45,5 @@ class APIRequestError extends Error {
         }
     }
 }
-exports = module.exports = APIRequestError;
+export {APIRequestError};
+export default APIRequestError;

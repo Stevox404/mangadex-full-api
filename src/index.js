@@ -1,18 +1,25 @@
 'use strict';
 
 // Internal
-const Util = require('./util.js');
-const LocalizedString = require('./internal/localizedstring.js');
-const APIRequestError = require('./internal/requesterror.js');
+import * as Util from './util.js';
+import LocalizedString from './internal/localizedstring.js';
+import APIRequestError from './internal/requesterror.js';
+
+import Tag from './internal/tag.js';
+import Manga from './structure/manga.js';
+import Author from './structure/author.js';
+import Chapter from './structure/chapter.js';
+import Group from './structure/group.js';
+import User from './structure/user.js';
+import List from './structure/list.js';
+import Cover from './structure/cover.js';
+
+import AuthUtil from './auth.js';
+import Relationship from './internal/relationship.js';
+
 
 // Export
-export const Manga = require('./structure/manga.js');
-export const Author = require('./structure/author.js');
-export const Chapter = require('./structure/chapter.js');
-export const Group = require('./structure/group.js');
-export const User = require('./structure/user.js');
-export const List = require('./structure/list.js');
-export const Cover = require('./structure/cover.js');
+export { Tag, Manga, Author, Chapter, Group, User, List, Cover }
 
 /**
  * Converts old (pre v5, numeric ids) Mangadex ids to v5 ids.
@@ -40,7 +47,6 @@ export function setGlobalLocale(newLocale) {
     LocalizedString.locale = newLocale;
 };
 
-const AuthUtil = require('./auth.js');
 
 /**
  * Required for authorization
@@ -55,7 +61,6 @@ export function login(username, password, cacheLocation) {
 }
 
 // Register class types to bypass circular references
-const Relationship = require('./internal/relationship.js');
 Relationship.registerType('author', Author);
 Relationship.registerType('artist', Author);
 Relationship.registerType('manga', Manga);

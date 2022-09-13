@@ -1,7 +1,7 @@
 'use strict';
 
-const Relationship = require('../internal/relationship.js');
-const Util = require('../util.js');
+import Relationship from '../internal/relationship.js';
+import * as Util from '../util.js';
 
 /**
  * Represents the cover art of a manga volume
@@ -153,4 +153,5 @@ class Cover {
     }
 }
 
-exports = module.exports = Cover;
+export {Cover};
+export default Cover;
