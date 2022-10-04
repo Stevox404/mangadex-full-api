@@ -19,6 +19,13 @@ declare class LocalizedString {
 	 * @returns {String}
 	 */
 	get localString(): string;
+	/**
+	 * Gets an object
+	 * @returns {{[locale: string]: string}}
+	 */
+	get data(): {
+		[locale: string]: string;
+	};
 }
 declare class Links {
 	/**
@@ -95,12 +102,13 @@ declare class Relationship<ResolveType> {
 	/**
 	 * Returns an array of converted objects from a Mangadex Relationships Array
 	 * @ignore
+	 * @template T
 	 * @param {String} type
 	 * @param {Object[]} dataArray
 	 * @param {Object} caller
-	 * @returns {Relationship<ResolveType>}
+	 * @returns {Relationship<T>}
 	 */
-	static convertType(type: string, dataArray: any[], caller: any): Relationship<any>;
+	static convertType<T>(type: string, dataArray: any[], caller: any): Relationship<T>;
 	/**
 	 * Provides a constructor for a relationship type at run-time.
 	 * Should only be called in index.js
@@ -113,10 +121,10 @@ declare class Relationship<ResolveType> {
 	 * Resolves an array of relationships
 	 * @ignore
 	 * @template T
-	 * @param {Relationship<T>[]} relationshipArray
-	 * @returns {Promise<T[]>}
+	 * @param {Array<Relationship<T>>} relationshipArray
+	 * @returns {Promise<Array<T>>}
 	 */
-	static resolveAll<T>(relationshipArray: Relationship<T>[]): Promise<T[]>;
+	static resolveAll<T_1>(relationshipArray: Relationship<T_1>[]): Promise<T_1[]>;
 	constructor(data: any);
 	/**
 	 * Id of the object this is a relationship to
@@ -192,11 +200,45 @@ export declare class Cover {
 		 */
 		uploaders?: string[] | User[];
 		order?: {
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
-			volume: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
+			volume?: "asc" | "desc";
 		};
 	}, includeSubObjects?: boolean): Promise<Cover[]>;
+	/**
+	 * @ignore
+	 * @typedef {Object} CoverUploadParameterObject
+	 * @property {string|null} [CoverUploadParameterObject.volume] Volume of the cover
+	 * @property {string} [CoverUploadParameterObject.description] Description of the cover
+	 */
+	/**
+	 * @ignore
+	 * @typedef {Object} CoverFileObject
+	 * @property {Buffer} CoverFileObject.data
+	 * @property {'jpeg'|'png'|'gif'} [CoverFileObject.type]
+	 * @property {String} CoverFileObject.name
+	 */
+	/**
+	 * Creates a new cover.
+	 * @param {string} [mangaId] The id of the manga that the cover is for.
+	 * @param {CoverFileObject} [file] The buffer containing the image data.
+	 * @param {CoverUploadParameterObject | undefined} [options] Additional options for the cover upload.
+	 * @returns {Promise<Cover>}
+	 */
+	static create(mangaId?: string, file?: {
+		data: Buffer;
+		type?: "jpeg" | "png" | "gif";
+		name: string;
+	}, options?: {
+		/**
+		 * Volume of the cover
+		 */
+		volume?: string | null;
+		/**
+		 * Description of the cover
+		 */
+		description?: string;
+	}): Promise<Cover>;
 	/**
 	 * Gets multiple covers
 	 * @param {...String|Cover|Relationship<Cover>} ids
@@ -227,9 +269,9 @@ export declare class Cover {
 		 */
 		uploaders?: string[] | User[];
 		order?: {
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
-			volume: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
+			volume?: "asc" | "desc";
 		};
 	}): Promise<Cover>;
 	/**
@@ -274,6 +316,11 @@ export declare class Cover {
 	 * @type {Relationship<import('../index').User>}
 	 */
 	uploader: Relationship<User>;
+	/**
+	 * The locale of this cover
+	 * @type {String}
+	 */
+	locale: string;
 	/**
 	 * URL to the source image of the cover
 	 * @type {String}
@@ -392,11 +439,11 @@ export declare class Chapter {
 		 */
 		publishAtSince?: string;
 		order?: {
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
-			publishAt: "asc" | "desc";
-			volume: "asc" | "desc";
-			chapter: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
+			publishAt?: "asc" | "desc";
+			volume?: "asc" | "desc";
+			chapter?: "asc" | "desc";
 		};
 		translatedLanguage?: string[];
 		originalLanguage?: string[];
@@ -450,11 +497,11 @@ export declare class Chapter {
 		 */
 		publishAtSince?: string;
 		order?: {
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
-			publishAt: "asc" | "desc";
-			volume: "asc" | "desc";
-			chapter: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
+			publishAt?: "asc" | "desc";
+			volume?: "asc" | "desc";
+			chapter?: "asc" | "desc";
 		};
 		translatedLanguage?: string[];
 		originalLanguage?: string[];
@@ -524,6 +571,11 @@ export declare class Chapter {
 	 */
 	publishAt: Date;
 	/**
+	 * The date this chapter was/will be readable
+	 * @type {Date}
+	 */
+	readableAt: Date;
+	/**
 	 * Page count
 	 * @type {Number}
 	 */
@@ -533,8 +585,6 @@ export declare class Chapter {
 	 * @type {Boolean}
 	 */
 	isExternal: boolean;
-	pageNames: any[];
-	saverPageNames: any[];
 	/**
 	 * The external URL to this chapter if it is not hosted on MD. Null if it is hosted on MD
 	 * @type {String}
@@ -542,9 +592,9 @@ export declare class Chapter {
 	externalUrl: string;
 	/**
 	 * The scanlation groups that are attributed to this chapter
-	 * @type {Relationship<import('../index').Group>[]}
+	 * @type {Array<Relationship<import('../index').Group>>}
 	 */
-	groups: Relationship<Group>[];
+	groups: Array<Relationship<Group>>;
 	/**
 	 * The manga this chapter belongs to
 	 * @type {Relationship<import('../index').Manga>}
@@ -575,11 +625,11 @@ export declare class Chapter {
 declare class UploadSession {
 	/**
 	 * Requests MD to start an upload session
-	 * @param {String|Manga} manga
+	 * @param {String|import('../index').Manga} manga
 	 * @param  {...String|import('../index').Group|Relationship<import('../index').Group>} groups
 	 * @returns {UploadSession}
 	 */
-	static open(manga: string | any, ...groups: (string | Group | Relationship<Group>)[]): UploadSession;
+	static open(manga: string | Manga, ...groups: (string | Group | Relationship<Group>)[]): UploadSession;
 	/**
 	 * Returns the currently open upload session for the logged in user.
 	 * Returns null if there is no current session
@@ -783,12 +833,12 @@ export declare class List {
 		 */
 		publishAtSince?: string;
 		order?: {
-			volume: "asc" | "desc";
-			chapter: "asc" | "desc";
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
+			volume?: "asc" | "desc";
+			chapter?: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
 		};
-	}, includeSubObjects?: boolean): Promise<any[]>;
+	}, includeSubObjects?: boolean): Promise<Chapter[]>;
 	/**
 	 * There is no reason to directly create a custom list object. Use static methods, ie 'get()'.
 	 * @param {Object|String} context Either an API response or Mangadex id
@@ -812,9 +862,9 @@ export declare class List {
 	visibility: "public" | "private";
 	/**
 	 * Relationships to all of the manga in this custom list
-	 * @type {Relationship<import('../index').Manga>[]}
+	 * @type {Array<Relationship<import('../index').Manga>>}
 	 */
-	manga: Relationship<Manga>[];
+	manga: Array<Relationship<Manga>>;
 	/**
 	 * This list's owner
 	 * @type {Relationship<import('../index').User>}
@@ -851,12 +901,12 @@ export declare class List {
 		 */
 		publishAtSince?: string;
 		order?: {
-			volume: "asc" | "desc";
-			chapter: "asc" | "desc";
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
+			volume?: "asc" | "desc";
+			chapter?: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
 		};
-	}): Promise<any[]>;
+	}): Promise<Chapter[]>;
 	/**
 	 * Delete a custom list. Must be logged in
 	 * @returns {Promise<void>}
@@ -952,13 +1002,13 @@ export declare class Manga {
 		 */
 		updatedAtSince?: string;
 		order?: {
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
-			title: "asc" | "desc";
-			latestUploadedChapter: "asc" | "desc";
-			followedCount: "asc" | "desc";
-			relevance: "asc" | "desc";
-			year: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
+			title?: "asc" | "desc";
+			latestUploadedChapter?: "asc" | "desc";
+			followedCount?: "asc" | "desc";
+			relevance?: "asc" | "desc";
+			year?: "asc" | "desc";
 		};
 		/**
 		 * Array of author ids
@@ -992,6 +1042,74 @@ export declare class Manga {
 		offset?: number;
 	}, includeSubObjects?: boolean): Promise<Manga[]>;
 	/**
+	 * Returns the total amount of search results for a specific query
+	 * @param {MangaParameterObject|String} [searchParameters] An object of offical search parameters, or a string representing the title
+	 * @returns {Promise<Number>}
+	 */
+	static getTotalSearchResults(searchParameters?: string | {
+		title?: string;
+		year?: number;
+		includedTagsMode?: "AND" | "OR";
+		excludedTagsMode?: "AND" | "OR";
+		/**
+		 * DateTime string with following format: YYYY-MM-DDTHH:MM:SS
+		 */
+		createdAtSince?: string;
+		/**
+		 * DateTime string with following format: YYYY-MM-DDTHH:MM:SS
+		 */
+		updatedAtSince?: string;
+		order?: {
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
+			title?: "asc" | "desc";
+			latestUploadedChapter?: "asc" | "desc";
+			followedCount?: "asc" | "desc";
+			relevance?: "asc" | "desc";
+			year?: "asc" | "desc";
+		};
+		/**
+		 * Array of author ids
+		 */
+		authors?: string[] | Author[];
+		/**
+		 * Array of artist ids
+		 */
+		artists?: string[] | Author[];
+		includedTags?: string[] | Tag[];
+		excludedTags?: string[] | Tag[];
+		status?: Array<"ongoing" | "completed" | "hiatus" | "cancelled">;
+		originalLanguage?: string[];
+		excludedOriginalLanguage?: string[];
+		availableTranslatedLanguage?: string[];
+		publicationDemographic?: Array<"shounen" | "shoujo" | "josei" | "seinen" | "none">;
+		/**
+		 * Max of 100 per request
+		 */
+		ids?: string[];
+		contentRating?: Array<"safe" | "suggestive" | "erotica" | "pornographic">;
+		hasAvailableChapters?: boolean;
+		/**
+		 * Group id
+		 */
+		group?: string;
+		/**
+		 * Not limited by API limits (more than 100). Use Infinity for maximum results (use at your own risk)
+		 */
+		limit?: number;
+		offset?: number;
+	}): Promise<number>;
+	/**
+	 * Creates a manga.
+	 * @param {LocalizedString | Object} [title] The title of the manga.
+	 * @param {string} [originalLanguage] The original language of the manga.
+	 * @param {'ongoing'|'completed'|'hiatus'|'cancelled'} [status] The status of the manga.
+	 * @param {'safe'|'suggestive'|'erotica'|'pornographic'} [contentRating] The content rating of the manga.
+	 * @param {Object | undefined} [options] Additional options for creating the manga.
+	 * @returns {Promise<Manga>}
+	 */
+	static create(title?: LocalizedString | any, originalLanguage?: string, status?: "ongoing" | "completed" | "hiatus" | "cancelled", contentRating?: "safe" | "suggestive" | "erotica" | "pornographic", options?: any | undefined): Promise<Manga>;
+	/**
 	 * Gets multiple manga
 	 * @param {...String|Relationship<Manga>} ids
 	 * @returns {Promise<Manga[]>}
@@ -1024,13 +1142,13 @@ export declare class Manga {
 		 */
 		updatedAtSince?: string;
 		order?: {
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
-			title: "asc" | "desc";
-			latestUploadedChapter: "asc" | "desc";
-			followedCount: "asc" | "desc";
-			relevance: "asc" | "desc";
-			year: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
+			title?: "asc" | "desc";
+			latestUploadedChapter?: "asc" | "desc";
+			followedCount?: "asc" | "desc";
+			relevance?: "asc" | "desc";
+			year?: "asc" | "desc";
 		};
 		/**
 		 * Array of author ids
@@ -1106,19 +1224,20 @@ export declare class Manga {
 		 */
 		publishAtSince?: string;
 		order?: {
-			volume: "asc" | "desc";
-			chapter: "asc" | "desc";
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
-			publishAt: "asc" | "desc";
+			volume?: "asc" | "desc";
+			chapter?: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
+			publishAt?: "asc" | "desc";
 		};
 	}, includeSubObjects?: boolean): Promise<Chapter[]>;
 	/**
 	 * Returns one random manga
+	 * @param {Array<'safe' | 'suggestive' | 'erotica' | 'pornographic'>} [contentRatings] Allowed content ratings for the random manga
 	 * @param {Boolean} [includeSubObjects=false] Attempt to resolve sub objects (eg author, artists, etc) when available through the base request
 	 * @returns {Promise<Manga>}
 	 */
-	static getRandom(includeSubObjects?: boolean): Promise<Manga>;
+	static getRandom(contentRatings?: Array<"safe" | "suggestive" | "erotica" | "pornographic">, includeSubObjects?: boolean): Promise<Manga>;
 	/**
 	 * Returns all manga followed by the logged in user
 	 * @param {Number} [limit=100] Amount of manga to return (0 to Infinity)
@@ -1189,11 +1308,11 @@ export declare class Manga {
 		 */
 		publishAtSince?: string;
 		order?: {
-			volume: "asc" | "desc";
-			chapter: "asc" | "desc";
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
-			publishAt: "asc" | "desc";
+			volume?: "asc" | "desc";
+			chapter?: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
+			publishAt?: "asc" | "desc";
 		};
 	}, includeSubObjects?: boolean): Promise<Chapter[]>;
 	/**
@@ -1366,14 +1485,14 @@ export declare class Manga {
 	updatedAt: Date;
 	/**
 	 * Authors attributed to this manga
-	 * @type {Relationship<import('../index').Author>[]}
+	 * @type {Array<Relationship<import('../index').Author>>}
 	 */
-	authors: Relationship<Author>[];
+	authors: Array<Relationship<Author>>;
 	/**
 	 * Artists attributed to this manga
-	 * @type {Relationship<import('../index').Author>[]}
+	 * @type {Array<Relationship<import('../index').Author>>}
 	 */
-	artists: Relationship<Author>[];
+	artists: Array<Relationship<Author>>;
 	/**
 	 * This manga's main cover. Use 'getCovers' to retrive other covers
 	 * @type {Relationship<Cover>}
@@ -1423,6 +1542,31 @@ export declare class Manga {
 		colored: Manga[];
 		serialization: Manga[];
 	};
+	/**
+	 * The version of this manga (incremented by updating manga data)
+	 * @type {Number}
+	 */
+	version: number;
+	/**
+	 * Does this manga's chapter numbers reset on a new volume?
+	 * @type {Boolean}
+	 */
+	chapterNumbersResetOnNewVolume: boolean;
+	/**
+	 * An array of locale strings that represent the languages this manga is available in
+	 * @type {String[]}
+	 */
+	availableTranslatedLanguages: string[];
+	/**
+	 * The state of this manga's publication
+	 * @type {string}
+	 */
+	state: string;
+	/**
+	 * The latest uploaded chapter for this manga
+	 * @type {Relationship<Chapter>}
+	 */
+	latestUploadedChapter: Relationship<Chapter>;
 	/**
 	 * Main title string based on global locale
 	 * @type {String}
@@ -1484,11 +1628,11 @@ export declare class Manga {
 		 */
 		publishAtSince?: string;
 		order?: {
-			volume: "asc" | "desc";
-			chapter: "asc" | "desc";
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
-			publishAt: "asc" | "desc";
+			volume?: "asc" | "desc";
+			chapter?: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
+			publishAt?: "asc" | "desc";
 		};
 	}, includeSubObjects?: boolean): Promise<Chapter[]>;
 	/**
@@ -1541,6 +1685,11 @@ export declare class Manga {
 			};
 		};
 	}>;
+	/**
+	 * Updates a manga's information using the information stored in the model and returns a new Manga.
+	 * @returns {Promise<Manga>}
+	 */
+	update(): Promise<Manga>;
 }
 /**
  * Represents an author or artist
@@ -1576,9 +1725,16 @@ export declare class Author {
 		limit?: number;
 		offset?: number;
 		order?: {
-			name: "asc" | "desc";
+			name?: "asc" | "desc";
 		};
 	}, includeSubObjects?: boolean): Promise<Author[]>;
+	/**
+	 * Create a new Author.
+	 * @param {string} [name] The name of the author.
+	 * @param {Object | undefined} [options] Additional arguments to pass to the API.
+	 * @returns {Promise<Author>}
+	 */
+	static create(name?: string, options?: any | undefined): Promise<Author>;
 	/**
 	 * Gets multiple authors
 	 * @param {...String|Author|Relationship<Author>} ids
@@ -1609,7 +1765,7 @@ export declare class Author {
 		limit?: number;
 		offset?: number;
 		order?: {
-			name: "asc" | "desc";
+			name?: "asc" | "desc";
 		};
 	}): Promise<Author>;
 	/**
@@ -1645,9 +1801,9 @@ export declare class Author {
 	updatedAt: Date;
 	/**
 	 * Manga this author/artist has been attributed to
-	 * @type {Relationship<import('../index').Manga>[]}
+	 * @type {Array<Relationship<import('../index').Manga>>}
 	 */
-	manga: Relationship<Manga>[];
+	manga: Array<Relationship<Manga>>;
 }
 /**
  * Represents a scanlation group
@@ -1681,11 +1837,11 @@ export declare class Group {
 		name?: string;
 		focusedLanguage?: string;
 		order?: {
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
-			name: "asc" | "desc";
-			followedCount: "asc" | "desc";
-			relevance: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
+			name?: "asc" | "desc";
+			followedCount?: "asc" | "desc";
+			relevance?: "asc" | "desc";
 		};
 		/**
 		 * Max of 100 per request
@@ -1719,11 +1875,11 @@ export declare class Group {
 		name?: string;
 		focusedLanguage?: string;
 		order?: {
-			createdAt: "asc" | "desc";
-			updatedAt: "asc" | "desc";
-			name: "asc" | "desc";
-			followedCount: "asc" | "desc";
-			relevance: "asc" | "desc";
+			createdAt?: "asc" | "desc";
+			updatedAt?: "asc" | "desc";
+			name?: "asc" | "desc";
+			followedCount?: "asc" | "desc";
+			relevance?: "asc" | "desc";
 		};
 		/**
 		 * Max of 100 per request
@@ -1806,6 +1962,11 @@ export declare class Group {
 	 */
 	twitter: string;
 	/**
+	 * This group's manga updates page
+	 * @type {String}
+	 */
+	mangaUpdates: string;
+	/**
 	 * This group's focused languages
 	 * @type {String[]}
 	 */
@@ -1842,9 +2003,9 @@ export declare class Group {
 	leader: Relationship<User>;
 	/**
 	 * Array of this group's members
-	 * @type {Relationship<import('../index').User>[]}
+	 * @type {Array<Relationship<import('../index').User>>}
 	 */
-	members: Relationship<User>[];
+	members: Array<Relationship<User>>;
 	/**
 	 * Makes the logged in user either follow or unfollow this group
 	 * @param {Boolean} [follow=true] True to follow, false to unfollow
@@ -1885,7 +2046,7 @@ export declare class User {
 		limit?: number;
 		offset?: number;
 		order?: {
-			username: "asc" | "desc";
+			username?: "asc" | "desc";
 		};
 	}): Promise<User[]>;
 	/**
@@ -1937,9 +2098,9 @@ export declare class User {
 	roles: string[];
 	/**
 	 * Groups this user is a part of
-	 * @type {Relationship<import('../index').Group>[]}
+	 * @type {Array<Relationship<import('../index').Group>>}
 	 */
-	groups: Relationship<Group>[];
+	groups: Array<Relationship<Group>>;
 	/**
 	 * Makes the logged in user either follow or unfollow this user
 	 * @param {Boolean} [follow=true] True to follow, false to unfollow
@@ -1974,8 +2135,8 @@ export function login(username: string, password: string, cacheLocation?: string
 /**
  * A shortcut for resolving all relationships in an array
  * @template T
- * @param {Relationship<T>[]} relationshipArray
- * @returns {Promise<T[]>}
+ * @param {Array<Relationship<T>>} relationshipArray
+ * @returns {Promise<Array<T>>}
  */
 export function resolveArray<T>(relationshipArray: Relationship<T>[]): Promise<T[]>;
 

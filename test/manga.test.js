@@ -7,6 +7,8 @@ const { validateResultsArray } = require('./index.test');
 var targetId = 'f9c33607-9180-4ba6-b85c-e4b5faee7192'; // Default, to be overwritten by successful tests
 
 describe('Manga', function () {
+    this.retries(2);
+
     describe('getRandom()', function () {
         it('retrived a random manga', async function () {
             let manga = await MFA.Manga.getRandom();
@@ -39,6 +41,15 @@ describe('Manga', function () {
             manga.artists.forEach(elem => {
                 assert.strictEqual(elem.cached, true)
             });
+        });
+    });
+    describe('getMultiple()', function() {
+        it(`retrieved a pornographic manga`, async function () {
+            let manga = await MFA.Manga.getMultiple([
+                "239a69f9-a43f-4401-82f1-eb5527877f7d",
+            ]);
+
+            assert.strictEqual(!!manga[0], true);
         });
     });
     describe('search()', function () {
