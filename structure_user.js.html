@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>structure/user.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Author.html">Author</a><ul class='methods'><li data-type='method'><a href="Author.html#.create">create</a></li><li data-type='method'><a href="Author.html#.get">get</a></li><li data-type='method'><a href="Author.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Author.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Author.html#.search">search</a></li></ul></li><li><a href="Chapter.html">Chapter</a><ul class='methods'><li data-type='method'><a href="Chapter.html#.changeReadMarker">changeReadMarker</a></li><li data-type='method'><a href="Chapter.html#.get">get</a></li><li data-type='method'><a href="Chapter.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Chapter.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Chapter.html#.getReadablePages">getReadablePages</a></li><li data-type='method'><a href="Chapter.html#.search">search</a></li><li data-type='method'><a href="Chapter.html#changeReadMarker">changeReadMarker</a></li><li data-type='method'><a href="Chapter.html#getReadablePages">getReadablePages</a></li></ul></li><li><a href="Cover.html">Cover</a><ul class='methods'><li data-type='method'><a href="Cover.html#.create">create</a></li><li data-type='method'><a href="Cover.html#.get">get</a></li><li data-type='method'><a href="Cover.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Cover.html#.getMangaCovers">getMangaCovers</a></li><li data-type='method'><a href="Cover.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Cover.html#.search">search</a></li></ul></li><li><a href="Group.html">Group</a><ul class='methods'><li data-type='method'><a href="Group.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Group.html#.get">get</a></li><li data-type='method'><a href="Group.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Group.html#.getFollowedGroups">getFollowedGroups</a></li><li data-type='method'><a href="Group.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Group.html#.search">search</a></li><li data-type='method'><a href="Group.html#changeFollowship">changeFollowship</a></li></ul></li><li><a href="List.html">List</a><ul class='methods'><li data-type='method'><a href="List.html#.addManga">addManga</a></li><li data-type='method'><a href="List.html#.create">create</a></li><li data-type='method'><a href="List.html#.delete">delete</a></li><li data-type='method'><a href="List.html#.get">get</a></li><li data-type='method'><a href="List.html#.getFeed">getFeed</a></li><li data-type='method'><a href="List.html#.getLoggedInUserLists">getLoggedInUserLists</a></li><li data-type='method'><a href="List.html#.getUserLists">getUserLists</a></li><li data-type='method'><a href="List.html#.removeManga">removeManga</a></li><li data-type='method'><a href="List.html#addManga">addManga</a></li><li data-type='method'><a href="List.html#changeVisibility">changeVisibility</a></li><li data-type='method'><a href="List.html#delete">delete</a></li><li data-type='method'><a href="List.html#getFeed">getFeed</a></li><li data-type='method'><a href="List.html#removeManga">removeManga</a></li><li data-type='method'><a href="List.html#rename">rename</a></li><li data-type='method'><a href="List.html#updateMangaList">updateMangaList</a></li></ul></li><li><a href="Manga.html">Manga</a><ul class='methods'><li data-type='method'><a href="Manga.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Manga.html#.create">create</a></li><li data-type='method'><a href="Manga.html#.createUploadSession">createUploadSession</a></li><li data-type='method'><a href="Manga.html#.get">get</a></li><li data-type='method'><a href="Manga.html#.getAggregate">getAggregate</a></li><li data-type='method'><a href="Manga.html#.getAllReadingStatuses">getAllReadingStatuses</a></li><li data-type='method'><a href="Manga.html#.getAllTags">getAllTags</a></li><li data-type='method'><a href="Manga.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Manga.html#.getCovers">getCovers</a></li><li data-type='method'><a href="Manga.html#.getCurrentUploadSession">getCurrentUploadSession</a></li><li data-type='method'><a href="Manga.html#.getFeed">getFeed</a></li><li data-type='method'><a href="Manga.html#.getFollowedFeed">getFollowedFeed</a></li><li data-type='method'><a href="Manga.html#.getFollowedManga">getFollowedManga</a></li><li data-type='method'><a href="Manga.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Manga.html#.getRandom">getRandom</a></li><li data-type='method'><a href="Manga.html#.getReadChapterIds">getReadChapterIds</a></li><li data-type='method'><a href="Manga.html#.getReadChapters">getReadChapters</a></li><li data-type='method'><a href="Manga.html#.getReadingStatus">getReadingStatus</a></li><li data-type='method'><a href="Manga.html#.getStatistics">getStatistics</a></li><li data-type='method'><a href="Manga.html#.getTag">getTag</a></li><li data-type='method'><a href="Manga.html#.getTotalSearchResults">getTotalSearchResults</a></li><li data-type='method'><a href="Manga.html#.search">search</a></li><li data-type='method'><a href="Manga.html#.setReadingStatus">setReadingStatus</a></li><li data-type='method'><a href="Manga.html#addToList">addToList</a></li><li data-type='method'><a href="Manga.html#changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Manga.html#createUploadSession">createUploadSession</a></li><li data-type='method'><a href="Manga.html#getAggregate">getAggregate</a></li><li data-type='method'><a href="Manga.html#getCovers">getCovers</a></li><li data-type='method'><a href="Manga.html#getFeed">getFeed</a></li><li data-type='method'><a href="Manga.html#getReadChapters">getReadChapters</a></li><li data-type='method'><a href="Manga.html#getReadingStatus">getReadingStatus</a></li><li data-type='method'><a href="Manga.html#setReadingStatus">setReadingStatus</a></li><li data-type='method'><a href="Manga.html#update">update</a></li></ul></li><li><a href="User.html">User</a><ul class='methods'><li data-type='method'><a href="User.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="User.html#.get">get</a></li><li data-type='method'><a href="User.html#.getFollowedUsers">getFollowedUsers</a></li><li data-type='method'><a href="User.html#.getLoggedInUser">getLoggedInUser</a></li><li data-type='method'><a href="User.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="User.html#.search">search</a></li><li data-type='method'><a href="User.html#changeFollowship">changeFollowship</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#convertLegacyId">convertLegacyId</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#resolveArray">resolveArray</a></li><li><a href="global.html#setGlobalLocale">setGlobalLocale</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">structure/user.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
+
+import * as Util from '../util.js';
+import AuthUtil from '../auth.js';
+import Relationship from '../internal/relationship.js';
+
+/**
+ * Represents an user
+ * https://api.mangadex.org/docs.html#tag/User
+ */
+class User {
+    /**
+     * There is no reason to directly create a user object. Use static methods, ie 'get()'.
+     * @param {Object|String} context Either an API response or Mangadex id 
+     */
+    constructor(context) {
+        if (typeof context === 'string') {
+            this.id = context;
+            return;
+        } else if (!context) return;
+
+        if (!context.data) context.data = {};
+
+        /**
+         * Mangadex id for this object
+         * @type {String}
+         */
+        this.id = context.data.id;
+
+        if (context.data.attributes === undefined) context.data.attributes = {};
+
+        /**
+         * Username of this user
+         * @type {String}
+         */
+        this.username = context.data.attributes.username;
+
+        /**
+         * The roles of this user such as "ROLE_MD_AT_HOME" and "ROLE_ADMIN"
+         * @type {String[]}
+         */
+        this.roles = context.data.attributes.roles;
+
+        /**
+         * Groups this user is a part of
+         * @type {Array&lt;Relationship&lt;import('../index').Group>>}
+         */
+        this.groups = Relationship.convertType('scanlation_group', context.data.relationships, this);
+    }
+
+    /**
+     * @ignore
+     * @typedef {Object} UserParameterObject
+     * @property {String} [UserParameterObject.username]
+     * @property {String[]} [UserParameterObject.ids] Max of 100 per request
+     * @property {Number} [UserParameterObject.limit] Not limited by API limits (more than 100). Use Infinity for maximum results (use at your own risk)
+     * @property {Number} [UserParameterObject.offset]
+     * @property {Object} [UserParameterObject.order] 
+     * @property {'asc'|'desc'} [UserParameterObject.order.username]
+     */
+
+    /**
+     * Peforms a search and returns an array of users. Requires authorization
+     * https://api.mangadex.org/docs.html#operation/get-user
+     * @param {UserParameterObject|String} [searchParameters] An object of offical search parameters, or a string representing the username
+     * @returns {Promise&lt;User[]>}
+     */
+    static search(searchParameters = {}) {
+        if (typeof searchParameters === 'string') searchParameters = { username: searchParameters };
+        return Util.apiCastedRequest('/user', User, searchParameters);
+        // Currently (9/14/21) MD does not support includes[]=scanlation_group for any user endpoint
+    }
+
+    /**
+     * Gets multiple users
+     * @param {...String|Relationship&lt;User>} ids
+     * @returns {Promise&lt;User[]>}
+     */
+    static getMultiple(...ids) {
+        return Util.getMultipleIds(User.search, ids);
+    }
+
+    /**
+     * Retrieves and returns a user by its id
+     * @param {String} id Mangadex id
+     * @returns {Promise&lt;User>}
+     */
+    static async get(id) {
+        return new User(await Util.apiRequest(`/user/${id}`));
+    }
+
+    /**
+     * Returns all users followed by the logged in user
+     * @param {Number} [limit=100] Amount of users to return (0 to Infinity)
+     * @param {Number} [offset=0] How many users to skip before returning
+     * @returns {Promise&lt;User[]>}
+     */
+    static async getFollowedUsers(limit = 100, offset = 10) {
+        await AuthUtil.validateTokens();
+        return await Util.apiCastedRequest('/user/follows/user', User, { limit: limit, offset: offset });
+    }
+
+    /**
+     * Returns the logged in user as a user object
+     * @returns {Promise&lt;User>}
+     */
+    static async getLoggedInUser() {
+        await AuthUtil.validateTokens();
+        return new User(await Util.apiRequest('/user/me'));
+    }
+
+    /**
+     * Makes the logged in user either follow or unfollow a user
+     * @param {String} id 
+     * @param {Boolean} [follow=true] True to follow, false to unfollow
+     * @returns {Promise&lt;void>}
+     */
+    static async changeFollowship(id, follow = true) {
+        await AuthUtil.validateTokens();
+        await Util.apiRequest(`/user/${id}/follow`, follow ? 'POST' : 'DELETE');
+    }
+
+    /**
+     * Makes the logged in user either follow or unfollow this user
+     * @param {Boolean} [follow=true] True to follow, false to unfollow
+     * @returns {Promise&lt;User>}
+     */
+    async changeFollowship(follow = true) {
+        await User.changeFollowship(this.id, follow);
+        return this;
+    }
+}
+
+export {User};
+export default User;</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Tue Oct 04 2022 21:31:32 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

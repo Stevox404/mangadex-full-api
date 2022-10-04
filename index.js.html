@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>index.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Author.html">Author</a><ul class='methods'><li data-type='method'><a href="Author.html#.create">create</a></li><li data-type='method'><a href="Author.html#.get">get</a></li><li data-type='method'><a href="Author.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Author.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Author.html#.search">search</a></li></ul></li><li><a href="Chapter.html">Chapter</a><ul class='methods'><li data-type='method'><a href="Chapter.html#.changeReadMarker">changeReadMarker</a></li><li data-type='method'><a href="Chapter.html#.get">get</a></li><li data-type='method'><a href="Chapter.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Chapter.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Chapter.html#.getReadablePages">getReadablePages</a></li><li data-type='method'><a href="Chapter.html#.search">search</a></li><li data-type='method'><a href="Chapter.html#changeReadMarker">changeReadMarker</a></li><li data-type='method'><a href="Chapter.html#getReadablePages">getReadablePages</a></li></ul></li><li><a href="Cover.html">Cover</a><ul class='methods'><li data-type='method'><a href="Cover.html#.create">create</a></li><li data-type='method'><a href="Cover.html#.get">get</a></li><li data-type='method'><a href="Cover.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Cover.html#.getMangaCovers">getMangaCovers</a></li><li data-type='method'><a href="Cover.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Cover.html#.search">search</a></li></ul></li><li><a href="Group.html">Group</a><ul class='methods'><li data-type='method'><a href="Group.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Group.html#.get">get</a></li><li data-type='method'><a href="Group.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Group.html#.getFollowedGroups">getFollowedGroups</a></li><li data-type='method'><a href="Group.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Group.html#.search">search</a></li><li data-type='method'><a href="Group.html#changeFollowship">changeFollowship</a></li></ul></li><li><a href="List.html">List</a><ul class='methods'><li data-type='method'><a href="List.html#.addManga">addManga</a></li><li data-type='method'><a href="List.html#.create">create</a></li><li data-type='method'><a href="List.html#.delete">delete</a></li><li data-type='method'><a href="List.html#.get">get</a></li><li data-type='method'><a href="List.html#.getFeed">getFeed</a></li><li data-type='method'><a href="List.html#.getLoggedInUserLists">getLoggedInUserLists</a></li><li data-type='method'><a href="List.html#.getUserLists">getUserLists</a></li><li data-type='method'><a href="List.html#.removeManga">removeManga</a></li><li data-type='method'><a href="List.html#addManga">addManga</a></li><li data-type='method'><a href="List.html#changeVisibility">changeVisibility</a></li><li data-type='method'><a href="List.html#delete">delete</a></li><li data-type='method'><a href="List.html#getFeed">getFeed</a></li><li data-type='method'><a href="List.html#removeManga">removeManga</a></li><li data-type='method'><a href="List.html#rename">rename</a></li><li data-type='method'><a href="List.html#updateMangaList">updateMangaList</a></li></ul></li><li><a href="Manga.html">Manga</a><ul class='methods'><li data-type='method'><a href="Manga.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Manga.html#.create">create</a></li><li data-type='method'><a href="Manga.html#.createUploadSession">createUploadSession</a></li><li data-type='method'><a href="Manga.html#.get">get</a></li><li data-type='method'><a href="Manga.html#.getAggregate">getAggregate</a></li><li data-type='method'><a href="Manga.html#.getAllReadingStatuses">getAllReadingStatuses</a></li><li data-type='method'><a href="Manga.html#.getAllTags">getAllTags</a></li><li data-type='method'><a href="Manga.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Manga.html#.getCovers">getCovers</a></li><li data-type='method'><a href="Manga.html#.getCurrentUploadSession">getCurrentUploadSession</a></li><li data-type='method'><a href="Manga.html#.getFeed">getFeed</a></li><li data-type='method'><a href="Manga.html#.getFollowedFeed">getFollowedFeed</a></li><li data-type='method'><a href="Manga.html#.getFollowedManga">getFollowedManga</a></li><li data-type='method'><a href="Manga.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Manga.html#.getRandom">getRandom</a></li><li data-type='method'><a href="Manga.html#.getReadChapterIds">getReadChapterIds</a></li><li data-type='method'><a href="Manga.html#.getReadChapters">getReadChapters</a></li><li data-type='method'><a href="Manga.html#.getReadingStatus">getReadingStatus</a></li><li data-type='method'><a href="Manga.html#.getStatistics">getStatistics</a></li><li data-type='method'><a href="Manga.html#.getTag">getTag</a></li><li data-type='method'><a href="Manga.html#.getTotalSearchResults">getTotalSearchResults</a></li><li data-type='method'><a href="Manga.html#.search">search</a></li><li data-type='method'><a href="Manga.html#.setReadingStatus">setReadingStatus</a></li><li data-type='method'><a href="Manga.html#addToList">addToList</a></li><li data-type='method'><a href="Manga.html#changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Manga.html#createUploadSession">createUploadSession</a></li><li data-type='method'><a href="Manga.html#getAggregate">getAggregate</a></li><li data-type='method'><a href="Manga.html#getCovers">getCovers</a></li><li data-type='method'><a href="Manga.html#getFeed">getFeed</a></li><li data-type='method'><a href="Manga.html#getReadChapters">getReadChapters</a></li><li data-type='method'><a href="Manga.html#getReadingStatus">getReadingStatus</a></li><li data-type='method'><a href="Manga.html#setReadingStatus">setReadingStatus</a></li><li data-type='method'><a href="Manga.html#update">update</a></li></ul></li><li><a href="User.html">User</a><ul class='methods'><li data-type='method'><a href="User.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="User.html#.get">get</a></li><li data-type='method'><a href="User.html#.getFollowedUsers">getFollowedUsers</a></li><li data-type='method'><a href="User.html#.getLoggedInUser">getLoggedInUser</a></li><li data-type='method'><a href="User.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="User.html#.search">search</a></li><li data-type='method'><a href="User.html#changeFollowship">changeFollowship</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#convertLegacyId">convertLegacyId</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#resolveArray">resolveArray</a></li><li><a href="global.html#setGlobalLocale">setGlobalLocale</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">index.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
+
+// Internal
+import * as Util from './util.js';
+import LocalizedString from './internal/localizedstring.js';
+import APIRequestError from './internal/requesterror.js';
+
+import Tag from './internal/tag.js';
+import Manga from './structure/manga.js';
+import Author from './structure/author.js';
+import Chapter from './structure/chapter.js';
+import Group from './structure/group.js';
+import User from './structure/user.js';
+import List from './structure/list.js';
+import Cover from './structure/cover.js';
+
+import AuthUtil from './auth.js';
+import Relationship from './internal/relationship.js';
+
+
+// Export
+export { Tag, Manga, Author, Chapter, Group, User, List, Cover }
+
+/**
+ * Converts old (pre v5, numeric ids) Mangadex ids to v5 ids.
+ * Any invalid legacy ids will be skipped by Mangadex when remapping, so
+ * call this function for each individual id if this is an issue.
+ * @param {'group'|'manga'|'chapter'|'tag'} type Type of id 
+ * @param {...Number|Number[]} ids Array of ids to convert
+ * @returns {Promise&lt;String[]>}
+ */
+export async function convertLegacyId(type, ...ids) {
+    if (ids.length === 0) throw new Error('Invalid Argument(s)');
+    ids = ids.flat();
+    let res = await Util.apiRequest('/legacy/mapping', 'POST', { type: type, ids: ids });
+    if (!(res.data instanceof Array)) throw new APIRequestError('The API did not respond with an array when it was expected to', APIRequestError.INVALID_RESPONSE);
+    return res.data.map(e => e.attributes.newId);
+}
+
+/**
+ * Sets the global locaization for LocalizedStrings.
+ * Uses 2-letter Mangadex region codes.
+ * @param {String} newLocale
+ */
+export function setGlobalLocale(newLocale) {
+    if (typeof newLocale !== 'string' || newLocale.length !== 2) throw new Error('Invalid Locale Code.');
+    LocalizedString.locale = newLocale;
+};
+
+
+/**
+ * Required for authorization
+ * https://api.mangadex.org/docs.html#operation/post-auth-login
+ * @param {String} username 
+ * @param {String} password 
+ * @param {String} [cacheLocation] File location (or localStorage key for browsers) to store the persistent token IN PLAIN TEXT
+ * @returns {Promise&lt;void>}
+ */
+export function login(username, password, cacheLocation) {
+    return AuthUtil.login(username, password, cacheLocation);
+}
+
+// Register class types to bypass circular references
+Relationship.registerType('author', Author);
+Relationship.registerType('artist', Author);
+Relationship.registerType('manga', Manga);
+Relationship.registerType('chapter', Chapter);
+Relationship.registerType('scanlation_group', Group);
+Relationship.registerType('user', User);
+Relationship.registerType('leader', User);
+Relationship.registerType('member', User);
+Relationship.registerType('custom_list', List);
+Relationship.registerType('cover_art', Cover);
+
+/**
+ * A shortcut for resolving all relationships in an array
+ * @template T
+ * @param {Array&lt;Relationship&lt;T>>} relationshipArray
+ * @returns {Promise&lt;Array&lt;T>>}
+ */
+export function resolveArray(relationshipArray) {
+    return Relationship.resolveAll(relationshipArray);
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Tue Oct 04 2022 21:31:32 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

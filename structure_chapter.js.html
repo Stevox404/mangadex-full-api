@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>structure/chapter.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Author.html">Author</a><ul class='methods'><li data-type='method'><a href="Author.html#.create">create</a></li><li data-type='method'><a href="Author.html#.get">get</a></li><li data-type='method'><a href="Author.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Author.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Author.html#.search">search</a></li></ul></li><li><a href="Chapter.html">Chapter</a><ul class='methods'><li data-type='method'><a href="Chapter.html#.changeReadMarker">changeReadMarker</a></li><li data-type='method'><a href="Chapter.html#.get">get</a></li><li data-type='method'><a href="Chapter.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Chapter.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Chapter.html#.getReadablePages">getReadablePages</a></li><li data-type='method'><a href="Chapter.html#.search">search</a></li><li data-type='method'><a href="Chapter.html#changeReadMarker">changeReadMarker</a></li><li data-type='method'><a href="Chapter.html#getReadablePages">getReadablePages</a></li></ul></li><li><a href="Cover.html">Cover</a><ul class='methods'><li data-type='method'><a href="Cover.html#.create">create</a></li><li data-type='method'><a href="Cover.html#.get">get</a></li><li data-type='method'><a href="Cover.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Cover.html#.getMangaCovers">getMangaCovers</a></li><li data-type='method'><a href="Cover.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Cover.html#.search">search</a></li></ul></li><li><a href="Group.html">Group</a><ul class='methods'><li data-type='method'><a href="Group.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Group.html#.get">get</a></li><li data-type='method'><a href="Group.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Group.html#.getFollowedGroups">getFollowedGroups</a></li><li data-type='method'><a href="Group.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Group.html#.search">search</a></li><li data-type='method'><a href="Group.html#changeFollowship">changeFollowship</a></li></ul></li><li><a href="List.html">List</a><ul class='methods'><li data-type='method'><a href="List.html#.addManga">addManga</a></li><li data-type='method'><a href="List.html#.create">create</a></li><li data-type='method'><a href="List.html#.delete">delete</a></li><li data-type='method'><a href="List.html#.get">get</a></li><li data-type='method'><a href="List.html#.getFeed">getFeed</a></li><li data-type='method'><a href="List.html#.getLoggedInUserLists">getLoggedInUserLists</a></li><li data-type='method'><a href="List.html#.getUserLists">getUserLists</a></li><li data-type='method'><a href="List.html#.removeManga">removeManga</a></li><li data-type='method'><a href="List.html#addManga">addManga</a></li><li data-type='method'><a href="List.html#changeVisibility">changeVisibility</a></li><li data-type='method'><a href="List.html#delete">delete</a></li><li data-type='method'><a href="List.html#getFeed">getFeed</a></li><li data-type='method'><a href="List.html#removeManga">removeManga</a></li><li data-type='method'><a href="List.html#rename">rename</a></li><li data-type='method'><a href="List.html#updateMangaList">updateMangaList</a></li></ul></li><li><a href="Manga.html">Manga</a><ul class='methods'><li data-type='method'><a href="Manga.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Manga.html#.create">create</a></li><li data-type='method'><a href="Manga.html#.createUploadSession">createUploadSession</a></li><li data-type='method'><a href="Manga.html#.get">get</a></li><li data-type='method'><a href="Manga.html#.getAggregate">getAggregate</a></li><li data-type='method'><a href="Manga.html#.getAllReadingStatuses">getAllReadingStatuses</a></li><li data-type='method'><a href="Manga.html#.getAllTags">getAllTags</a></li><li data-type='method'><a href="Manga.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Manga.html#.getCovers">getCovers</a></li><li data-type='method'><a href="Manga.html#.getCurrentUploadSession">getCurrentUploadSession</a></li><li data-type='method'><a href="Manga.html#.getFeed">getFeed</a></li><li data-type='method'><a href="Manga.html#.getFollowedFeed">getFollowedFeed</a></li><li data-type='method'><a href="Manga.html#.getFollowedManga">getFollowedManga</a></li><li data-type='method'><a href="Manga.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Manga.html#.getRandom">getRandom</a></li><li data-type='method'><a href="Manga.html#.getReadChapterIds">getReadChapterIds</a></li><li data-type='method'><a href="Manga.html#.getReadChapters">getReadChapters</a></li><li data-type='method'><a href="Manga.html#.getReadingStatus">getReadingStatus</a></li><li data-type='method'><a href="Manga.html#.getStatistics">getStatistics</a></li><li data-type='method'><a href="Manga.html#.getTag">getTag</a></li><li data-type='method'><a href="Manga.html#.getTotalSearchResults">getTotalSearchResults</a></li><li data-type='method'><a href="Manga.html#.search">search</a></li><li data-type='method'><a href="Manga.html#.setReadingStatus">setReadingStatus</a></li><li data-type='method'><a href="Manga.html#addToList">addToList</a></li><li data-type='method'><a href="Manga.html#changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Manga.html#createUploadSession">createUploadSession</a></li><li data-type='method'><a href="Manga.html#getAggregate">getAggregate</a></li><li data-type='method'><a href="Manga.html#getCovers">getCovers</a></li><li data-type='method'><a href="Manga.html#getFeed">getFeed</a></li><li data-type='method'><a href="Manga.html#getReadChapters">getReadChapters</a></li><li data-type='method'><a href="Manga.html#getReadingStatus">getReadingStatus</a></li><li data-type='method'><a href="Manga.html#setReadingStatus">setReadingStatus</a></li><li data-type='method'><a href="Manga.html#update">update</a></li></ul></li><li><a href="User.html">User</a><ul class='methods'><li data-type='method'><a href="User.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="User.html#.get">get</a></li><li data-type='method'><a href="User.html#.getFollowedUsers">getFollowedUsers</a></li><li data-type='method'><a href="User.html#.getLoggedInUser">getLoggedInUser</a></li><li data-type='method'><a href="User.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="User.html#.search">search</a></li><li data-type='method'><a href="User.html#changeFollowship">changeFollowship</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#convertLegacyId">convertLegacyId</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#resolveArray">resolveArray</a></li><li><a href="global.html#setGlobalLocale">setGlobalLocale</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">structure/chapter.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
+
+import * as Util from '../util.js';
+import AuthUtil from '../auth.js';
+import Relationship from '../internal/relationship.js';
+import APIRequestError from '../internal/requesterror';
+
+/**
+ * Represents a chapter with readable pages
+ * https://api.mangadex.org/docs.html#tag/Chapter
+ */
+class Chapter {
+    /**
+     * There is no reason to directly create a chapter object. Use static methods, ie 'get()'.
+     * @param {Object|String} context Either an API response or Mangadex id 
+     */
+    constructor(context) {
+        if (typeof context === 'string') {
+            this.id = context;
+            return;
+        } else if (!context) return;
+
+        if (!context.data) context.data = {};
+
+        /**
+         * Mangadex id for this object
+         * @type {String}
+         */
+        this.id = context.data.id;
+
+
+        if (context.data.attributes === undefined) context.data.attributes = {};
+
+        /**
+         * This chapter's volume number/string
+         * @type {String}
+         */
+        this.volume = context.data.attributes.volume;
+
+        /**
+         * This chapter's number/string identifier
+         * @type {String}
+         */
+        this.chapter = context.data.attributes.chapter;
+
+        /**
+         * Title of this chapter
+         * @type {String}
+         */
+        this.title = context.data.attributes.title;
+
+        /**
+         * Translated language code (2 Letters)
+         * @type {String}
+         */
+        this.translatedLanguage = context.data.attributes.translatedLanguage;
+
+        /**
+         * The date of this chapter's creation
+         * @type {Date}
+         */
+        this.createdAt = context.data.attributes.createdAt ? new Date(context.data.attributes.createdAt) : null;
+
+        /**
+         * The date this chapter was last updated
+         * @type {Date}
+         */
+        this.updatedAt = context.data.attributes.updatedAt ? new Date(context.data.attributes.updatedAt) : null;
+
+        /**
+         * The date this chapter was published
+         * @type {Date}
+         */
+        this.publishAt = context.data.attributes.publishAt ? new Date(context.data.attributes.publishAt) : null;
+
+        /**
+         * The date this chapter was/will be readable
+         * @type {Date}
+         */
+        this.readableAt = context.data.attributes.readableAt ? new Date(context.data.attributes.readableAt) : null;
+
+        /**
+         * Page count
+         * @type {Number}
+         */
+        this.pages = context.data.attributes.pages;
+
+        /**
+         * Is this chapter only a link to another website (eg Mangaplus) instead of being hosted on MD?
+         * @type {Boolean}
+         */
+        this.isExternal = 'externalUrl' in context.data.attributes &amp;&amp; context.data.attributes.externalUrl !== null;
+
+        /**
+         * The external URL to this chapter if it is not hosted on MD. Null if it is hosted on MD
+         * @type {String}
+         */
+        this.externalUrl = this.isExternal ? context.data.attributes.externalUrl : null;
+
+        /**
+         * The scanlation groups that are attributed to this chapter
+         * @type {Array&lt;Relationship&lt;import('../index').Group>>}
+         */
+        this.groups = Relationship.convertType('scanlation_group', context.data.relationships, this);
+
+        /**
+         * The manga this chapter belongs to
+         * @type {Relationship&lt;import('../index').Manga>}
+         */
+        this.manga = Relationship.convertType('manga', context.data.relationships, this).pop();
+
+        /**
+         * The user who uploaded this chapter
+         * @type {Relationship&lt;import('../index').User>}
+         */
+        this.uploader = Relationship.convertType('user', context.data.relationships, this).pop();
+    }
+
+    /**
+     * @ignore
+     * @typedef {Object} ChapterParameterObject
+     * @property {String} [ChapterParameterObject.title]
+     * @property {String} [ChapterParameterObject.createdAtSince] DateTime string with following format: YYYY-MM-DDTHH:MM:SS
+     * @property {String} [ChapterParameterObject.updatedAtSince] DateTime string with following format: YYYY-MM-DDTHH:MM:SS
+     * @property {String} [ChapterParameterObject.publishAtSince] DateTime string with following format: YYYY-MM-DDTHH:MM:SS
+     * @property {Object} [ChapterParameterObject.order]
+     * @property {'asc'|'desc'} [ChapterParameterObject.order.createdAt]
+     * @property {'asc'|'desc'} [ChapterParameterObject.order.updatedAt]
+     * @property {'asc'|'desc'} [ChapterParameterObject.order.publishAt]
+     * @property {'asc'|'desc'} [ChapterParameterObject.order.volume]
+     * @property {'asc'|'desc'} [ChapterParameterObject.order.chapter]
+     * @property {String[]} [ChapterParameterObject.translatedLanguage]
+     * @property {String[]} [ChapterParameterObject.originalLanguage]
+     * @property {String[]} [ChapterParameterObject.excludedOriginalLanguage]
+     * @property {Array&lt;'safe'|'suggestive'|'erotica'|'pornographic'>} [ChapterParameterObject.contentRating]
+     * @property {String[]} [ChapterParameterObject.ids] Max of 100 per request
+     * @property {Number} [ChapterParameterObject.limit] Not limited by API limits (more than 100). Use Infinity for maximum results (use at your own risk)
+     * @property {Number} [ChapterParameterObject.offset]
+     * @property {String[]|import('../index').Group[]} [ChapterParameterObject.groups]
+     * @property {String|import('../index').User|Relationship&lt;import('../index').User>} [ChapterParameterObject.uploader]
+     * @property {String|import('../index').Manga|Relationship&lt;import('../index').Manga>} [ChapterParameterObject.manga]
+     * @property {String[]} [ChapterParameterObject.volume]
+     * @property {String} [ChapterParameterObject.chapter]
+     */
+
+    /**
+     * Peforms a search and returns an array of chapters.
+     * https://api.mangadex.org/docs.html#operation/get-chapter
+     * @param {ChapterParameterObject|String} [searchParameters] An object of offical search parameters, or a string representing the title
+     * @param {Boolean} [includeSubObjects=false] Attempt to resolve sub objects (eg author, artists, etc) when available through the base request
+     * @returns {Promise&lt;Chapter[]>}
+     */
+    static search(searchParameters = {}, includeSubObjects = false) {
+        if (typeof searchParameters === 'string') searchParameters = { title: searchParameters };
+        if (includeSubObjects) searchParameters.includes = ['scanlation_group', 'manga', 'user'];
+        return Util.apiCastedRequest('/chapter', Chapter, searchParameters);
+    }
+
+    /**
+     * Gets multiple chapters
+     * @param {...String|Chapter|Relationship&lt;Chapter>} ids
+     * @returns {Promise&lt;Chapter[]>}
+     */
+    static getMultiple(...ids) {
+        return Util.getMultipleIds(Chapter.search, ids);
+    }
+
+
+    /**
+     * Retrieves and returns a chapter by its id
+     * @param {String} id Mangadex id
+     * @param {Boolean} [includeSubObjects=false] Attempt to resolve sub objects (eg author, artists, etc) when available through the base request
+     * @returns {Promise&lt;Chapter>}
+     */
+    static async get(id, includeSubObjects = false) {
+        return new Chapter(await Util.apiRequest(`/chapter/${id}${includeSubObjects ? '?includes[]=scanlation_group&amp;includes[]=manga&amp;includes[]=user' : ''}`));
+    }
+
+    /**
+     * Performs a search for one chapter and returns that chapter
+     * @param {ChapterParameterObject|String} [searchParameters] An object of offical search parameters, or a string representing the title
+     * @returns {Promise&lt;Chapter>}
+     */
+    static async getByQuery(searchParameters = {}) {
+        if (typeof searchParameters === 'string') searchParameters = { title: searchParameters, limit: 1 };
+        else searchParameters.limit = 1;
+        let res = await Chapter.search(searchParameters);
+        if (res.length === 0) throw new Error('Search returned no results.');
+        return res[0];
+    }
+
+    /**
+     * Marks a chapter as either read or unread
+     * @param {String} id
+     * @param {Boolean} [read=true] True to mark as read, false to mark unread
+     * @returns {Promise&lt;void>}
+     */
+    static async changeReadMarker(id, read = true) {
+        await AuthUtil.validateTokens();
+        await Util.apiRequest(`/chapter/${id}/read`, read ? 'POST' : 'DELETE');
+    }
+
+    /**
+     * Retrieves URLs for actual images from Mangadex @ Home.
+     * This only gives URLs, so it does not report the status of the server to Mangadex @ Home.
+     * Therefore applications that download image data pleaese report failures as stated here:
+     * https://api.mangadex.org/docs.html#section/Reading-a-chapter-using-the-API/Report
+     * @param {Boolean} [saver=false] Use data saver images?
+     * @param {Boolean} [forcePort=false] Force the final URLs to use port 443
+     * @returns {Promise&lt;String[]>}
+     */
+    async getReadablePages(saver = false, forcePort = false) {
+        if (this.isExternal) throw new Error('Cannot get readable pages for an external chapter.');
+        let res = await Util.apiParameterRequest(`/at-home/server/${this.id}`, { forcePort443: forcePort });
+        if (!res.baseUrl || !res.chapter.hash || !res.chapter.hash) {
+            throw new APIRequestError(`The API did not respond the correct structure for a MD@H chapter request:\n${JSON.stringify(res)}`, APIRequestError.INVALID_RESPONSE);
+        }
+        return res.chapter[saver ? 'dataSaver' : 'data'].map(file => `${res.baseUrl}/${saver ? 'data-saver' : 'data'}/${res.chapter.hash}/${file}`);
+    }
+
+    /**
+     * Retrieves URLs for actual images from Mangadex @ Home.
+     * This only gives URLs, so it does not report the status of the server to Mangadex @ Home.
+     * Therefore applications that download image data pleaese report failures as stated here:
+     * https://api.mangadex.org/docs.html#section/Reading-a-chapter-using-the-API/Report
+     * @param {String} id
+     * @param {Boolean} [saver=false] Use data saver images?
+     * @param {Boolean} [forcePort=false] Force the final URLs to use port 443
+     * @returns {Promise&lt;String[]>}
+     */
+    static async getReadablePages(id, saver = false, forcePort = false) {
+        if (this.isExternal) throw new Error('Cannot get readable pages for an external chapter.');
+        let res = await Util.apiParameterRequest(`/at-home/server/${id}`, { forcePort443: forcePort });
+        if (!res.baseUrl || !res.chapter.hash || !res.chapter.hash) {
+            throw new APIRequestError(`The API did not respond the correct structure for a MD@H chapter request:\n${JSON.stringify(res)}`, APIRequestError.INVALID_RESPONSE);
+        }
+        return res.chapter[saver ? 'dataSaver' : 'data'].map(file => `${res.baseUrl}/${saver ? 'data-saver' : 'data'}/${res.chapter.hash}/${file}`);
+    }
+
+    /**
+     * Marks this chapter as either read or unread
+     * @param {Boolean} [read=true] True to mark as read, false to mark unread
+     * @returns {Promise&lt;Chapter>}
+     */
+    async changeReadMarker(read = true) {
+        await Chapter.changeReadMarker(this.id, read);
+        return this;
+    }
+}
+
+export {Chapter};
+export default Chapter;</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Tue Oct 04 2022 21:31:32 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

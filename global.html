@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Global - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Author.html">Author</a><ul class='methods'><li data-type='method'><a href="Author.html#.create">create</a></li><li data-type='method'><a href="Author.html#.get">get</a></li><li data-type='method'><a href="Author.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Author.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Author.html#.search">search</a></li></ul></li><li><a href="Chapter.html">Chapter</a><ul class='methods'><li data-type='method'><a href="Chapter.html#.changeReadMarker">changeReadMarker</a></li><li data-type='method'><a href="Chapter.html#.get">get</a></li><li data-type='method'><a href="Chapter.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Chapter.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Chapter.html#.getReadablePages">getReadablePages</a></li><li data-type='method'><a href="Chapter.html#.search">search</a></li><li data-type='method'><a href="Chapter.html#changeReadMarker">changeReadMarker</a></li><li data-type='method'><a href="Chapter.html#getReadablePages">getReadablePages</a></li></ul></li><li><a href="Cover.html">Cover</a><ul class='methods'><li data-type='method'><a href="Cover.html#.create">create</a></li><li data-type='method'><a href="Cover.html#.get">get</a></li><li data-type='method'><a href="Cover.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Cover.html#.getMangaCovers">getMangaCovers</a></li><li data-type='method'><a href="Cover.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Cover.html#.search">search</a></li></ul></li><li><a href="Group.html">Group</a><ul class='methods'><li data-type='method'><a href="Group.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Group.html#.get">get</a></li><li data-type='method'><a href="Group.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Group.html#.getFollowedGroups">getFollowedGroups</a></li><li data-type='method'><a href="Group.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Group.html#.search">search</a></li><li data-type='method'><a href="Group.html#changeFollowship">changeFollowship</a></li></ul></li><li><a href="List.html">List</a><ul class='methods'><li data-type='method'><a href="List.html#.addManga">addManga</a></li><li data-type='method'><a href="List.html#.create">create</a></li><li data-type='method'><a href="List.html#.delete">delete</a></li><li data-type='method'><a href="List.html#.get">get</a></li><li data-type='method'><a href="List.html#.getFeed">getFeed</a></li><li data-type='method'><a href="List.html#.getLoggedInUserLists">getLoggedInUserLists</a></li><li data-type='method'><a href="List.html#.getUserLists">getUserLists</a></li><li data-type='method'><a href="List.html#.removeManga">removeManga</a></li><li data-type='method'><a href="List.html#addManga">addManga</a></li><li data-type='method'><a href="List.html#changeVisibility">changeVisibility</a></li><li data-type='method'><a href="List.html#delete">delete</a></li><li data-type='method'><a href="List.html#getFeed">getFeed</a></li><li data-type='method'><a href="List.html#removeManga">removeManga</a></li><li data-type='method'><a href="List.html#rename">rename</a></li><li data-type='method'><a href="List.html#updateMangaList">updateMangaList</a></li></ul></li><li><a href="Manga.html">Manga</a><ul class='methods'><li data-type='method'><a href="Manga.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Manga.html#.create">create</a></li><li data-type='method'><a href="Manga.html#.createUploadSession">createUploadSession</a></li><li data-type='method'><a href="Manga.html#.get">get</a></li><li data-type='method'><a href="Manga.html#.getAggregate">getAggregate</a></li><li data-type='method'><a href="Manga.html#.getAllReadingStatuses">getAllReadingStatuses</a></li><li data-type='method'><a href="Manga.html#.getAllTags">getAllTags</a></li><li data-type='method'><a href="Manga.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Manga.html#.getCovers">getCovers</a></li><li data-type='method'><a href="Manga.html#.getCurrentUploadSession">getCurrentUploadSession</a></li><li data-type='method'><a href="Manga.html#.getFeed">getFeed</a></li><li data-type='method'><a href="Manga.html#.getFollowedFeed">getFollowedFeed</a></li><li data-type='method'><a href="Manga.html#.getFollowedManga">getFollowedManga</a></li><li data-type='method'><a href="Manga.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Manga.html#.getRandom">getRandom</a></li><li data-type='method'><a href="Manga.html#.getReadChapterIds">getReadChapterIds</a></li><li data-type='method'><a href="Manga.html#.getReadChapters">getReadChapters</a></li><li data-type='method'><a href="Manga.html#.getReadingStatus">getReadingStatus</a></li><li data-type='method'><a href="Manga.html#.getStatistics">getStatistics</a></li><li data-type='method'><a href="Manga.html#.getTag">getTag</a></li><li data-type='method'><a href="Manga.html#.getTotalSearchResults">getTotalSearchResults</a></li><li data-type='method'><a href="Manga.html#.search">search</a></li><li data-type='method'><a href="Manga.html#.setReadingStatus">setReadingStatus</a></li><li data-type='method'><a href="Manga.html#addToList">addToList</a></li><li data-type='method'><a href="Manga.html#changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Manga.html#createUploadSession">createUploadSession</a></li><li data-type='method'><a href="Manga.html#getAggregate">getAggregate</a></li><li data-type='method'><a href="Manga.html#getCovers">getCovers</a></li><li data-type='method'><a href="Manga.html#getFeed">getFeed</a></li><li data-type='method'><a href="Manga.html#getReadChapters">getReadChapters</a></li><li data-type='method'><a href="Manga.html#getReadingStatus">getReadingStatus</a></li><li data-type='method'><a href="Manga.html#setReadingStatus">setReadingStatus</a></li><li data-type='method'><a href="Manga.html#update">update</a></li></ul></li><li><a href="User.html">User</a><ul class='methods'><li data-type='method'><a href="User.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="User.html#.get">get</a></li><li data-type='method'><a href="User.html#.getFollowedUsers">getFollowedUsers</a></li><li data-type='method'><a href="User.html#.getLoggedInUser">getLoggedInUser</a></li><li data-type='method'><a href="User.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="User.html#.search">search</a></li><li data-type='method'><a href="User.html#changeFollowship">changeFollowship</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#convertLegacyId">convertLegacyId</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#resolveArray">resolveArray</a></li><li><a href="global.html#setGlobalLocale">setGlobalLocale</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Global</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        
+        </h2>
+        
+    
+</header>
+
+<article>
+    
+        <div class="container-overview">
+        
+            
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+            
+
+            
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="convertLegacyId"><span class="type-signature"></span>convertLegacyId<span class="signature">(type, ids)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;String>>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line32">line 32</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Converts old (pre v5, numeric ids) Mangadex ids to v5 ids.
+Any invalid legacy ids will be skipped by Mangadex when remapping, so
+call this function for each individual id if this is an issue.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">'group'</span>
+|
+
+<span class="param-type">'manga'</span>
+|
+
+<span class="param-type">'chapter'</span>
+|
+
+<span class="param-type">'tag'</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Type of id</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>ids</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+|
+
+<span class="param-type">Array.&lt;Number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Array of ids to convert</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;Array.&lt;String>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="login"><span class="type-signature"></span>login<span class="signature">(username, password, cacheLocation<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line59">line 59</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Required for authorization
+https://api.mangadex.org/docs.html#operation/post-auth-login</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>username</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>password</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cacheLocation</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>File location (or localStorage key for browsers) to store the persistent token IN PLAIN TEXT</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;void></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="resolveArray"><span class="type-signature"></span>resolveArray<span class="signature">(relationshipArray)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;T>>}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line81">line 81</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>A shortcut for resolving all relationships in an array</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>relationshipArray</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;Relationship.&lt;T>></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;Array.&lt;T>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setGlobalLocale"><span class="type-signature"></span>setGlobalLocale<span class="signature">(newLocale)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line45">line 45</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Sets the global locaization for LocalizedStrings.
+Uses 2-letter Mangadex region codes.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>newLocale</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Tue Oct 04 2022 21:31:32 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

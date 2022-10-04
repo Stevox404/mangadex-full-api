@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>structure/group.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Author.html">Author</a><ul class='methods'><li data-type='method'><a href="Author.html#.create">create</a></li><li data-type='method'><a href="Author.html#.get">get</a></li><li data-type='method'><a href="Author.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Author.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Author.html#.search">search</a></li></ul></li><li><a href="Chapter.html">Chapter</a><ul class='methods'><li data-type='method'><a href="Chapter.html#.changeReadMarker">changeReadMarker</a></li><li data-type='method'><a href="Chapter.html#.get">get</a></li><li data-type='method'><a href="Chapter.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Chapter.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Chapter.html#.getReadablePages">getReadablePages</a></li><li data-type='method'><a href="Chapter.html#.search">search</a></li><li data-type='method'><a href="Chapter.html#changeReadMarker">changeReadMarker</a></li><li data-type='method'><a href="Chapter.html#getReadablePages">getReadablePages</a></li></ul></li><li><a href="Cover.html">Cover</a><ul class='methods'><li data-type='method'><a href="Cover.html#.create">create</a></li><li data-type='method'><a href="Cover.html#.get">get</a></li><li data-type='method'><a href="Cover.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Cover.html#.getMangaCovers">getMangaCovers</a></li><li data-type='method'><a href="Cover.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Cover.html#.search">search</a></li></ul></li><li><a href="Group.html">Group</a><ul class='methods'><li data-type='method'><a href="Group.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Group.html#.get">get</a></li><li data-type='method'><a href="Group.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Group.html#.getFollowedGroups">getFollowedGroups</a></li><li data-type='method'><a href="Group.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Group.html#.search">search</a></li><li data-type='method'><a href="Group.html#changeFollowship">changeFollowship</a></li></ul></li><li><a href="List.html">List</a><ul class='methods'><li data-type='method'><a href="List.html#.addManga">addManga</a></li><li data-type='method'><a href="List.html#.create">create</a></li><li data-type='method'><a href="List.html#.delete">delete</a></li><li data-type='method'><a href="List.html#.get">get</a></li><li data-type='method'><a href="List.html#.getFeed">getFeed</a></li><li data-type='method'><a href="List.html#.getLoggedInUserLists">getLoggedInUserLists</a></li><li data-type='method'><a href="List.html#.getUserLists">getUserLists</a></li><li data-type='method'><a href="List.html#.removeManga">removeManga</a></li><li data-type='method'><a href="List.html#addManga">addManga</a></li><li data-type='method'><a href="List.html#changeVisibility">changeVisibility</a></li><li data-type='method'><a href="List.html#delete">delete</a></li><li data-type='method'><a href="List.html#getFeed">getFeed</a></li><li data-type='method'><a href="List.html#removeManga">removeManga</a></li><li data-type='method'><a href="List.html#rename">rename</a></li><li data-type='method'><a href="List.html#updateMangaList">updateMangaList</a></li></ul></li><li><a href="Manga.html">Manga</a><ul class='methods'><li data-type='method'><a href="Manga.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Manga.html#.create">create</a></li><li data-type='method'><a href="Manga.html#.createUploadSession">createUploadSession</a></li><li data-type='method'><a href="Manga.html#.get">get</a></li><li data-type='method'><a href="Manga.html#.getAggregate">getAggregate</a></li><li data-type='method'><a href="Manga.html#.getAllReadingStatuses">getAllReadingStatuses</a></li><li data-type='method'><a href="Manga.html#.getAllTags">getAllTags</a></li><li data-type='method'><a href="Manga.html#.getByQuery">getByQuery</a></li><li data-type='method'><a href="Manga.html#.getCovers">getCovers</a></li><li data-type='method'><a href="Manga.html#.getCurrentUploadSession">getCurrentUploadSession</a></li><li data-type='method'><a href="Manga.html#.getFeed">getFeed</a></li><li data-type='method'><a href="Manga.html#.getFollowedFeed">getFollowedFeed</a></li><li data-type='method'><a href="Manga.html#.getFollowedManga">getFollowedManga</a></li><li data-type='method'><a href="Manga.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="Manga.html#.getRandom">getRandom</a></li><li data-type='method'><a href="Manga.html#.getReadChapterIds">getReadChapterIds</a></li><li data-type='method'><a href="Manga.html#.getReadChapters">getReadChapters</a></li><li data-type='method'><a href="Manga.html#.getReadingStatus">getReadingStatus</a></li><li data-type='method'><a href="Manga.html#.getStatistics">getStatistics</a></li><li data-type='method'><a href="Manga.html#.getTag">getTag</a></li><li data-type='method'><a href="Manga.html#.getTotalSearchResults">getTotalSearchResults</a></li><li data-type='method'><a href="Manga.html#.search">search</a></li><li data-type='method'><a href="Manga.html#.setReadingStatus">setReadingStatus</a></li><li data-type='method'><a href="Manga.html#addToList">addToList</a></li><li data-type='method'><a href="Manga.html#changeFollowship">changeFollowship</a></li><li data-type='method'><a href="Manga.html#createUploadSession">createUploadSession</a></li><li data-type='method'><a href="Manga.html#getAggregate">getAggregate</a></li><li data-type='method'><a href="Manga.html#getCovers">getCovers</a></li><li data-type='method'><a href="Manga.html#getFeed">getFeed</a></li><li data-type='method'><a href="Manga.html#getReadChapters">getReadChapters</a></li><li data-type='method'><a href="Manga.html#getReadingStatus">getReadingStatus</a></li><li data-type='method'><a href="Manga.html#setReadingStatus">setReadingStatus</a></li><li data-type='method'><a href="Manga.html#update">update</a></li></ul></li><li><a href="User.html">User</a><ul class='methods'><li data-type='method'><a href="User.html#.changeFollowship">changeFollowship</a></li><li data-type='method'><a href="User.html#.get">get</a></li><li data-type='method'><a href="User.html#.getFollowedUsers">getFollowedUsers</a></li><li data-type='method'><a href="User.html#.getLoggedInUser">getLoggedInUser</a></li><li data-type='method'><a href="User.html#.getMultiple">getMultiple</a></li><li data-type='method'><a href="User.html#.search">search</a></li><li data-type='method'><a href="User.html#changeFollowship">changeFollowship</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#convertLegacyId">convertLegacyId</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#resolveArray">resolveArray</a></li><li><a href="global.html#setGlobalLocale">setGlobalLocale</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">structure/group.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
+
+import * as Util from '../util.js';
+import AuthUtil from '../auth.js';
+import Relationship from '../internal/relationship.js';
+
+/**
+ * Represents a scanlation group
+ * https://api.mangadex.org/docs.html#tag/Group
+ */
+class Group {
+    /**
+     * There is no reason to directly create a group object. Use static methods, ie 'get()'.
+     * @param {Object|String} context Either an API response or Mangadex id 
+     */
+    constructor(context) {
+        if (typeof context === 'string') {
+            this.id = context;
+            return;
+        } else if (!context) return;
+
+        if (!context.data) context.data = {};
+
+        /**
+         * Mangadex id for this object
+         * @type {String}
+         */
+        this.id = context.data.id;
+
+        if (context.data.attributes === undefined) context.data.attributes = {};
+
+        /**
+         * Name of this group
+         * @type {String}
+         */
+        this.name = context.data.attributes.name;
+
+        /**
+         * The date of this group's creation
+         * @type {Date}
+         */
+        this.createdAt = context.data.attributes.createdAt ? new Date(context.data.attributes.createdAt) : null;
+
+        /**
+         * The date the group was last updated
+         * @type {Date}
+         */
+        this.updatedAt = context.data.attributes.updatedAt ? new Date(context.data.attributes.updatedAt) : null;
+
+        /**
+         * Is this group locked?
+         * @type {Boolean}
+         */
+        this.locked = context.data.attributes.locked === true;
+
+        /**
+         * Website URL for this group
+         * @type {String}
+         */
+        this.website = context.data.attributes.website;
+
+        /**
+        * IRC Server for this group
+        * @type {String}
+        */
+        this.ircServer = context.data.attributes.ircServer;
+
+        /**
+        * IRC Channel for this group
+        * @type {String}
+        */
+        this.ircChannel = context.data.attributes.ircChannel;
+
+        /**
+        * Discord Invite Code for this group
+        * @type {String}
+        */
+        this.discord = context.data.attributes.discord;
+
+        /**
+         * Email for this group
+         * @type {String}
+         */
+        this.contactEmail = context.data.attributes.contactEmail;
+
+        /**
+         * This group's twitter
+         * @type {String}
+         */
+        this.twitter = context.data.attributes.twitter;
+
+        /**
+         * This group's manga updates page
+         * @type {String}
+         */
+        this.mangaUpdates = context.data.attributes.mangaUpdates;
+
+        /**
+         * This group's focused languages
+         * @type {String[]}
+         */
+        this.focusedLanguages = context.data.attributes.focusedLanguages;
+
+        /**
+         * This group's publish delay
+         * @type {Number}
+         */
+        this.publishDelay = context.data.attributes.publishDelay;
+
+        /**
+         * Is this group inactive?
+         * @type {Boolean}
+         */
+        this.inactive = context.data.attributes.inactive;
+
+        /**
+         * The group's custom description
+         * @type {String}
+         */
+        this.description = context.data.attributes.description;
+
+        /**
+         * Is this group an official publisher?
+         * @type {Boolean}
+         */
+        this.official = context.data.attributes.official;
+
+        /**
+         * Is this group managed by an official publisher?
+         * @type {Boolean}
+         */
+        this.verified = context.data.attributes.verified;
+
+        /**
+         * This group's leader
+         * @type {Relationship&lt;import('../index').User>}
+         */
+        this.leader = Relationship.convertType('leader', context.data.relationships, this).pop();
+
+        /**
+         * Array of this group's members
+         * @type {Array&lt;Relationship&lt;import('../index').User>>}
+         */
+        this.members = Relationship.convertType('member', context.data.relationships, this);
+    }
+
+    /**
+     * @ignore
+     * @typedef {Object} GroupParameterObject
+     * @property {String} [GroupParameterObject.name]
+     * @property {String} [GroupParameterObject.name]
+     * @property {String} [GroupParameterObject.focusedLanguage]
+     * @property {Object} [GroupParameterObject.order]
+     * @property {'asc'|'desc'} [GroupParameterObject.order.createdAt]
+     * @property {'asc'|'desc'} [GroupParameterObject.order.updatedAt]
+     * @property {'asc'|'desc'} [GroupParameterObject.order.name]
+     * @property {'asc'|'desc'} [GroupParameterObject.order.followedCount]
+     * @property {'asc'|'desc'} [GroupParameterObject.order.relevance]
+     * @property {String[]} [GroupParameterObject.ids] Max of 100 per request
+     * @property {Number} [GroupParameterObject.limit] Not limited by API limits (more than 100). Use Infinity for maximum results (use at your own risk)
+     * @property {Number} [GroupParameterObject.offset]
+     */
+
+    /**
+     * Peforms a search and returns an array of groups.
+     * https://api.mangadex.org/docs.html#operation/get-search-group
+     * @param {GroupParameterObject|String} [searchParameters] An object of offical search parameters, or a string representing the name
+     * @param {Boolean} [includeSubObjects=false] Attempt to resolve sub objects (eg author, artists, etc) when available through the base request
+     * @returns {Promise&lt;Group[]>}
+     */
+    static search(searchParameters = {}, includeSubObjects = false) {
+        if (typeof searchParameters === 'string') searchParameters = { name: searchParameters };
+        if (includeSubObjects) searchParameters.includes = ['user'];
+        return Util.apiCastedRequest('/group', Group, searchParameters);
+    }
+
+    /**
+     * Gets multiple groups
+     * @param {...String|Group|Relationship&lt;Group>} ids
+     * @returns {Promise&lt;Group[]>}
+     */
+    static getMultiple(...ids) {
+        return Util.getMultipleIds(Group.search, ids);
+    }
+
+    /**
+     * Retrieves and returns a group by its id
+     * @param {String} id Mangadex id
+     * @param {Boolean} [includeSubObjects=false] Attempt to resolve sub objects (eg author, artists, etc) when available through the base request
+     * @returns {Promise&lt;Group>}
+     */
+    static async get(id, includeSubObjects = false) {
+        return new Group(await Util.apiRequest(`/group/${id}${includeSubObjects ? '?includes[]=leader&amp;includes[]=member' : ''}`));
+    }
+
+    /**
+     * Performs a search for one group and returns that group
+     * @param {GroupParameterObject|String} [searchParameters] An object of offical search parameters, or a string representing the name
+     * @returns {Promise&lt;Group>}
+     */
+    static async getByQuery(searchParameters = {}) {
+        if (typeof searchParameters === 'string') searchParameters = { name: searchParameters, limit: 1 };
+        else searchParameters.limit = 1;
+        let res = await Group.search(searchParameters);
+        if (res.length === 0) throw new Error('Search returned no results.');
+        return res[0];
+    }
+
+    /**
+     * Returns all groups followed by the logged in user
+     * @param {Number} [limit=100] Amount of groups to return (0 to Infinity)
+     * @param {Number} [offset=0] How many groups to skip before returning
+     * @returns {Promise&lt;Group[]>}
+     */
+    static async getFollowedGroups(limit = 100, offset = 0) {
+        await AuthUtil.validateTokens();
+        return await Util.apiCastedRequest('/user/follows/group', Group, { limit: limit, offset: offset });
+        // Currently (8/30/21) MD does not support includes[]=leader&amp;includes[]=member for this endpoint
+    }
+
+    /**
+     * Makes the logged in user either follow or unfollow a group
+     * @param {String} id 
+     * @param {Boolean} [follow=true] True to follow, false to unfollow
+     * @returns {Promise&lt;void>}
+     */
+    static async changeFollowship(id, follow = true) {
+        await AuthUtil.validateTokens();
+        await Util.apiRequest(`/group/${id}/follow`, follow ? 'POST' : 'DELETE');
+    }
+
+    /**
+     * Makes the logged in user either follow or unfollow this group
+     * @param {Boolean} [follow=true] True to follow, false to unfollow
+     * @returns {Promise&lt;Group>}
+     */
+    async changeFollowship(follow = true) {
+        await Group.changeFollowship(this.id, follow);
+        return this;
+    }
+}
+
+export {Group};
+export default Group;</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.10</a> on Tue Oct 04 2022 21:31:32 GMT+0000 (Coordinated Universal Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>
