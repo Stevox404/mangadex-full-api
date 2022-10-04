@@ -81,9 +81,9 @@ function apiRequest(endpoint, method = 'GET', requestPayload = {}) {
                 if (res.headers['content-type'] !== undefined && res.headers['content-type'].includes('json')) {
                     try {
                         let parsedObj = JSON.parse(responsePayload);
-                        if (parsedObj === null) reject(new APIRequestError(`HTTPS ${method} Response (${endpoint}) returned null`, APIRequestError.INVALID_RESPONSE));
+                        if (parsedObj === null) reject(new APIRequestError(`HTTPS ${method} Response (${endpoint}) returned null`, APIRequestError.INVALID_RESPONSE, res.headers["x-request-id"]));
                         if (res.statusCode < 400 || res.result === 'ok') resolve(parsedObj);
-                        else reject(new APIRequestError(parsedObj));
+                        else reject(new APIRequestError(parsedObj, APIRequestError.OTHER, res.headers["x-request-id"]));
                     } catch (error) {
                         reject(new APIRequestError(
                             `Failed to parse HTTPS ${method} ` +
@@ -92,9 +92,9 @@ function apiRequest(endpoint, method = 'GET', requestPayload = {}) {
                         ), APIRequestError.INVALID_RESPONSE);
                     }
                 } else {
-                    if (res.statusCode === 429) reject(new APIRequestError('You have been rate limited', APIRequestError.INVALID_RESPONSE));
-                    else if (res.statusCode >= 400) reject(new APIRequestError(`Returned HTML error page ${responsePayload}`, APIRequestError.INVALID_RESPONSE));
-                    else if (res.statusCode >= 300) reject(new APIRequestError(`Bad/moved endpoint: ${endpoint}`, APIRequestError.INVALID_REQUEST));
+                    if (res.statusCode === 429) reject(new APIRequestError('You have been rate limited', APIRequestError.INVALID_RESPONSE, res.headers["x-request-id"]));
+                    else if (res.statusCode >= 400) reject(new APIRequestError(`Returned HTML error page ${responsePayload}`, APIRequestError.INVALID_RESPONSE, res.headers["x-request-id"]));
+                    else if (res.statusCode >= 300) reject(new APIRequestError(`Bad/moved endpoint: ${endpoint}`, APIRequestError.INVALID_REQUEST, res.headers["x-request-id"]));
                     else resolve(responsePayload);
                 }
             });
@@ -131,7 +131,10 @@ async function apiParameterRequest(baseEndpoint, parameterObject) {
     if (typeof baseEndpoint !== 'string' || typeof parameterObject !== 'object') throw new Error('Invalid Argument(s)');
     let params = new URLSearchParams();
     for (let [key, value] of Object.entries(parameterObject)) {
-        if (value instanceof Array) value.forEach(elem => params.append(`${key}[]`, elem));
+        if (value instanceof Array) value.forEach(elem => {
+            if (typeof elem === 'object' && 'id' in elem) params.append(`${key}[]`, elem.id);
+            else params.append(`${key}[]`, elem)
+        });
         else if (typeof value === 'object') Object.entries(value).forEach(([k, v]) => params.set(`${key}[${k}]`, v));
         else params.set(key, value);
     }
@@ -141,7 +144,7 @@ async function apiParameterRequest(baseEndpoint, parameterObject) {
 export {apiParameterRequest};
 
 /**
- * Same as apiParameterRequest, but optimized for search requests. 
+ * Same as apiParameterRequest, but optimized for search requests.
  * Allows for larger searches (more than the limit max, even to Infinity) through mutliple requests, and
  * this function always returns an array instead of the normal JSON object.
  * @param {String} baseEndpoint Endpoint with no parameters
@@ -199,13 +202,14 @@ export {apiCastedRequest};
 
 /**
  * Retrieves an unlimted amount of an object via a search function and id array
- * @param {Function} searchFunction 
+ * @param {Function} searchFunction
  * @param {String[]|String[][]} ids
+ * @param {Object} parameterObject
  * @param {Number} [limit=100]
  * @param {String} [searchProperty='ids']
  * @returns {Promise<Array>}
  */
-async function getMultipleIds(searchFunction, ids, limit = 100, searchProperty = 'ids') {
+async function getMultipleIds(searchFunction, ids, parameterObject = {}, limit = 100, searchProperty = 'ids') {
     let newIds = ids.flat().map(elem => {
         if (typeof elem === 'string') return elem;
         else if (elem === undefined || elem === null) throw new Error(`Invalid id: ${elem}`);
@@ -214,7 +218,7 @@ async function getMultipleIds(searchFunction, ids, limit = 100, searchProperty =
     });
     let promises = [];
     // Create new search requests with a 100 ids (max allowed) at a time
-    while (newIds.length > 0) promises.push(searchFunction({ limit: limit, [searchProperty]: newIds.splice(0, 100) }));
+    while (newIds.length > 0) promises.push(searchFunction({...parameterObject, limit: limit, [searchProperty]: newIds.splice(0, 100) }));
     return (await Promise.all(promises)).flat();
 }
 export {getMultipleIds};
@@ -222,10 +226,18 @@ export {getMultipleIds};
 /**
  * Returns a buffer to be sent with a multipart POST request
  * @param {Object[]} files
+ * @param {{[key: string]: string}} [extra] Additional key-value pairs
  * @returns {Buffer}
  */
-function createMultipartPayload(files) {
+function createMultipartPayload(files, extra) {
     let dataArray = [];
+    if (extra) {
+        Object.entries(extra).forEach(([key, value]) => {
+            dataArray.push(
+                `--${MULTIPART_BOUNDARY}\r\nContent-Disposition: form-data; name="${key}"\r\n\r\n${value}\r\n`
+            );
+        });
+    }
     files.forEach((file, i) => {
         dataArray.push(
             `--${MULTIPART_BOUNDARY}\r\nContent-Disposition: form-data; name="file${i}"; filename="${file.name}"\r\nContent-Type: ${file.type}\r\n\r\n`

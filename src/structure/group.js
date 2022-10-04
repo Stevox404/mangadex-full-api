@@ -90,6 +90,12 @@ class Group {
         this.twitter = context.data.attributes.twitter;
 
         /**
+         * This group's manga updates page
+         * @type {String}
+         */
+        this.mangaUpdates = context.data.attributes.mangaUpdates;
+
+        /**
          * This group's focused languages
          * @type {String[]}
          */
@@ -133,7 +139,7 @@ class Group {
 
         /**
          * Array of this group's members
-         * @type {Relationship<import('../index').User>[]}
+         * @type {Array<Relationship<import('../index').User>>}
          */
         this.members = Relationship.convertType('member', context.data.relationships, this);
     }
