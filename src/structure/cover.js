@@ -10,7 +10,7 @@ import * as Util from '../util.js';
 class Cover {
     /**
      * There is no reason to directly create a cover art object. Use static methods, ie 'get()'.
-     * @param {Object|String} context Either an API response or Mangadex id 
+     * @param {Object|String} context Either an API response or Mangadex id
      */
     constructor(context) {
         if (typeof context === 'string') {
@@ -68,6 +68,12 @@ class Cover {
         if (!this.uploader) this.uploader = null;
 
         /**
+         * The locale of this cover
+         * @type {String}
+         */
+        this.locale = context.data.attributes.locale;
+
+        /**
          * URL to the source image of the cover
          * @type {String}
          */
@@ -123,6 +129,36 @@ class Cover {
     }
 
     /**
+     * @ignore
+     * @typedef {Object} CoverUploadParameterObject
+     * @property {string|null} [CoverUploadParameterObject.volume] Volume of the cover
+     * @property {string} [CoverUploadParameterObject.description] Description of the cover
+     */
+
+    /**
+     * @ignore
+     * @typedef {Object} CoverFileObject
+     * @property {Buffer} CoverFileObject.data
+     * @property {'jpeg'|'png'|'gif'} [CoverFileObject.type]
+     * @property {String} CoverFileObject.name
+     */
+
+    /**
+     * Creates a new cover.
+     * @param {string} [mangaId] The id of the manga that the cover is for.
+     * @param {CoverFileObject} [file] The buffer containing the image data.
+     * @param {CoverUploadParameterObject | undefined} [options] Additional options for the cover upload.
+     * @returns {Promise<Cover>}
+     */
+    static async create(mangaId, file, options){
+        options = options || {};
+        return new Cover(await Util.apiRequest(`/cover/${mangaId}`, 'POST', Util.createMultipartPayload([file], {
+            volume: options.volume,
+            description: options.description
+        })))
+    }
+
+    /**
      * Gets multiple covers
      * @param {...String|Cover|Relationship<Cover>} ids
      * @returns {Promise<Cover[]>}
@@ -149,7 +185,7 @@ class Cover {
      * @returns {Promise<Cover[]>}
      */
     static getMangaCovers(...manga) {
-        return Util.getMultipleIds(Cover.search, manga, Infinity, 'manga');
+        return Util.getMultipleIds(Cover.search, manga, {}, Infinity, 'manga');
     }
 }
 

@@ -1,11 +1,12 @@
 # MangaDex Full API
 An unofficial [MangaDex](https://www.mangadex.org) API built with the [official JSON API](https://api.mangadex.org/docs.html).
 
-[More Information](#Info)
+[Documentation](https://md-y.github.io/mangadex-full-api)
 
 [![Version](https://img.shields.io/npm/v/mangadex-full-api.svg?style=flat)](https://www.npmjs.com/package/mangadex-full-api)
 [![License](https://img.shields.io/github/license/md-y/mangadex-full-api.svg?style=flat)](https://github.com/md-y/mangadex-full-api/blob/master/LICENSE)
 [![Downloads](https://img.shields.io/npm/dm/mangadex-full-api.svg?style=flat)](https://www.npmjs.com/package/mangadex-full-api)
+[![Mocha Tests](https://github.com/md-y/mangadex-full-api/actions/workflows/mocha-tests.yml/badge.svg)](https://github.com/md-y/mangadex-full-api/actions/workflows/mocha-tests.yml)
 
 ```bash
 npm install mangadex-full-api
@@ -118,7 +119,6 @@ MFA.login('username', 'password123').then(async () => {
 
 * Requests will automatically be rate limited to about 5 requests/second.
 * The entire package is typed thanks to JSDoc and the included ```index.d.ts``` file, so TypeScript is supported.
-* If you are wondering why the documentation is no longer in the README, it became too difficult to maintain due to JSDoc issues. However, the examples and in-line JSDoc comments should (hopefully) be enough for using the package. Though, here is the [old documentation](https://github.com/md-y/mangadex-full-api/blob/5.5.1/README.md)
 * The entire project is written as regular NodeJS with CommonJS imports/exports. As for browser support, see below:
 
 #### Browser
@@ -129,6 +129,4 @@ Mangadex Full API works out of the box with [Browserify](https://browserify.org/
 browserify yourproject.js > bundle.js
 ```
 
-As for [Webpack](https://webpack.js.org/) and similar applications, Mangadex Full API is untested and may require additional configuration.
-However, the only node-specific module used by the program is ```HTTPS```, so if that is substituted by something like [https-browserify](https://www.npmjs.com/package/https-browserify), there should be no issues.
-The ```fs``` and ```Path``` modules are also included in ```auth.js```, but are only required for node environments and can be excluded for browsers.
+As for [Webpack](https://webpack.js.org/) and similar applications, Mangadex Full API only requires ```https``` to be polyfilled; ```fs``` and ```path``` can be excluded.

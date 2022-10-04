@@ -74,6 +74,12 @@ class Chapter {
         this.publishAt = context.data.attributes.publishAt ? new Date(context.data.attributes.publishAt) : null;
 
         /**
+         * The date this chapter was/will be readable
+         * @type {Date}
+         */
+        this.readableAt = context.data.attributes.readableAt ? new Date(context.data.attributes.readableAt) : null;
+
+        /**
          * Page count
          * @type {Number}
          */
@@ -84,10 +90,6 @@ class Chapter {
          * @type {Boolean}
          */
         this.isExternal = 'externalUrl' in context.data.attributes && context.data.attributes.externalUrl !== null;
-        if (this.isExternal) {
-            this.pageNames = [];
-            this.saverPageNames = [];
-        }
 
         /**
          * The external URL to this chapter if it is not hosted on MD. Null if it is hosted on MD
@@ -97,7 +99,7 @@ class Chapter {
 
         /**
          * The scanlation groups that are attributed to this chapter
-         * @type {Relationship<import('../index').Group>[]}
+         * @type {Array<Relationship<import('../index').Group>>}
          */
         this.groups = Relationship.convertType('scanlation_group', context.data.relationships, this);
 
