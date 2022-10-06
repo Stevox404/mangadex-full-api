@@ -1,6 +1,6 @@
 'use strict';
 
-import LocalizedString from '../internal/localizedstring.js';
+import LocalizedString from './localizedstring.js';
 import * as Util from '../util.js';
 import APIRequestError from './requesterror.js';
 
