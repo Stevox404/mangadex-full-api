@@ -2159,18 +2159,25 @@ export function login(username: string, password: string, cacheLocation?: string
  * @returns {Promise<Array<T>>}
  */
 export function resolveArray<T>(relationshipArray: Relationship<T>[]): Promise<T[]>;
-
 /**
  * Sets a proxy through which all requests will be routed
+ * @param {{
+ *  url: string,
+ *  port: string,
+ * }} proxy
+ * @return {boolean}
  */
 export function setProxy(proxy: {
-    url: string;
-    port: string
+	url: string;
+	port: string;
 }): boolean;
 /**
  * Returns the set proxy or null if unset
+ * @return {{url:string, port:string}|null} Set Proxy
  */
 export function getProxy(): {
-    url: string;
-    port: string;
-}
+	url: string;
+	port: string;
+} | null;
+
+export {};
