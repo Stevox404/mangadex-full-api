@@ -515,19 +515,6 @@ class Manga {
     }
 
     /**
-     * Retrieves the read chapter ids for multiple manga
-     * @param  {...String|Manga|Relationship<Manga>} ids
-     * @returns {Promise<Chapter[]>} 
-     */
-    static async getReadChapterIds(...ids) {
-        if (ids.length === 0) throw new Error('Invalid Argument(s)');
-        if (ids[0] instanceof Array) ids = ids[0];
-        await AuthUtil.validateTokens();
-        let chapterIds = await Util.apiParameterRequest(`/manga/read`, { ids: ids });
-        return chapterIds.data;
-    }
-
-    /**
      * Returns all covers for a manga
      * @param {...String|Manga|Relationship<Manga>} id Manga id(s)
      * @returns {Promise<Cover[]>}
