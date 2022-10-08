@@ -2160,4 +2160,17 @@ export function login(username: string, password: string, cacheLocation?: string
  */
 export function resolveArray<T>(relationshipArray: Relationship<T>[]): Promise<T[]>;
 
-export {};
+/**
+ * Sets a proxy through which all requests will be routed
+ */
+export function setProxy(proxy: {
+    url: string;
+    port: string
+}): boolean;
+/**
+ * Returns the set proxy or null if unset
+ */
+export function getProxy(): {
+    url: string;
+    port: string;
+}

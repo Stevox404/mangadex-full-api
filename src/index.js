@@ -81,3 +81,28 @@ Relationship.registerType('cover_art', Cover);
 export function resolveArray(relationshipArray) {
     return Relationship.resolveAll(relationshipArray);
 }
+
+let _proxy;
+/**
+ * Sets a proxy through which all requests will be routed
+ * @param {{
+ *  url: string,
+ *  port: string,
+ * }} proxy
+ * @return {boolean}
+ */
+export function setProxy(proxy) {
+    _proxy = {
+        url: proxy.url,
+        port: proxy.port,
+    }
+    return true;
+}
+
+/**
+ * Returns the set proxy or null if unset
+ * @return {{url:string, port:string}|null} Set Proxy
+ */
+export function getProxy() {
+    return _proxy;
+}

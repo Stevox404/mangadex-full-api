@@ -1,6 +1,7 @@
 'use strict';
 
 import HTTPS from 'https';
+import { getProxy } from './index.js';
 import APIRequestError from './internal/requesterror.js';
 
 const MAX_REQUESTS_PER_SECOND = 5; // The global minimum limit for normal endpoints is 5 requests per second
@@ -63,8 +64,18 @@ function apiRequest(endpoint, method = 'GET', requestPayload = {}) {
             else localHeaders['Content-Type'] = 'application/json';
         }
 
+        const proxy = getProxy();
+        let hostname = 'api.mangadex.org';
+        let port = '';
+
+        if(proxy && proxy.url) {
+            hostname = proxy.url;
+            port = proxy.port;
+            endpoint = '/api.mangadex.org' + endpoint;
+        }
         const req = HTTPS.request({
-            hostname: 'api.mangadex.org',
+            hostname: hostname,
+            port: port,
             path: endpoint,
             method: method,
             headers: localHeaders
