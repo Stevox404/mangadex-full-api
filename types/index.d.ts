@@ -1,57 +1,5 @@
 /// <reference types="node" />
 
-declare class Relationship<ResolveType> {
-	static types: {};
-	/**
-	 * Returns an array of converted objects from a Mangadex Relationships Array
-	 * @ignore
-	 * @template T
-	 * @param {String} type
-	 * @param {Object[]} dataArray
-	 * @param {Object} caller
-	 * @returns {Relationship<T>}
-	 */
-	static convertType<T>(type: string, dataArray: any[], caller: any): Relationship<T>;
-	/**
-	 * Provides a constructor for a relationship type at run-time.
-	 * Should only be called in index.js
-	 * @ignore
-	 * @param {String} name
-	 * @param {Object} classObject
-	 */
-	static registerType(name: string, classObject: any): void;
-	/**
-	 * Resolves an array of relationships
-	 * @ignore
-	 * @template T
-	 * @param {Array<Relationship<T>>} relationshipArray
-	 * @returns {Promise<Array<T>>}
-	 */
-	static resolveAll<T_1>(relationshipArray: Relationship<T_1>[]): Promise<T_1[]>;
-	constructor(data: any);
-	/**
-	 * Id of the object this is a relationship to
-	 * @type {String}
-	 */
-	id: string;
-	/**
-	 * The type of the object this is a relationship to
-	 * @type {String}
-	 */
-	type: string;
-	/**
-	 * True if this relationship will instantly return with an included object instead of sending a request
-	 * when resolve() is called
-	 * @type {Boolean}
-	 */
-	cached: boolean;
-	/**
-	 * This function must be called to return the proper and complete object representation of this relationship.
-	 * Essentially, it calls and returns Manga.get(), Author.get(), Cover.get(), etc.
-	 * @returns {Promise<ResolveType>}
-	 */
-	resolve(): Promise<ResolveType>;
-}
 declare class LocalizedString {
 	/**
 	 * Global locale setting
@@ -78,58 +26,6 @@ declare class LocalizedString {
 	get data(): {
 		[locale: string]: string;
 	};
-}
-/**
- * Represents a manga tag
- */
-export class Tag {
-	/**
-	 * A cached response from https://api.mangadex.org/manga/tag
-	 * @type {Tag[]}
-	 */
-	static cache: Tag[];
-	/**
-	 * @ignore
-	 * @returns {Promise<Tag[]>}
-	 */
-	static getAllTags(): Promise<Tag[]>;
-	/**
-	 * @ignore
-	 * @param {String} indentity
-	 * @returns {Promise<Tag>}
-	 */
-	static getTag(indentity: string): Promise<Tag>;
-	constructor(data: any);
-	/**
-	 * Mangadex id of this tag
-	 * @type {String}
-	 */
-	id: string;
-	/**
-	 * Name with different localization options
-	 * @type {LocalizedString}
-	 */
-	localizedName: LocalizedString;
-	/**
-	 * Description with different localization options
-	 * @type {LocalizedString}
-	 */
-	localizedDescription: LocalizedString;
-	/**
-	 * What type of tag group this tag belongs to
-	 * @type {String}
-	 */
-	group: string;
-	/**
-	 * Name string based on global locale
-	 * @type {String}
-	 */
-	get name(): string;
-	/**
-	 * Description string based on global locale
-	 * @type {String}
-	 */
-	get description(): string;
 }
 declare class Links {
 	/**
@@ -201,11 +97,63 @@ declare class Links {
 	 */
 	cdj: string;
 }
+declare class Relationship<ResolveType> {
+	static types: {};
+	/**
+	 * Returns an array of converted objects from a Mangadex Relationships Array
+	 * @ignore
+	 * @template T
+	 * @param {String} type
+	 * @param {Object[]} dataArray
+	 * @param {Object} caller
+	 * @returns {Relationship<T>}
+	 */
+	static convertType<T>(type: string, dataArray: any[], caller: any): Relationship<T>;
+	/**
+	 * Provides a constructor for a relationship type at run-time.
+	 * Should only be called in index.js
+	 * @ignore
+	 * @param {String} name
+	 * @param {Object} classObject
+	 */
+	static registerType(name: string, classObject: any): void;
+	/**
+	 * Resolves an array of relationships
+	 * @ignore
+	 * @template T
+	 * @param {Array<Relationship<T>>} relationshipArray
+	 * @returns {Promise<Array<T>>}
+	 */
+	static resolveAll<T_1>(relationshipArray: Relationship<T_1>[]): Promise<T_1[]>;
+	constructor(data: any);
+	/**
+	 * Id of the object this is a relationship to
+	 * @type {String}
+	 */
+	id: string;
+	/**
+	 * The type of the object this is a relationship to
+	 * @type {String}
+	 */
+	type: string;
+	/**
+	 * True if this relationship will instantly return with an included object instead of sending a request
+	 * when resolve() is called
+	 * @type {Boolean}
+	 */
+	cached: boolean;
+	/**
+	 * This function must be called to return the proper and complete object representation of this relationship.
+	 * Essentially, it calls and returns Manga.get(), Author.get(), Cover.get(), etc.
+	 * @returns {Promise<ResolveType>}
+	 */
+	resolve(): Promise<ResolveType>;
+}
 /**
  * Represents the cover art of a manga volume
  * https://api.mangadex.org/docs.html#tag/Cover
  */
-export class Cover {
+export declare class Cover {
 	/**
 	 * Retrieves and returns a cover by its id
 	 * @param {String} id Mangadex id
@@ -389,11 +337,60 @@ export class Cover {
 	 */
 	image256: string;
 }
+export declare class Tag {
+	/**
+	 * A cached response from https://api.mangadex.org/manga/tag
+	 * @type {Tag[]}
+	 */
+	static cache: Tag[];
+	/**
+	 * @ignore
+	 * @returns {Promise<Tag[]>}
+	 */
+	static getAllTags(): Promise<Tag[]>;
+	/**
+	 * @ignore
+	 * @param {String} indentity
+	 * @returns {Promise<Tag>}
+	 */
+	static getTag(indentity: string): Promise<Tag>;
+	constructor(data: any);
+	/**
+	 * Mangadex id of this tag
+	 * @type {String}
+	 */
+	id: string;
+	/**
+	 * Name with different localization options
+	 * @type {LocalizedString}
+	 */
+	localizedName: LocalizedString;
+	/**
+	 * Description with different localization options
+	 * @type {LocalizedString}
+	 */
+	localizedDescription: LocalizedString;
+	/**
+	 * What type of tag group this tag belongs to
+	 * @type {String}
+	 */
+	group: string;
+	/**
+	 * Name string based on global locale
+	 * @type {String}
+	 */
+	get name(): string;
+	/**
+	 * Description string based on global locale
+	 * @type {String}
+	 */
+	get description(): string;
+}
 /**
  * Represents a chapter with readable pages
  * https://api.mangadex.org/docs.html#tag/Chapter
  */
-export class Chapter {
+export declare class Chapter {
 	/**
 	 * @ignore
 	 * @typedef {Object} ChapterParameterObject
@@ -532,17 +529,6 @@ export class Chapter {
 	 * @returns {Promise<void>}
 	 */
 	static changeReadMarker(id: string, read?: boolean): Promise<void>;
-	/**
-	 * Retrieves URLs for actual images from Mangadex @ Home.
-	 * This only gives URLs, so it does not report the status of the server to Mangadex @ Home.
-	 * Therefore applications that download image data pleaese report failures as stated here:
-	 * https://api.mangadex.org/docs.html#section/Reading-a-chapter-using-the-API/Report
-	 * @param {String} id
-	 * @param {Boolean} [saver=false] Use data saver images?
-	 * @param {Boolean} [forcePort=false] Force the final URLs to use port 443
-	 * @returns {Promise<String[]>}
-	 */
-	static getReadablePages(id: string, saver?: boolean, forcePort?: boolean): Promise<string[]>;
 	/**
 	 * There is no reason to directly create a chapter object. Use static methods, ie 'get()'.
 	 * @param {Object|String} context Either an API response or Mangadex id
@@ -752,7 +738,7 @@ declare class UploadSession {
  * Represents a custom, user-created list of manga
  * https://api.mangadex.org/docs.html#tag/CustomList
  */
-export class List {
+export declare class List {
 	/**
 	 * Retrieves and returns a list by its id
 	 * @param {String} id Mangadex id
@@ -961,7 +947,7 @@ export class List {
  * Represents a manga object
  * https://api.mangadex.org/docs.html#tag/Manga
  */
-export class Manga {
+export declare class Manga {
 	/**
 	 * @ignore
 	 * @typedef {Object} MangaParameterObject
@@ -1293,7 +1279,7 @@ export class Manga {
 	 * Returns the reading status for every manga for this logged in user as an object with Manga ids as keys
 	 * @returns {Object.<string, 'reading'|'on_hold'|'plan_to_read'|'dropped'|'re_reading'|'completed'>}
 	 */
-	static getAllReadingStatuses(status?: any): {
+	static getAllReadingStatuses(): {
 		[x: string]: "reading" | "on_hold" | "plan_to_read" | "dropped" | "re_reading" | "completed";
 	};
 	/**
@@ -1342,12 +1328,6 @@ export class Manga {
 	 * @returns {Promise<Chapter[]>}
 	 */
 	static getReadChapters(...ids: (string | Manga | Relationship<Manga>)[]): Promise<Chapter[]>;
-	/**
-	 * Retrieves the read chapter ids for multiple manga
-	 * @param  {...String|Manga|Relationship<Manga>} ids
-	 * @returns {Promise<Chapter[]>}
-	 */
-	static getReadChapterIds(...ids: (string | Manga | Relationship<Manga>)[]): Promise<Chapter[]>;
 	/**
 	 * Returns all covers for a manga
 	 * @param {...String|Manga|Relationship<Manga>} id Manga id(s)
@@ -1715,7 +1695,7 @@ export class Manga {
  * Represents an author or artist
  * https://api.mangadex.org/docs.html#tag/Author
  */
-export class Author {
+export declare class Author {
 	/**
 	 * @ignore
 	 * @typedef {Object} AuthorParameterObject
@@ -1829,7 +1809,7 @@ export class Author {
  * Represents a scanlation group
  * https://api.mangadex.org/docs.html#tag/Group
  */
-export class Group {
+export declare class Group {
 	/**
 	 * @ignore
 	 * @typedef {Object} GroupParameterObject
@@ -2037,7 +2017,7 @@ export class Group {
  * Represents an user
  * https://api.mangadex.org/docs.html#tag/User
  */
-export class User {
+export declare class User {
 	/**
 	 * @ignore
 	 * @typedef {Object} UserParameterObject
