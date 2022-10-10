@@ -2162,22 +2162,25 @@ export function resolveArray<T>(relationshipArray: Relationship<T>[]): Promise<T
 /**
  * Sets a proxy through which all requests will be routed
  * @param {{
- *  url: string,
+ *  hostname: string,
  *  port: string,
+ *  path: string,
  * }} proxy
  * @return {boolean}
  */
 export function setProxy(proxy: {
-	url: string;
+	hostname: string;
 	port: string;
+	path: string;
 }): boolean;
 /**
  * Returns the set proxy or null if unset
- * @return {{url:string, port:string}|null} Set Proxy
+ * @return {{hostname:string, port:string, path:string}|null} Set Proxy
  */
 export function getProxy(): {
-	url: string;
+	hostname: string;
 	port: string;
+	path: string;
 } | null;
 
 export {};
