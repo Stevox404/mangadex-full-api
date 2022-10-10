@@ -64,14 +64,15 @@ function apiRequest(endpoint, method = 'GET', requestPayload = {}) {
             else localHeaders['Content-Type'] = 'application/json';
         }
 
+        const mdHostname = 'api.mangadex.org';
         const proxy = getProxy();
-        let hostname = 'api.mangadex.org';
+        let hostname = mdHostname;
         let port = '';
 
-        if(proxy && proxy.url) {
-            hostname = proxy.url;
+        if(proxy && proxy.hostname) {
+            hostname = proxy.hostname;
             port = proxy.port;
-            endpoint = '/api.mangadex.org' + endpoint;
+            endpoint = proxy.path + mdHostname + endpoint;
         }
         const req = HTTPS.request({
             hostname: hostname,

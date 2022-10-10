@@ -86,22 +86,28 @@ let _proxy;
 /**
  * Sets a proxy through which all requests will be routed
  * @param {{
- *  url: string,
+ *  hostname: string,
  *  port: string,
+ *  path: string,
  * }} proxy
  * @return {boolean}
  */
-export function setProxy(proxy) {
+export function setProxy(proxy) {    
+    proxy.path = proxy.path || '';
+    if(!/\/$/.test(proxy.path)) {
+        proxy.path += '/'
+    }
     _proxy = {
-        url: proxy.url,
+        hostname: proxy.hostname,
         port: proxy.port,
+        path: proxy.path,
     }
     return true;
 }
 
 /**
  * Returns the set proxy or null if unset
- * @return {{url:string, port:string}|null} Set Proxy
+ * @return {{hostname:string, port:string, path:string}|null} Set Proxy
  */
 export function getProxy() {
     return _proxy;
